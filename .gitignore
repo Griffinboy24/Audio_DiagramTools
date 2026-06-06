@@ -1,0 +1,30 @@
+# Build products
+/build/
+/out/
+/.vs/
+/CMakeFiles/
+/CMakeCache.txt
+/Testing/
+
+# Generated media
+/artifacts/
+/renders/
+/frames/
+*.gif
+*.mp4
+*.webm
+
+# Local-only references and assets
+/REFERENCES/
+/Fonts/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# CMake user presets are machine-local.
+CMakeUserPresets.json

@@ -1,0 +1,38 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default",
+      "description": "Configure Audio Diagram Tools using the local Visage checkout.",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/out/build",
+      "cacheVariables": {
+        "AUDIO_DIAGRAM_VISAGE_DIR": "${sourceDir}/build/_vendor/visage",
+        "ADT_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "default",
+      "configuration": "Release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "default",
+      "configuration": "Debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "default",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
