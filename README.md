@@ -10,7 +10,7 @@ This repo is starting as a lean C++/Visage rendering pipeline: reusable visual t
 - `adt_render`: a CLI example that renders a volume-modulated sine wave as a PNG still or numbered PNG frames.
 - `scripts/Build.ps1`: configure, build, and run the smoke test.
 - `scripts/RenderExample.ps1`: build and render the first example.
-- `scripts/EncodeGif.ps1`: encode a frame sequence with the required `gifski` GIF encoder.
+- `scripts/EncodeGif.ps1`: build and render the first animated GIF through the C++ `cgif` encoder.
 - `docs/visual-system.md`: first-pass visual conventions.
 - `docs/pipeline.md`: rendering and GIF workflow.
 
@@ -22,7 +22,7 @@ Visage is expected at `build/_vendor/visage` locally. That source is not committ
 .\scripts\Build.ps1
 .\scripts\RenderExample.ps1 -Out artifacts/stills/am_sine.png
 .\scripts\RenderExample.ps1 -Frames 120 -OutDir artifacts/frames/am_sine
-.\scripts\EncodeGif.ps1 -FramesDir artifacts/frames/am_sine -Output artifacts/gifs/am_sine.gif
+.\scripts\EncodeGif.ps1 -Frames 120 -Out artifacts/gifs/am_sine.gif
 ```
 
 If Visage lives elsewhere:
@@ -33,10 +33,7 @@ If Visage lives elsewhere:
 
 ## Dependency Notes
 
-The GIF path is intentionally external-tool based for now:
-
-- [gifski](https://gif.ski/) is the chosen encoder for high-quality GIFs from PNG sequences.
-- If `gifski` is not installed, GIF export fails so the pipeline stays explicit and reproducible.
+GIF export is handled in-process by [cgif](https://github.com/dloebl/cgif), a small MIT-licensed C GIF encoder that supports RGB input, quantization, dithering, and animation size optimizations. It is fetched as a pinned CMake dependency and built with the project.
 
 The local `Fonts/` folder is ignored because the current Diagraph Etc files say "Free for personal use only"; that is fine for local experimentation but should not be redistributed through a public GitHub repo.
 

@@ -22,6 +22,10 @@ Keep the C++ core focused on deterministic rendering. Use external command-line 
 Current export path:
 
 1. PNG stills/frame sequences from Visage.
-2. `gifski` for high-quality GIFs.
+2. `cgif` for animated GIFs, built as a pinned CMake dependency.
 
-If `gifski` is unavailable, GIF export fails. Add future exporters as explicit tools with their own documented commands.
+Add future exporters as explicit tools with their own documented commands.
+
+## Pinned Third-Party Code
+
+- `cgif`: `https://github.com/dloebl/cgif.git`, commit `f1272ac2b0150e6f699163d70421b0347b72ec8e`, MIT license.

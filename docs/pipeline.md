@@ -4,9 +4,9 @@ The pipeline is PNG-first:
 
 1. Render a still PNG or a numbered PNG frame sequence with `adt_render`.
 2. Inspect frames/stills in `artifacts/`.
-3. Encode to GIF as a separate `gifski` export step.
+3. Render animated GIFs with `adt_encode_gif`.
 
-That separation keeps the renderer deterministic and keeps export requirements explicit.
+That separation keeps still-image iteration cheap while making animation export a first-class project tool.
 
 ## Still Render
 
@@ -36,15 +36,16 @@ artifacts/frames/am_sine/frame_0001.png
 
 ## GIF Encoding
 
-`gifski` is required. Missing encoder means setup failure.
+GIF export is compiled into the project via `cgif`; no external GUI or PATH tool is required.
 
 ```powershell
-.\scripts\EncodeGif.ps1 -FramesDir artifacts/frames/am_sine -Output artifacts/gifs/am_sine.gif -Fps 30 -Width 960 -Quality 88
+.\scripts\EncodeGif.ps1 -Frames 120 -Fps 30 -Width 960 -Height 540 -Out artifacts/gifs/am_sine.gif
 ```
 
 Why this setup:
 
-- [gifski](https://gif.ski/) is open source, works from PNG frames, and focuses on high-quality color handling for GIF.
-- One required encoder keeps output consistent and failures obvious.
+- [cgif](https://github.com/dloebl/cgif) is C99/MIT and designed as an actual encoder library.
+- Its RGB path handles true-color input with quantization and dithering.
+- Animation output stays scriptable and reproducible from our own render code.
 
 For longer or large animations, we can add a separate video export lane later. That should be a first-class path with its own command and quality rules.

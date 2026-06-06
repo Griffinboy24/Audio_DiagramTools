@@ -40,8 +40,10 @@ if ($Architecture -and $Generator -like "Visual Studio*") {
 
 Invoke-NativeChecked cmake $ConfigureArgs
 Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_render", "--parallel", "$Jobs")
+Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_encode_gif", "--parallel", "$Jobs")
 
 if (-not $SkipTests) {
   Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_smoke_tests", "--parallel", "$Jobs")
+  Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_gif_smoke_tests", "--parallel", "$Jobs")
   Invoke-NativeChecked ctest @("--test-dir", $BuildPath, "-C", $Config, "--output-on-failure")
 }
