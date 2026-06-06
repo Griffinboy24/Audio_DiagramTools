@@ -14,10 +14,12 @@ That separation keeps still-image iteration cheap while making animation export 
 .\scripts\RenderExample.ps1 -Out artifacts/stills/am_sine.png
 ```
 
+`RenderExample.ps1` uses the `blog-wide` canvas preset by default.
+
 Equivalent direct CLI:
 
 ```powershell
-.\out\build\adt_render.exe --width 1280 --height 720 --out artifacts/stills/am_sine.png
+.\out\build\adt_render.exe --preset blog-wide --out artifacts/stills/am_sine.png
 ```
 
 ## Frame Sequence
@@ -39,7 +41,17 @@ artifacts/frames/am_sine/frame_0001.png
 GIF export is compiled into the project via `cgif`; no external GUI or PATH tool is required.
 
 ```powershell
-.\scripts\EncodeGif.ps1 -Frames 120 -Fps 30 -Width 960 -Height 540 -Out artifacts/gifs/am_sine.gif
+.\scripts\EncodeGif.ps1 -Frames 120 -Fps 30 -Out artifacts/gifs/am_sine.gif
+```
+
+`EncodeGif.ps1` uses the `gif-preview` canvas preset by default. Pass `-Preset blog-wide`,
+or pass explicit `-Width`/`-Height` values, when a different target is needed.
+
+Available presets can be listed from either CLI:
+
+```powershell
+.\out\build\adt_render.exe --list-presets
+.\out\build\adt_encode_gif.exe --list-presets
 ```
 
 Why this setup:
@@ -47,5 +59,6 @@ Why this setup:
 - [cgif](https://github.com/dloebl/cgif) is C99/MIT and designed as an actual encoder library.
 - Its RGB path handles true-color input with quantization and dithering.
 - Animation output stays scriptable and reproducible from our own render code.
+- New animated scenes can use `adt::saveAnimatedGif(...)` by providing a frame-rendering callback.
 
 For longer or large animations, we can add a separate video export lane later. That should be a first-class path with its own command and quality rules.

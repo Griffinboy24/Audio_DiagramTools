@@ -38,12 +38,7 @@ void checkResult(cgif_result result, const std::string& action) {
     throw std::runtime_error(action + " failed with cgif error " + std::to_string(static_cast<int>(result)));
 }
 
-} // namespace
-
-void saveVolumeModulatedSineGif(const std::string& output_path,
-                                const GifExportSpec& export_spec,
-                                const RenderStyle& style,
-                                const WaveformSpec& waveform) {
+void validateGifSpec(const GifExportSpec& export_spec) {
   if (export_spec.dimensions.width <= 0 || export_spec.dimensions.height <= 0)
     throw std::runtime_error("GIF dimensions must be positive.");
   if (export_spec.dimensions.width > 65535 || export_spec.dimensions.height > 65535)
@@ -52,6 +47,16 @@ void saveVolumeModulatedSineGif(const std::string& output_path,
     throw std::runtime_error("GIF frame count must be positive.");
   if (export_spec.fps <= 0.0)
     throw std::runtime_error("GIF FPS must be positive.");
+}
+
+} // namespace
+
+void saveAnimatedGif(const std::string& output_path,
+                     const GifExportSpec& export_spec,
+                     const FrameRenderer& render_frame) {
+  validateGifSpec(export_spec);
+  if (!render_frame)
+    throw std::runtime_error("GIF export requires a frame renderer.");
 
   CGIFrgb_Config config = {};
   config.path = output_path.c_str();
@@ -69,8 +74,12 @@ void saveVolumeModulatedSineGif(const std::string& output_path,
   try {
     for (int frame = 0; frame < export_spec.frame_count; ++frame) {
       const Timeline timeline = Timeline::forFrame(frame, export_spec.frame_count, export_spec.fps);
-      visage::Screenshot screenshot =
-        renderVolumeModulatedSineFrame(export_spec.dimensions, timeline, style, waveform);
+      visage::Screenshot screenshot = render_frame(timeline);
+      if (screenshot.width() != export_spec.dimensions.width ||
+          screenshot.height() != export_spec.dimensions.height) {
+        throw std::runtime_error("Rendered GIF frame dimensions do not match export dimensions.");
+      }
+
       std::vector<uint8_t> rgb = screenshotToRgb(screenshot);
 
       CGIFrgb_FrameConfig frame_config = {};
@@ -92,6 +101,15 @@ void saveVolumeModulatedSineGif(const std::string& output_path,
       cgif_rgb_close(gif);
     throw;
   }
+}
+
+void saveVolumeModulatedSineGif(const std::string& output_path,
+                                const GifExportSpec& export_spec,
+                                const RenderStyle& style,
+                                const WaveformSpec& waveform) {
+  saveAnimatedGif(output_path, export_spec, [&](const Timeline& timeline) {
+    return renderVolumeModulatedSineFrame(export_spec.dimensions, timeline, style, waveform);
+  });
 }
 
 } // namespace adt

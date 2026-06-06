@@ -4,6 +4,12 @@
 #include <iostream>
 
 int main() {
+  const auto preset = adt::canvasPresetById("blog-wide");
+  if (!preset || preset->dimensions.width != 1280 || preset->dimensions.height != 720) {
+    std::cerr << "Canvas preset lookup failed.\n";
+    return 1;
+  }
+
   const adt::Dimensions dimensions { 320, 180 };
   const adt::Timeline timeline = adt::Timeline::forFrame(3, 30, 30.0);
   const visage::Screenshot screenshot = adt::renderVolumeModulatedSineFrame(dimensions, timeline);

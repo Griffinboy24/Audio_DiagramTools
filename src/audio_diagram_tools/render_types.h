@@ -1,6 +1,9 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
+#include <optional>
+#include <string_view>
 
 namespace adt {
 
@@ -8,6 +11,16 @@ struct Dimensions {
   int width = 1280;
   int height = 720;
 };
+
+struct CanvasPreset {
+  std::string_view id;
+  std::string_view description;
+  Dimensions dimensions;
+};
+
+const std::array<CanvasPreset, 4>& canvasPresets();
+std::optional<CanvasPreset> canvasPresetById(std::string_view id);
+Dimensions dimensionsForPreset(std::string_view id);
 
 struct Timeline {
   int frame_index = 0;

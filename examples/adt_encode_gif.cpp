@@ -13,6 +13,7 @@ struct CliOptions {
   adt::WaveformSpec waveform;
   std::filesystem::path output_path = "artifacts/gifs/am_sine.gif";
   bool help = false;
+  bool list_presets = false;
 };
 
 void printHelp() {
@@ -21,6 +22,8 @@ void printHelp() {
     << "Usage:\n"
     << "  adt_encode_gif --out artifacts/gifs/am_sine.gif --frames 120 --fps 30\n\n"
     << "Options:\n"
+    << "  --preset <id>            Use a named canvas preset.\n"
+    << "  --list-presets           List available canvas presets.\n"
     << "  --width <px>              Output width. Default: 1280\n"
     << "  --height <px>             Output height. Default: 720\n"
     << "  --fps <value>             Animation frame rate. Default: 30\n"
@@ -33,6 +36,14 @@ void printHelp() {
     << "  --no-grid                 Hide grid.\n"
     << "  --no-envelope             Hide modulation envelope.\n"
     << "  --help                    Show this help.\n";
+}
+
+void printPresets() {
+  std::cout << "Canvas presets:\n";
+  for (const auto& preset : adt::canvasPresets()) {
+    std::cout << "  " << preset.id << "  " << preset.dimensions.width << "x"
+              << preset.dimensions.height << "  " << preset.description << "\n";
+  }
 }
 
 bool nextValue(const std::vector<std::string>& args, size_t* index, std::string* value) {
@@ -71,6 +82,12 @@ CliOptions parseArgs(int argc, char** argv) {
 
     if (arg == "--help" || arg == "-h") {
       options.help = true;
+    }
+    else if (arg == "--list-presets") {
+      options.list_presets = true;
+    }
+    else if (arg == "--preset" && nextValue(args, &i, &value)) {
+      options.export_spec.dimensions = adt::dimensionsForPreset(value);
     }
     else if (arg == "--width" && nextValue(args, &i, &value)) {
       options.export_spec.dimensions.width = parseInt(value, arg);
@@ -133,6 +150,10 @@ int main(int argc, char** argv) {
     const CliOptions options = parseArgs(argc, argv);
     if (options.help) {
       printHelp();
+      return 0;
+    }
+    if (options.list_presets) {
+      printPresets();
       return 0;
     }
 

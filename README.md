@@ -25,6 +25,10 @@ Visage is expected at `build/_vendor/visage` locally. That source is not committ
 .\scripts\EncodeGif.ps1 -Frames 120 -Out artifacts/gifs/am_sine.gif
 ```
 
+The helper scripts use named canvas presets by default: `blog-wide` for stills/frame
+sequences and `gif-preview` for GIFs. Use `-Preset`, `-Width`, or `-Height` when a
+specific render needs to step outside those defaults.
+
 If Visage lives elsewhere:
 
 ```powershell

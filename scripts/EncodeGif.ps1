@@ -2,8 +2,9 @@
 param(
   [string]$BuildDir = "out/build",
   [string]$Config = "Release",
-  [int]$Width = 1280,
-  [int]$Height = 720,
+  [string]$Preset = "gif-preview",
+  [int]$Width = 0,
+  [int]$Height = 0,
   [int]$Frames = 120,
   [double]$Fps = 30.0,
   [string]$Out = "artifacts/gifs/am_sine.gif",
@@ -27,13 +28,20 @@ if (-not $Encoder) {
 }
 
 $Args = @(
-  "--width", "$Width",
-  "--height", "$Height",
   "--fps", "$Fps",
   "--frames", "$Frames",
   "--out", (Join-Path $Root $Out)
 )
 
+if (-not [string]::IsNullOrWhiteSpace($Preset)) {
+  $Args = @("--preset", $Preset) + $Args
+}
+if ($Width -gt 0) {
+  $Args += @("--width", "$Width")
+}
+if ($Height -gt 0) {
+  $Args += @("--height", "$Height")
+}
 if ($NoDither) {
   $Args += "--no-dither"
 }
