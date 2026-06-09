@@ -11,6 +11,8 @@ namespace adt {
 namespace {
 
 constexpr float kPi = 3.14159265358979323846f;
+constexpr float kCyclesAcrossPlot = 1.05f;
+constexpr float kSineAmplitude = 0.86f;
 
 struct Rect {
   float x = 0.0f;
@@ -31,17 +33,6 @@ struct SamplePoint {
   float x = 0.0f;
   float y = 0.0f;
   float amplitude = 0.0f;
-};
-
-struct FillSegment {
-  SamplePoint start;
-  SamplePoint end;
-  bool positive = true;
-};
-
-struct LobeFill {
-  visage::Path path;
-  bool positive = true;
 };
 
 struct DrawContext {
@@ -102,6 +93,7 @@ visage::Region& addBlurRegion(DrawContext& context, float blur_radius) {
 
   auto region = std::make_unique<visage::Region>();
   region->setBounds(0, 0, context.dimensions.width, context.dimensions.height);
+  region->setOnTop(true);
   region->setPostEffect(effect.get());
   context.canvas.addRegion(region.get());
   region->setNeedsLayer(true);
@@ -179,129 +171,74 @@ float amplitudeScale(const Rect& plot) {
 }
 
 float idealizedSineAmplitude(float normalized_x) {
-  constexpr float kCyclesAcrossPlot = 1.05f;
-  constexpr float kAmplitude = 0.86f;
-  return kAmplitude * std::sin(2.0f * kPi * kCyclesAcrossPlot * normalized_x);
+  return kSineAmplitude * std::sin(2.0f * kPi * kCyclesAcrossPlot * normalized_x);
+}
+
+float sineSlopeYPerX(const Rect& plot, float normalized_x) {
+  const float scale = amplitudeScale(plot);
+  const float phase = 2.0f * kPi * kCyclesAcrossPlot * normalized_x;
+  return -scale * kSineAmplitude * 2.0f * kPi * kCyclesAcrossPlot *
+         std::cos(phase) / plot.width;
+}
+
+SamplePoint sinePoint(const Rect& plot, float normalized_x) {
+  const float x = plot.x + plot.width * normalized_x;
+  const float amplitude = idealizedSineAmplitude(normalized_x);
+  return { x, axisY(plot) - amplitude * amplitudeScale(plot), amplitude };
+}
+
+void appendSineBezier(visage::Path& path, const Rect& plot, float start_t, float end_t) {
+  const SamplePoint start = sinePoint(plot, start_t);
+  const SamplePoint end = sinePoint(plot, end_t);
+  const float dx = end.x - start.x;
+  const float start_slope = sineSlopeYPerX(plot, start_t);
+  const float end_slope = sineSlopeYPerX(plot, end_t);
+
+  path.bezierTo(start.x + dx / 3.0f,
+                start.y + start_slope * dx / 3.0f,
+                end.x - dx / 3.0f,
+                end.y - end_slope * dx / 3.0f,
+                end.x,
+                end.y);
+}
+
+void appendSineRange(visage::Path& path,
+                     const Rect& plot,
+                     float start_t,
+                     float end_t,
+                     int segments) {
+  segments = std::max(1, segments);
+  for (int i = 0; i < segments; ++i) {
+    const float t0 = start_t + (end_t - start_t) * static_cast<float>(i) /
+                                   static_cast<float>(segments);
+    const float t1 = start_t + (end_t - start_t) * static_cast<float>(i + 1) /
+                                   static_cast<float>(segments);
+    appendSineBezier(path, plot, t0, t1);
+  }
+}
+
+visage::Path sineWavePath(const Rect& plot) {
+  constexpr int kSegments = 32;
+  const SamplePoint start = sinePoint(plot, 0.0f);
+
+  visage::Path path;
+  path.moveTo(start.x, start.y);
+  appendSineRange(path, plot, 0.0f, 1.0f, kSegments);
+  return path;
 }
 
 std::vector<SamplePoint> samplePoints(const Rect& plot, const EightSampleWaveformSpec& spec) {
   std::vector<SamplePoint> points;
   points.reserve(spec.amplitudes.size());
 
-  const float center_y = axisY(plot);
-  const float scale = amplitudeScale(plot);
   const float denominator = static_cast<float>(spec.amplitudes.size() - 1);
 
   for (size_t i = 0; i < spec.amplitudes.size(); ++i) {
     const float t = static_cast<float>(i) / denominator;
-    const float x = plot.x + plot.width * t;
-    const float amplitude = idealizedSineAmplitude(t);
-    points.push_back({ x, center_y - amplitude * scale, amplitude });
+    points.push_back(sinePoint(plot, t));
   }
 
   return points;
-}
-
-visage::Path waveformPath(const std::vector<SamplePoint>& points) {
-  visage::Path path;
-  for (size_t i = 0; i < points.size(); ++i) {
-    if (i == 0)
-      path.moveTo(points[i].x, points[i].y);
-    else
-      path.lineTo(points[i].x, points[i].y);
-  }
-  return path;
-}
-
-std::vector<SamplePoint> sineWavePoints(const Rect& plot, int samples) {
-  std::vector<SamplePoint> points;
-  samples = std::max(2, samples);
-  points.reserve(static_cast<size_t>(samples));
-
-  const float center_y = axisY(plot);
-  const float scale = amplitudeScale(plot);
-
-  for (int i = 0; i < samples; ++i) {
-    const float t = static_cast<float>(i) / static_cast<float>(samples - 1);
-    const float x = plot.x + plot.width * t;
-    const float amplitude = idealizedSineAmplitude(t);
-    points.push_back({ x, center_y - amplitude * scale, amplitude });
-  }
-
-  return points;
-}
-
-SamplePoint zeroCrossing(const SamplePoint& a, const SamplePoint& b, float center_y) {
-  const float amount = std::clamp(-a.amplitude / (b.amplitude - a.amplitude), 0.0f, 1.0f);
-  const float x = a.x + (b.x - a.x) * amount;
-  return { x, center_y, 0.0f };
-}
-
-std::vector<FillSegment> fillSegments(const std::vector<SamplePoint>& points, float center_y) {
-  std::vector<FillSegment> segments;
-  if (points.size() < 2)
-    return segments;
-
-  for (size_t i = 0; i + 1 < points.size(); ++i) {
-    const SamplePoint& a = points[i];
-    const SamplePoint& b = points[i + 1];
-    if (a.amplitude == 0.0f && b.amplitude == 0.0f)
-      continue;
-
-    if ((a.amplitude < 0.0f && b.amplitude > 0.0f) ||
-        (a.amplitude > 0.0f && b.amplitude < 0.0f)) {
-      const SamplePoint crossing = zeroCrossing(a, b, center_y);
-      if (a.amplitude != 0.0f)
-        segments.push_back({ a, crossing, a.amplitude > 0.0f });
-      if (b.amplitude != 0.0f)
-        segments.push_back({ crossing, b, b.amplitude > 0.0f });
-    }
-    else {
-      const bool positive = a.amplitude == 0.0f ? b.amplitude > 0.0f : a.amplitude > 0.0f;
-      segments.push_back({ a, b, positive });
-    }
-  }
-
-  return segments;
-}
-
-std::vector<LobeFill> fillLobes(const std::vector<SamplePoint>& points, float center_y) {
-  std::vector<LobeFill> lobes;
-  const std::vector<FillSegment> segments = fillSegments(points, center_y);
-  if (segments.empty())
-    return lobes;
-
-  visage::Path current;
-  bool open = false;
-  bool positive = segments.front().positive;
-  SamplePoint last_point;
-
-  auto closeCurrent = [&]() {
-    current.lineTo(last_point.x, center_y);
-    current.close();
-    lobes.push_back({ current, positive });
-  };
-
-  for (const FillSegment& segment : segments) {
-    if (!open || segment.positive != positive || std::abs(segment.start.x - last_point.x) > 0.01f) {
-      if (open)
-        closeCurrent();
-
-      current = visage::Path();
-      positive = segment.positive;
-      current.moveTo(segment.start.x, center_y);
-      current.lineTo(segment.start.x, segment.start.y);
-      open = true;
-    }
-
-    current.lineTo(segment.end.x, segment.end.y);
-    last_point = segment.end;
-  }
-
-  if (open)
-    closeCurrent();
-
-  return lobes;
 }
 
 void drawZeroAxis(visage::Canvas& canvas, const Rect& plot) {
@@ -329,25 +266,57 @@ void drawGrid(visage::Canvas& canvas, const Rect& plot, size_t sample_count) {
   }
 }
 
-void drawWaveFill(visage::Canvas& canvas, const std::vector<SamplePoint>& points, float center_y) {
-  for (const LobeFill& fill : fillLobes(points, center_y)) {
-    if (fill.positive)
-      canvas.setColor(visage::Brush::vertical(0x98718fd8, 0x00718fd8));
-    else
-      canvas.setColor(visage::Brush::vertical(0x00718fd8, 0x98718fd8));
-    canvas.fill(fill.path);
+std::vector<float> sineLobeBreakpoints() {
+  std::vector<float> breakpoints { 0.0f };
+  for (int zero = 1;; ++zero) {
+    const float t = static_cast<float>(zero) / (2.0f * kCyclesAcrossPlot);
+    if (t >= 1.0f)
+      break;
+    breakpoints.push_back(t);
+  }
+  breakpoints.push_back(1.0f);
+  return breakpoints;
+}
+
+void drawWaveFill(visage::Canvas& canvas, const Rect& plot, float center_y) {
+  const visage::Brush positive_fill = visage::Brush::linear(0x98718fd8, 0x18718fd8,
+                                                            { plot.x, plot.y },
+                                                            { plot.x, center_y });
+  const visage::Brush negative_fill = visage::Brush::linear(0x18718fd8, 0x98718fd8,
+                                                            { plot.x, center_y },
+                                                            { plot.x, plot.y + plot.height });
+
+  const std::vector<float> breakpoints = sineLobeBreakpoints();
+  for (size_t i = 0; i + 1 < breakpoints.size(); ++i) {
+    const float start_t = breakpoints[i];
+    const float end_t = breakpoints[i + 1];
+    const float midpoint = (start_t + end_t) * 0.5f;
+    const bool positive = idealizedSineAmplitude(midpoint) >= 0.0f;
+    const SamplePoint start = sinePoint(plot, start_t);
+    const SamplePoint end = sinePoint(plot, end_t);
+    const int segments = std::max(2, static_cast<int>(std::ceil((end_t - start_t) * 18.0f)));
+
+    visage::Path fill;
+    fill.moveTo(start.x, center_y);
+    fill.lineTo(start.x, start.y);
+    appendSineRange(fill, plot, start_t, end_t, segments);
+    fill.lineTo(end.x, center_y);
+    fill.close();
+
+    canvas.setColor(positive ? positive_fill : negative_fill);
+    canvas.fill(fill);
   }
 }
 
 void drawWaveform(DrawContext& context, const visage::Path& path) {
-  visage::Region& wide_bloom = addBlurRegion(context, 2.7f);
+  visage::Region& wide_bloom = addBlurRegion(context, 5.5f);
   drawInRegion(context, wide_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 3.4f, 0x3f789dff);
+    fillStroke(region_canvas, path, 5.0f, 0x58718fd8);
   });
 
-  visage::Region& edge_bloom = addBlurRegion(context, 1.35f);
+  visage::Region& edge_bloom = addBlurRegion(context, 2.1f);
   drawInRegion(context, edge_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 2.4f, 0x5c9fc0ff);
+    fillStroke(region_canvas, path, 3.1f, 0x789bbcff);
   });
 
   visage::Region& foreground = addRegion(context, true);
@@ -373,13 +342,12 @@ void drawEightSampleWaveform(DrawContext& context, const EightSampleWaveformSpec
   drawFrame(canvas, context.dimensions, layout);
 
   const std::vector<SamplePoint> points = samplePoints(layout.plot, spec);
-  const std::vector<SamplePoint> smooth_points = sineWavePoints(layout.plot, 900);
-  const std::vector<SamplePoint> fill_points = sineWavePoints(layout.plot, 260);
+  const visage::Path waveform = sineWavePath(layout.plot);
   const float center_y = axisY(layout.plot);
   drawGrid(canvas, layout.plot, points.size());
-  drawWaveFill(canvas, fill_points, center_y);
+  drawWaveFill(canvas, layout.plot, center_y);
   drawZeroAxis(canvas, layout.plot);
-  drawWaveform(context, waveformPath(smooth_points));
+  drawWaveform(context, waveform);
   drawSamplePoints(context, points);
   drawFrameCorners(canvas, layout);
 }

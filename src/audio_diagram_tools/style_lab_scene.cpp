@@ -127,6 +127,7 @@ visage::Region& addBlurRegion(DrawContext& context, float blur_radius) {
 
   auto region = std::make_unique<visage::Region>();
   region->setBounds(0, 0, context.dimensions.width, context.dimensions.height);
+  region->setOnTop(true);
   region->setPostEffect(effect.get());
   context.canvas.addRegion(region.get());
   region->setNeedsLayer(true);
@@ -626,7 +627,9 @@ void fillRidgeArea(visage::Canvas& canvas,
     return;
 
   const float extended_bottom = bottom + std::max(8.0f, (bottom - top) * 0.08f);
-  canvas.setColor(visage::Brush::vertical(0xa8718fd8, 0x00718fd8));
+  canvas.setColor(visage::Brush::linear(0xa8718fd8, 0x00718fd8,
+                                        { 0.0f, top },
+                                        { 0.0f, extended_bottom }));
   canvas.fill(fillToBaseline(ridge, extended_bottom));
 }
 
@@ -648,14 +651,14 @@ void drawBlueRidgePlot(DrawContext& context,
   drawBlueRidgeGrid(canvas, area);
   fillRidgeArea(canvas, fill_ridge, area.y, bottom);
 
-  visage::Region& wide_bloom = addBlurRegion(context, 2.7f);
+  visage::Region& wide_bloom = addBlurRegion(context, 5.5f);
   drawInRegion(context, wide_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 3.4f, 0x3f789dff);
+    fillStroke(region_canvas, crest, 5.0f, 0x58718fd8);
   });
 
-  visage::Region& edge_bloom = addBlurRegion(context, 1.35f);
+  visage::Region& edge_bloom = addBlurRegion(context, 2.1f);
   drawInRegion(context, edge_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 2.4f, 0x5c9fc0ff);
+    fillStroke(region_canvas, crest, 3.1f, 0x789bbcff);
   });
 
   visage::Region& foreground = addRegion(context, true);
