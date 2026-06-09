@@ -1,5 +1,7 @@
 #include "audio_diagram_tools/sampled_waveform_scene.h"
 
+#include "audio_diagram_tools/png_export.h"
+
 #include <algorithm>
 #include <cmath>
 #include <memory>
@@ -371,7 +373,7 @@ visage::Screenshot renderEightSampleWaveformFrame(const Dimensions& dimensions,
 void saveEightSampleWaveformFrame(const std::string& output_path,
                                   const Dimensions& dimensions,
                                   const EightSampleWaveformSpec& spec) {
-  renderEightSampleWaveformFrame(dimensions, spec).save(output_path);
+  savePngWithStraightAlpha(output_path, renderEightSampleWaveformFrame(dimensions, spec));
 }
 
 } // namespace adt

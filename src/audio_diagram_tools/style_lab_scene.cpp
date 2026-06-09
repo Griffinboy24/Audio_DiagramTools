@@ -1,5 +1,7 @@
 #include "audio_diagram_tools/style_lab_scene.h"
 
+#include "audio_diagram_tools/png_export.h"
+
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -833,33 +835,61 @@ constexpr uint32_t kSampleTableBorder = 0xffdfe1e6;
 constexpr uint32_t kSampleTableLine = kSampleTableBorder;
 
 void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
-  const float shadow_x = layout.card.x + 34.0f;
-  const float shadow_width = layout.card.width - 68.0f;
-  const float shadow_y = layout.card.y + layout.card.height + 3.0f;
+  const float shadow_x = layout.card.x + 14.0f;
+  const float shadow_width = layout.card.width - 28.0f;
+  const float shadow_y = layout.card.y + layout.card.height - 9.0f;
+  const float clamp_margin = 80.0f;
+  const float clamp_top = layout.card.y + layout.card.height + 0.5f;
 
-  canvas.setColor(0x12081527);
-  canvas.roundedRectangleShadow(
-      shadow_x, shadow_y, shadow_width, 20.0f, layout.radius * 0.70f, 28.0f);
+  canvas.saveState();
+  canvas.setClampBounds(layout.card.x - clamp_margin,
+                        clamp_top,
+                        layout.card.width + clamp_margin * 2.0f,
+                        layout.card.height);
 
-  canvas.setColor(0x0a0b1728);
+  canvas.setColor(0x14081527);
   canvas.roundedRectangleShadow(
-      shadow_x + 54.0f, shadow_y + 10.0f, shadow_width - 108.0f, 14.0f, 10.0f, 40.0f);
+      shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
+
+  canvas.setColor(0x0c0b1728);
+  canvas.roundedRectangleShadow(
+      shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
+
+  canvas.restoreState();
+}
+
+void fillRoundedRectPath(visage::Canvas& canvas,
+                         float x,
+                         float y,
+                         float width,
+                         float height,
+                         float radius,
+                         uint32_t color) {
+  visage::Path path;
+  path.addRoundedRectangle(x, y, width, height, radius);
+  canvas.setColor(color);
+  canvas.fill(path);
 }
 
 void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
   drawCardShadow(canvas, layout);
 
   const float border_width = 3.0f;
-  canvas.setColor(kSampleCardBorder);
-  canvas.roundedRectangle(layout.card.x, layout.card.y, layout.card.width, layout.card.height,
-                          layout.radius);
+  fillRoundedRectPath(canvas,
+                      layout.card.x,
+                      layout.card.y,
+                      layout.card.width,
+                      layout.card.height,
+                      layout.radius,
+                      kSampleCardBorder);
 
-  canvas.setColor(kSampleCardFace);
-  canvas.roundedRectangle(layout.card.x + border_width,
-                          layout.card.y + border_width,
-                          layout.card.width - border_width * 2.0f,
-                          layout.card.height - border_width * 2.0f,
-                          layout.radius - border_width);
+  fillRoundedRectPath(canvas,
+                      layout.card.x + border_width,
+                      layout.card.y + border_width,
+                      layout.card.width - border_width * 2.0f,
+                      layout.card.height - border_width * 2.0f,
+                      layout.radius - border_width,
+                      kSampleCardFace);
 }
 
 void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
@@ -913,19 +943,21 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
   const float border_width = 1.5f;
 
-  canvas.setColor(kSampleTableBorder);
-  canvas.roundedRectangle(layout.table.x,
-                          layout.table.y,
-                          layout.table.width,
-                          layout.table.height,
-                          rounding);
+  fillRoundedRectPath(canvas,
+                      layout.table.x,
+                      layout.table.y,
+                      layout.table.width,
+                      layout.table.height,
+                      rounding,
+                      kSampleTableBorder);
 
-  canvas.setColor(kSampleTableFill);
-  canvas.roundedRectangle(layout.table.x + border_width,
-                          layout.table.y + border_width,
-                          layout.table.width - border_width * 2.0f,
-                          layout.table.height - border_width * 2.0f,
-                          rounding - border_width);
+  fillRoundedRectPath(canvas,
+                      layout.table.x + border_width,
+                      layout.table.y + border_width,
+                      layout.table.width - border_width * 2.0f,
+                      layout.table.height - border_width * 2.0f,
+                      rounding - border_width,
+                      kSampleTableFill);
 
   canvas.setColor(kSampleTableLine);
   for (size_t i = 1; i < kValues.size(); ++i) {
@@ -1186,7 +1218,7 @@ void saveStyleStudyFrame(const std::string& output_path,
                          std::string_view study_id,
                          const Dimensions& dimensions,
                          const Timeline& timeline) {
-  renderStyleStudyFrame(study_id, dimensions, timeline).save(output_path);
+  savePngWithStraightAlpha(output_path, renderStyleStudyFrame(study_id, dimensions, timeline));
 }
 
 } // namespace adt

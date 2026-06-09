@@ -71,6 +71,7 @@ add_subdirectory("${AUDIO_DIAGRAM_VISAGE_DIR}" "${CMAKE_BINARY_DIR}/_deps/visage
 
 add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/gif_exporter.cpp
+  src/audio_diagram_tools/png_export.cpp
   src/audio_diagram_tools/render_types.cpp
   src/audio_diagram_tools/sampled_waveform_scene.cpp
   src/audio_diagram_tools/style_lab_scene.cpp

@@ -1,5 +1,7 @@
 #include "audio_diagram_tools/waveform_scene.h"
 
+#include "audio_diagram_tools/png_export.h"
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -269,7 +271,7 @@ void saveVolumeModulatedSineFrame(const std::string& output_path,
                                   const Timeline& timeline,
                                   const RenderStyle& style,
                                   const WaveformSpec& waveform) {
-  renderVolumeModulatedSineFrame(dimensions, timeline, style, waveform).save(output_path);
+  savePngWithStraightAlpha(output_path, renderVolumeModulatedSineFrame(dimensions, timeline, style, waveform));
 }
 
 } // namespace adt
