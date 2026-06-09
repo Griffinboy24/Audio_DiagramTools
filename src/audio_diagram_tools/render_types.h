@@ -59,7 +59,7 @@ struct Palette {
 struct RenderStyle {
   Palette palette;
   Margins margins;
-  float grid_line_width = 1.0f;
+  float grid_line_width = 1.2f;
   float axis_line_width = 2.0f;
   float waveform_width = 4.0f;
   float waveform_highlight_width = 1.2f;

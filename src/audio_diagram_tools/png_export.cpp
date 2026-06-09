@@ -25,7 +25,7 @@ void normalizeStraightAlpha(visage::Screenshot& screenshot) {
   for (int pixel = 0; pixel < pixel_count; ++pixel) {
     uint8_t* rgba = data + pixel * 4;
     const uint8_t alpha = rgba[3];
-    if (alpha <= 1) {
+    if (alpha <= 3) {
       rgba[0] = 0;
       rgba[1] = 0;
       rgba[2] = 0;

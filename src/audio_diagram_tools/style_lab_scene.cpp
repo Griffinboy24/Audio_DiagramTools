@@ -600,7 +600,7 @@ std::vector<SignalPoint> makeSpectralRidge(const Rect& area, int samples) {
 
 void drawBlueRidgeGrid(visage::Canvas& canvas, const Rect& area) {
   constexpr uint32_t kGridColor = 0xff18232f;
-  constexpr float kGridWidth = 1.0f;
+  constexpr float kGridWidth = 1.2f;
 
   canvas.setColor(kGridColor);
   canvas.fill(area.x, area.y, kGridWidth, area.height);
@@ -830,16 +830,16 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
 
 constexpr uint32_t kSampleCardFace = 0xffffffff;
 constexpr uint32_t kSampleCardBorder = 0xffe8ebf0;
-constexpr uint32_t kSampleTableFill = 0xfff9fafc;
-constexpr uint32_t kSampleTableBorder = 0xffdfe1e6;
+constexpr uint32_t kSampleTableFill = 0xfffcfcfd;
+constexpr uint32_t kSampleTableBorder = 0xffdce0e2;
 constexpr uint32_t kSampleTableLine = kSampleTableBorder;
 
 void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
   const float shadow_x = layout.card.x + 14.0f;
   const float shadow_width = layout.card.width - 28.0f;
-  const float shadow_y = layout.card.y + layout.card.height - 9.0f;
+  const float shadow_y = layout.card.y + layout.card.height - 13.0f;
   const float clamp_margin = 80.0f;
-  const float clamp_top = layout.card.y + layout.card.height + 0.5f;
+  const float clamp_top = layout.card.y + layout.card.height + 0.25f;
 
   canvas.saveState();
   canvas.setClampBounds(layout.card.x - clamp_margin,
@@ -847,11 +847,11 @@ void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout)
                         layout.card.width + clamp_margin * 2.0f,
                         layout.card.height);
 
-  canvas.setColor(0x14081527);
+  canvas.setColor(0x10081527);
   canvas.roundedRectangleShadow(
       shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
 
-  canvas.setColor(0x0c0b1728);
+  canvas.setColor(0x080b1728);
   canvas.roundedRectangleShadow(
       shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
 

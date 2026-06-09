@@ -255,7 +255,7 @@ void drawZeroAxis(visage::Canvas& canvas, const Rect& plot) {
 
 void drawGrid(visage::Canvas& canvas, const Rect& plot, size_t sample_count) {
   constexpr uint32_t kGridColor = 0xff18232f;
-  constexpr float kGridWidth = 1.0f;
+  constexpr float kGridWidth = 1.2f;
 
   canvas.setColor(kGridColor);
   for (size_t i = 0; i < sample_count; ++i) {
