@@ -43,7 +43,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 19> kStyleStudies = {
+const std::array<StyleStudy, 23> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -63,6 +63,10 @@ const std::array<StyleStudy, 19> kStyleStudies = {
   StyleStudy { "sample-table-card-paper-ink", "Warm paper/ink table card with dotted plot-style rules" },
   StyleStudy { "sample-table-card-schematic", "Crisp white schematic card with tight shadow and line-art badge" },
   StyleStudy { "sample-table-card-tech-band", "Dark technical table band with violet strip and geometric details" },
+  StyleStudy { "sample-table-card-schematic-ink", "White schematic card with dark outer and table rules" },
+  StyleStudy { "sample-table-card-tech-band-blue", "Dark technical table band using Griffinboy waveform blues" },
+  StyleStudy { "sample-table-card-tech-band-pale-grid", "Violet technical band with pale array value grid" },
+  StyleStudy { "sample-table-card-paper-rim", "Warm paper card with raised rim tones and no cast shadow" },
 };
 
 float clamp01(float value) {
@@ -865,6 +869,12 @@ struct SampleTableCardStyle {
   float badge_shadow_offset = 5.0f;
   float badge_shadow_blur = 16.0f;
   float table_rounding_scale = 0.34f;
+  uint32_t rim_top = 0x00000000;
+  uint32_t rim_left = 0x00000000;
+  uint32_t rim_bottom = 0x00000000;
+  uint32_t rim_right = 0x00000000;
+  uint32_t rim_inner = 0x00000000;
+  float rim_width = 0.0f;
   SampleCardSurface card_surface = SampleCardSurface::Solid;
   SampleTableRules table_rules = SampleTableRules::Solid;
   SampleBadgeTreatment badge_treatment = SampleBadgeTreatment::Filled;
@@ -1112,9 +1122,74 @@ constexpr SampleTableCardStyle makeSampleTableCardTechBandStyle() {
   return style;
 }
 
+constexpr SampleTableCardStyle makeSampleTableCardSchematicInkStyle() {
+  SampleTableCardStyle style = makeSampleTableCardSchematicStyle();
+  style.card_border = 0xff2f3744;
+  style.table_line = 0xff303947;
+  style.value_text = 0xff1d2632;
+  style.badge_ring = 0xff111827;
+  style.table_border_width = 1.35f;
+  style.table_divider_width = 1.15f;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardTechBandBlueStyle() {
+  SampleTableCardStyle style = makeSampleTableCardTechBandStyle();
+  style.card_face = 0xff181d2a;
+  style.card_face_bottom = 0xff0c1116;
+  style.card_border = 0xff303b4d;
+  style.table_fill = 0xff101723;
+  style.table_fill_bottom = 0xff0c121b;
+  style.table_line = 0xff3c4b64;
+  style.accent_band = 0xff718fd8;
+  style.accent_line = 0xff718fd8;
+  style.detail_line = 0x667d91b8;
+  style.detail_dot = 0x6389a5d9;
+  style.badge_ring = 0xffdce7fb;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardTechBandPaleGridStyle() {
+  SampleTableCardStyle style = makeSampleTableCardTechBandStyle();
+  style.table_line = 0xffdce5f2;
+  style.table_border_width = 1.0f;
+  style.table_divider_width = 0.95f;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardPaperRimStyle() {
+  SampleTableCardStyle style = makeSampleTableCardPaperInkStyle();
+  style.card_face = 0xfffffdf7;
+  style.card_face_bottom = 0xfffbf7ed;
+  style.card_border = 0xffd9d2c5;
+  style.table_fill = 0xfffffcf6;
+  style.table_fill_bottom = 0xfffbf6ec;
+  style.table_line = 0xffd8d0c1;
+  style.badge_shadow = 0x00000000;
+  style.shadow_near = 0x00000000;
+  style.shadow_far = 0x00000000;
+  style.card_border_width = 2.4f;
+  style.table_border_width = 1.05f;
+  style.table_divider_width = 0.95f;
+  style.rim_top = 0xffffffff;
+  style.rim_left = 0xfff7f2e8;
+  style.rim_bottom = 0xffc9c0b2;
+  style.rim_right = 0xffd6cec0;
+  style.rim_inner = 0x80eee5d7;
+  style.rim_width = 1.25f;
+  return style;
+}
+
 constexpr SampleTableCardStyle kSampleTableCardPaperInkStyle = makeSampleTableCardPaperInkStyle();
 constexpr SampleTableCardStyle kSampleTableCardSchematicStyle = makeSampleTableCardSchematicStyle();
 constexpr SampleTableCardStyle kSampleTableCardTechBandStyle = makeSampleTableCardTechBandStyle();
+constexpr SampleTableCardStyle kSampleTableCardSchematicInkStyle =
+    makeSampleTableCardSchematicInkStyle();
+constexpr SampleTableCardStyle kSampleTableCardTechBandBlueStyle =
+    makeSampleTableCardTechBandBlueStyle();
+constexpr SampleTableCardStyle kSampleTableCardTechBandPaleGridStyle =
+    makeSampleTableCardTechBandPaleGridStyle();
+constexpr SampleTableCardStyle kSampleTableCardPaperRimStyle = makeSampleTableCardPaperRimStyle();
 
 SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
@@ -1230,6 +1305,64 @@ void drawDottedHorizontalRule(visage::Canvas& canvas,
     canvas.fill(dot_x - dot_size * 0.5f, y - dot_size * 0.5f, dot_size, dot_size);
 }
 
+void drawRaisedCardRim(visage::Canvas& canvas,
+                       const SampleTableCardLayout& layout,
+                       const SampleTableCardStyle& style) {
+  if (style.rim_width <= 0.0f)
+    return;
+
+  const Rect& card = layout.card;
+  const float radius = layout.radius;
+  const float inset = style.rim_width * 0.55f;
+  const float run_inset = radius * 0.72f;
+
+  if (hasAlpha(style.rim_inner)) {
+    canvas.setColor(style.rim_inner);
+    canvas.roundedRectangleBorder(card.x + style.card_border_width,
+                                  card.y + style.card_border_width,
+                                  card.width - style.card_border_width * 2.0f,
+                                  card.height - style.card_border_width * 2.0f,
+                                  radius - style.card_border_width,
+                                  0.8f);
+  }
+
+  if (hasAlpha(style.rim_top))
+    drawLine(canvas,
+             card.x + run_inset,
+             card.y + inset,
+             card.x + card.width - run_inset,
+             card.y + inset,
+             style.rim_width,
+             style.rim_top);
+
+  if (hasAlpha(style.rim_left))
+    drawLine(canvas,
+             card.x + inset,
+             card.y + run_inset,
+             card.x + inset,
+             card.y + card.height - run_inset,
+             style.rim_width,
+             style.rim_left);
+
+  if (hasAlpha(style.rim_bottom))
+    drawLine(canvas,
+             card.x + run_inset,
+             card.y + card.height - inset,
+             card.x + card.width - run_inset,
+             card.y + card.height - inset,
+             style.rim_width,
+             style.rim_bottom);
+
+  if (hasAlpha(style.rim_right))
+    drawLine(canvas,
+             card.x + card.width - inset,
+             card.y + run_inset,
+             card.x + card.width - inset,
+             card.y + card.height - run_inset,
+             style.rim_width,
+             style.rim_right);
+}
+
 void drawSampleTableCardDetails(visage::Canvas& canvas,
                                 const SampleTableCardLayout& layout,
                                 const SampleTableCardStyle& style) {
@@ -1338,6 +1471,8 @@ void drawSampleTableCardShell(visage::Canvas& canvas,
                 style.accent_band_width,
                 layout.card.height - border_width * 2.0f);
   }
+
+  drawRaisedCardRim(canvas, layout, style);
 }
 
 void drawSampleTableCardBadge(visage::Canvas& canvas,
@@ -1658,7 +1793,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 19>& styleStudies() {
+const std::array<StyleStudy, 23>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -1719,6 +1854,14 @@ void drawStyleStudy(DrawContext& context,
     drawSampleTableCard(context, dimensions, kSampleTableCardSchematicStyle);
   else if (study_id == "sample-table-card-tech-band")
     drawSampleTableCard(context, dimensions, kSampleTableCardTechBandStyle);
+  else if (study_id == "sample-table-card-schematic-ink")
+    drawSampleTableCard(context, dimensions, kSampleTableCardSchematicInkStyle);
+  else if (study_id == "sample-table-card-tech-band-blue")
+    drawSampleTableCard(context, dimensions, kSampleTableCardTechBandBlueStyle);
+  else if (study_id == "sample-table-card-tech-band-pale-grid")
+    drawSampleTableCard(context, dimensions, kSampleTableCardTechBandPaleGridStyle);
+  else if (study_id == "sample-table-card-paper-rim")
+    drawSampleTableCard(context, dimensions, kSampleTableCardPaperRimStyle);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }
