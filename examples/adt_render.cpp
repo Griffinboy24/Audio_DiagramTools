@@ -178,7 +178,8 @@ int main(int argc, char** argv) {
       for (int frame = 0; frame < options.frames; ++frame) {
         const adt::Timeline timeline = adt::Timeline::forFrame(frame, options.frames, options.fps);
         const auto path = framePath(options.output_dir, frame);
-        adt::saveVolumeModulatedSineFrame(path.string(), options.dimensions, timeline, {}, options.waveform);
+        adt::saveVolumeModulatedSineFrame(path.string(), options.dimensions, timeline, {},
+                                          options.waveform);
       }
       std::cout << "Rendered " << options.frames << " PNG frames to "
                 << options.output_dir.string() << "\n";

@@ -1,3 +1,4 @@
+#include "audio_diagram_tools/style_lab_scene.h"
 #include "audio_diagram_tools/waveform_scene.h"
 
 #include <cstdint>
@@ -7,6 +8,12 @@ int main() {
   const auto preset = adt::canvasPresetById("blog-wide");
   if (!preset || preset->dimensions.width != 1280 || preset->dimensions.height != 720) {
     std::cerr << "Canvas preset lookup failed.\n";
+    return 1;
+  }
+
+  const auto study = adt::styleStudyById("filled-ribbon");
+  if (!study) {
+    std::cerr << "Style study lookup failed.\n";
     return 1;
   }
 

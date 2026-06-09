@@ -8,9 +8,11 @@ This repo is starting as a lean C++/Visage rendering pipeline: reusable visual t
 
 - `audio_diagram_tools`: a small reusable C++ library for drawing branded audio diagrams with Visage.
 - `adt_render`: a CLI example that renders a volume-modulated sine wave as a PNG still or numbered PNG frames.
+- `adt_style_lab`: a CLI for rendering structural style studies without baking them into the production example.
 - `scripts/Build.ps1`: configure, build, and run the smoke test.
 - `scripts/RenderExample.ps1`: build and render the first example.
 - `scripts/EncodeGif.ps1`: build and render the first animated GIF through the C++ `cgif` encoder.
+- `scripts/RenderStyleLab.ps1`: render the current set of visual style studies.
 - `docs/visual-system.md`: first-pass visual conventions.
 - `docs/pipeline.md`: rendering and GIF workflow.
 
@@ -23,11 +25,15 @@ Visage is expected at `build/_vendor/visage` locally. That source is not committ
 .\scripts\RenderExample.ps1 -Out artifacts/stills/am_sine.png
 .\scripts\RenderExample.ps1 -Frames 120 -OutDir artifacts/frames/am_sine
 .\scripts\EncodeGif.ps1 -Frames 120 -Out artifacts/gifs/am_sine.gif
+.\scripts\RenderStyleLab.ps1 -OutDir artifacts/style_lab
 ```
 
 The helper scripts use named canvas presets by default: `blog-wide` for stills/frame
 sequences and `gif-preview` for GIFs. Use `-Preset`, `-Width`, or `-Height` when a
 specific render needs to step outside those defaults.
+
+`RenderStyleLab.ps1` defaults to `blog-banner` and renders studies that vary drawing
+structure, not just palette. Treat those as taste probes, not final branding decisions.
 
 If Visage lives elsewhere:
 

@@ -7,8 +7,9 @@
 namespace adt {
 namespace {
 
-const std::array<CanvasPreset, 4> kCanvasPresets = {
+const std::array<CanvasPreset, 5> kCanvasPresets = {
   CanvasPreset { "blog-wide", "Default 16:9 blog diagram", { 1280, 720 } },
+  CanvasPreset { "blog-banner", "Wide banner for inline article diagrams", { 1440, 420 } },
   CanvasPreset { "blog-wide-large", "Higher-resolution 16:9 source render", { 1600, 900 } },
   CanvasPreset { "gif-preview", "Compact 16:9 animated GIF", { 960, 540 } },
   CanvasPreset { "square", "Square social/blog thumbnail", { 1080, 1080 } },
@@ -16,7 +17,7 @@ const std::array<CanvasPreset, 4> kCanvasPresets = {
 
 } // namespace
 
-const std::array<CanvasPreset, 4>& canvasPresets() {
+const std::array<CanvasPreset, 5>& canvasPresets() {
   return kCanvasPresets;
 }
 

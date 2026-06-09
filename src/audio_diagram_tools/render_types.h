@@ -18,7 +18,7 @@ struct CanvasPreset {
   Dimensions dimensions;
 };
 
-const std::array<CanvasPreset, 4>& canvasPresets();
+const std::array<CanvasPreset, 5>& canvasPresets();
 std::optional<CanvasPreset> canvasPresetById(std::string_view id);
 Dimensions dimensionsForPreset(std::string_view id);
 
@@ -51,6 +51,7 @@ struct Palette {
   uint32_t waveform = 0xff62e4ff;
   uint32_t waveform_highlight = 0xffffffff;
   uint32_t waveform_glow = 0x5562e4ff;
+  uint32_t waveform_fill = 0x2862e4ff;
   uint32_t accent = 0xffff5c8a;
   uint32_t accent_glow = 0x33ff5c8a;
 };
@@ -64,6 +65,11 @@ struct RenderStyle {
   float waveform_highlight_width = 1.2f;
   float waveform_glow_width = 14.0f;
   float envelope_width = 2.0f;
+  bool show_background_accent = true;
+  bool show_plot_panel = true;
+  bool show_axis = true;
+  bool show_waveform_fill = true;
+  bool show_waveform_glow = true;
 };
 
 struct WaveformSpec {

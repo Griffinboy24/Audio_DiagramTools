@@ -72,6 +72,7 @@ add_subdirectory("${AUDIO_DIAGRAM_VISAGE_DIR}" "${CMAKE_BINARY_DIR}/_deps/visage
 add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/gif_exporter.cpp
   src/audio_diagram_tools/render_types.cpp
+  src/audio_diagram_tools/style_lab_scene.cpp
   src/audio_diagram_tools/waveform_scene.cpp
 )
 
@@ -80,6 +81,9 @@ add_library(adt::audio_diagram_tools ALIAS audio_diagram_tools)
 target_include_directories(audio_diagram_tools
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+  PRIVATE
+    "${CMAKE_BINARY_DIR}/_deps/visage/visage_graphics/VisageEmbeddedFonts_generated"
+    "${AUDIO_DIAGRAM_VISAGE_DIR}/visage_file_embed"
 )
 
 target_link_libraries(audio_diagram_tools
@@ -111,6 +115,15 @@ add_executable(adt_encode_gif
 )
 
 target_link_libraries(adt_encode_gif
+  PRIVATE
+    adt::audio_diagram_tools
+)
+
+add_executable(adt_style_lab
+  examples/adt_style_lab.cpp
+)
+
+target_link_libraries(adt_style_lab
   PRIVATE
     adt::audio_diagram_tools
 )
