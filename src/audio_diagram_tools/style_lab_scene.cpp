@@ -829,26 +829,27 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
 constexpr uint32_t kSampleCardFace = 0xffffffff;
 constexpr uint32_t kSampleCardBorder = 0xffe8ebf0;
 constexpr uint32_t kSampleTableFill = 0xfff9fafc;
-constexpr uint32_t kSampleTableLine = 0xffe1e4e9;
+constexpr uint32_t kSampleTableBorder = 0xffdfe1e6;
+constexpr uint32_t kSampleTableLine = kSampleTableBorder;
 
 void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
-  const float shadow_x = layout.card.x + 14.0f;
-  const float shadow_width = layout.card.width - 28.0f;
-  const float shadow_y = layout.card.y + layout.card.height - 9.0f;
+  const float shadow_x = layout.card.x + 34.0f;
+  const float shadow_width = layout.card.width - 68.0f;
+  const float shadow_y = layout.card.y + layout.card.height + 3.0f;
 
-  canvas.setColor(0x14081527);
+  canvas.setColor(0x12081527);
   canvas.roundedRectangleShadow(
-      shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
+      shadow_x, shadow_y, shadow_width, 20.0f, layout.radius * 0.70f, 28.0f);
 
-  canvas.setColor(0x0c0b1728);
+  canvas.setColor(0x0a0b1728);
   canvas.roundedRectangleShadow(
-      shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
+      shadow_x + 54.0f, shadow_y + 10.0f, shadow_width - 108.0f, 14.0f, 10.0f, 40.0f);
 }
 
 void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
   drawCardShadow(canvas, layout);
 
-  const float border_width = 1.0f;
+  const float border_width = 3.0f;
   canvas.setColor(kSampleCardBorder);
   canvas.roundedRectangle(layout.card.x, layout.card.y, layout.card.width, layout.card.height,
                           layout.radius);
@@ -910,9 +911,9 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
 
   const float rounding = std::max(4.0f, layout.radius * 0.34f);
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
-  const float border_width = 1.15f;
+  const float border_width = 1.5f;
 
-  canvas.setColor(kSampleTableLine);
+  canvas.setColor(kSampleTableBorder);
   canvas.roundedRectangle(layout.table.x,
                           layout.table.y,
                           layout.table.width,
