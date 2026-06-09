@@ -332,9 +332,9 @@ void drawGrid(visage::Canvas& canvas, const Rect& plot, size_t sample_count) {
 void drawWaveFill(visage::Canvas& canvas, const std::vector<SamplePoint>& points, float center_y) {
   for (const LobeFill& fill : fillLobes(points, center_y)) {
     if (fill.positive)
-      canvas.setColor(visage::Brush::vertical(0x987492d5, 0x007492d5));
+      canvas.setColor(visage::Brush::vertical(0x98718fd8, 0x00718fd8));
     else
-      canvas.setColor(visage::Brush::vertical(0x007492d5, 0x987492d5));
+      canvas.setColor(visage::Brush::vertical(0x00718fd8, 0x98718fd8));
     canvas.fill(fill.path);
   }
 }
@@ -352,13 +352,13 @@ void drawWaveform(DrawContext& context, const visage::Path& path) {
 
   visage::Region& foreground = addRegion(context, true);
   drawInRegion(context, foreground, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 2.0f, 0xffb9c9f5);
-    fillStroke(region_canvas, path, 0.55f, 0xe8e9eefb);
+    fillStroke(region_canvas, path, 2.0f, 0xffb3c5f4);
+    fillStroke(region_canvas, path, 0.55f, 0xe8e4ecfb);
   });
 }
 
 void drawSamplePoints(DrawContext& context, const std::vector<SamplePoint>& points) {
-  const float radius = 5.8f;
+  const float radius = 6.5f;
   visage::Region& points_region = addRegion(context, true);
   drawInRegion(context, points_region, [&](visage::Canvas& region_canvas) {
     region_canvas.setColor(0xfff4f8ff);

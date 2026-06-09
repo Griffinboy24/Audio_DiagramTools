@@ -626,7 +626,7 @@ void fillRidgeArea(visage::Canvas& canvas,
     return;
 
   const float extended_bottom = bottom + std::max(8.0f, (bottom - top) * 0.08f);
-  canvas.setColor(visage::Brush::vertical(0xa87492d5, 0x007492d5));
+  canvas.setColor(visage::Brush::vertical(0xa8718fd8, 0x00718fd8));
   canvas.fill(fillToBaseline(ridge, extended_bottom));
 }
 
@@ -660,8 +660,8 @@ void drawBlueRidgePlot(DrawContext& context,
 
   visage::Region& foreground = addRegion(context, true);
   drawInRegion(context, foreground, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 2.0f, 0xffb9c9f5);
-    fillStroke(region_canvas, crest, 0.55f, 0xe8e9eefb);
+    fillStroke(region_canvas, crest, 2.0f, 0xffb3c5f4);
+    fillStroke(region_canvas, crest, 0.55f, 0xe8e4ecfb);
 
     if (show_peak_marker) {
       const auto peak = std::max_element(ridge.begin(), ridge.end(), [](const SignalPoint& a,
