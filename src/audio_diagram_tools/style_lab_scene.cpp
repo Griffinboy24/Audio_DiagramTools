@@ -826,20 +826,17 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
 }
 
 void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
-  canvas.setColor(0x12081527);
-  canvas.roundedRectangleShadow(layout.card.x,
-                                layout.card.y + 18.0f,
-                                layout.card.width,
-                                layout.card.height,
-                                layout.radius,
-                                52.0f);
-  canvas.setColor(0x1a0b1728);
-  canvas.roundedRectangleShadow(layout.card.x,
-                                layout.card.y + 10.0f,
-                                layout.card.width,
-                                layout.card.height,
-                                layout.radius,
-                                28.0f);
+  const float shadow_x = layout.card.x + 14.0f;
+  const float shadow_width = layout.card.width - 28.0f;
+  const float shadow_y = layout.card.y + layout.card.height - 9.0f;
+
+  canvas.setColor(0x14081527);
+  canvas.roundedRectangleShadow(
+      shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
+
+  canvas.setColor(0x0c0b1728);
+  canvas.roundedRectangleShadow(
+      shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
 }
 
 void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
@@ -855,7 +852,7 @@ void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayou
                                 layout.card.width,
                                 layout.card.height,
                                 layout.radius,
-                                1.15f);
+                                1.0f);
 }
 
 void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
