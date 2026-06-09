@@ -43,7 +43,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 12> kStyleStudies = {
+const std::array<StyleStudy, 13> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -56,6 +56,7 @@ const std::array<StyleStudy, 12> kStyleStudies = {
   StyleStudy { "blue-ridge", "Filled blue spectral ridge with bloom, grid, and peak marker" },
   StyleStudy { "blue-ridge-framed", "Blue ridge study inside a reusable rounded diagram frame" },
   StyleStudy { "sample-table-card", "Pale text and table card with Griffinboy-compatible rounded geometry" },
+  StyleStudy { "sample-table-card-page", "Higher-contrast table card variant for white article pages" },
 };
 
 float clamp01(float value) {
@@ -799,6 +800,45 @@ struct SampleTableCardLayout {
   float badge_y = 0.0f;
 };
 
+struct SampleTableCardStyle {
+  uint32_t card_face = 0xffffffff;
+  uint32_t card_border = 0xffe8ebf0;
+  uint32_t table_fill = 0xfffcfcfd;
+  uint32_t table_line = 0xffdce0e2;
+  uint32_t title_text = 0xff111827;
+  uint32_t body_text = 0xff718096;
+  uint32_t value_text = 0xff2f3947;
+  uint32_t badge_shadow = 0x34081527;
+  uint32_t badge_ring = 0x661f2d46;
+  uint32_t shadow_near = 0x10081527;
+  uint32_t shadow_far = 0x080b1728;
+  float card_border_width = 3.0f;
+  float table_border_width = 1.5f;
+  float table_divider_width = 1.1f;
+  float shadow_y_offset = -13.0f;
+  float shadow_clamp_offset = 0.25f;
+};
+
+constexpr SampleTableCardStyle kSampleTableCardStyle {};
+constexpr SampleTableCardStyle kSampleTableCardPageStyle {
+  0xffffffff, // card_face
+  0xffd8dde6, // card_border
+  0xfffcfcfd, // table_fill
+  0xffcbd3dc, // table_line
+  0xff0f1724, // title_text
+  0xff5f6d82, // body_text
+  0xff253142, // value_text
+  0x30081527, // badge_shadow
+  0x5c1f2d46, // badge_ring
+  0x0d081527, // shadow_near
+  0x060b1728, // shadow_far
+  3.0f, // card_border_width
+  1.45f, // table_border_width
+  1.15f, // table_divider_width
+  -16.0f, // shadow_y_offset
+  -1.75f, // shadow_clamp_offset
+};
+
 SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
   const float height = static_cast<float>(dimensions.height);
@@ -828,18 +868,14 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   return { card, table, copy, radius, badge_radius, badge_x, badge_y };
 }
 
-constexpr uint32_t kSampleCardFace = 0xffffffff;
-constexpr uint32_t kSampleCardBorder = 0xffe8ebf0;
-constexpr uint32_t kSampleTableFill = 0xfffcfcfd;
-constexpr uint32_t kSampleTableBorder = 0xffdce0e2;
-constexpr uint32_t kSampleTableLine = kSampleTableBorder;
-
-void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
+void drawCardShadow(visage::Canvas& canvas,
+                    const SampleTableCardLayout& layout,
+                    const SampleTableCardStyle& style) {
   const float shadow_x = layout.card.x + 14.0f;
   const float shadow_width = layout.card.width - 28.0f;
-  const float shadow_y = layout.card.y + layout.card.height - 13.0f;
+  const float shadow_y = layout.card.y + layout.card.height + style.shadow_y_offset;
   const float clamp_margin = 80.0f;
-  const float clamp_top = layout.card.y + layout.card.height + 0.25f;
+  const float clamp_top = layout.card.y + layout.card.height + style.shadow_clamp_offset;
 
   canvas.saveState();
   canvas.setClampBounds(layout.card.x - clamp_margin,
@@ -847,11 +883,11 @@ void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout)
                         layout.card.width + clamp_margin * 2.0f,
                         layout.card.height);
 
-  canvas.setColor(0x10081527);
+  canvas.setColor(style.shadow_near);
   canvas.roundedRectangleShadow(
       shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
 
-  canvas.setColor(0x080b1728);
+  canvas.setColor(style.shadow_far);
   canvas.roundedRectangleShadow(
       shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
 
@@ -871,17 +907,19 @@ void fillRoundedRectPath(visage::Canvas& canvas,
   canvas.fill(path);
 }
 
-void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
-  drawCardShadow(canvas, layout);
+void drawSampleTableCardShell(visage::Canvas& canvas,
+                              const SampleTableCardLayout& layout,
+                              const SampleTableCardStyle& style) {
+  drawCardShadow(canvas, layout, style);
 
-  const float border_width = 3.0f;
+  const float border_width = style.card_border_width;
   fillRoundedRectPath(canvas,
                       layout.card.x,
                       layout.card.y,
                       layout.card.width,
                       layout.card.height,
                       layout.radius,
-                      kSampleCardBorder);
+                      style.card_border);
 
   fillRoundedRectPath(canvas,
                       layout.card.x + border_width,
@@ -889,12 +927,14 @@ void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayou
                       layout.card.width - border_width * 2.0f,
                       layout.card.height - border_width * 2.0f,
                       layout.radius - border_width,
-                      kSampleCardFace);
+                      style.card_face);
 }
 
-void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
+void drawSampleTableCardBadge(visage::Canvas& canvas,
+                              const SampleTableCardLayout& layout,
+                              const SampleTableCardStyle& style) {
   const float diameter = layout.badge_radius * 2.0f;
-  canvas.setColor(0x34081527);
+  canvas.setColor(style.badge_shadow);
   canvas.roundedRectangleShadow(layout.badge_x - layout.badge_radius,
                                 layout.badge_y - layout.badge_radius + 5.0f,
                                 diameter,
@@ -904,13 +944,13 @@ void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayou
 
   canvas.setColor(visage::Brush::vertical(0xff17233a, 0xff08111f));
   canvas.circle(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter);
-  canvas.setColor(0x661f2d46);
+  canvas.setColor(style.badge_ring);
   canvas.ring(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter, 1.0f);
 
   text(canvas,
        "1",
        layout.badge_radius * 0.82f,
-       kSampleCardFace,
+       style.card_face,
        visage::Font::kCenter,
        layout.badge_x - layout.badge_radius,
        layout.badge_y - layout.badge_radius - 1.0f,
@@ -918,30 +958,34 @@ void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayou
        diameter);
 }
 
-void drawSampleTableCardCopy(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
+void drawSampleTableCardCopy(visage::Canvas& canvas,
+                             const SampleTableCardLayout& layout,
+                             const SampleTableCardStyle& style) {
   const float title_size = std::clamp(layout.card.height * 0.145f, 20.0f, 25.0f);
   const float body_size = std::clamp(layout.card.height * 0.100f, 14.0f, 18.0f);
   const float title_line = title_size * 1.10f;
   const float body_y = layout.copy.y + title_line * 2.16f;
 
-  fauxBoldText(canvas, "Stored as", title_size, 0xff111827, visage::Font::kTopLeft,
+  fauxBoldText(canvas, "Stored as", title_size, style.title_text, visage::Font::kTopLeft,
                layout.copy.x, layout.copy.y, layout.copy.width, title_line);
-  fauxBoldText(canvas, "sample values", title_size, 0xff111827, visage::Font::kTopLeft,
+  fauxBoldText(canvas, "sample values", title_size, style.title_text, visage::Font::kTopLeft,
                layout.copy.x, layout.copy.y + title_line, layout.copy.width, title_line);
-  text(canvas, "Digital audio is stored", body_size, 0xff718096, visage::Font::kTopLeft,
+  text(canvas, "Digital audio is stored", body_size, style.body_text, visage::Font::kTopLeft,
        layout.copy.x, body_y, layout.copy.width, body_size * 1.25f);
-  text(canvas, "as a sequence of numbers.", body_size, 0xff718096, visage::Font::kTopLeft,
+  text(canvas, "as a sequence of numbers.", body_size, style.body_text, visage::Font::kTopLeft,
        layout.copy.x, body_y + body_size * 1.18f, layout.copy.width, body_size * 1.25f);
 }
 
-void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
+void drawSampleValuesTable(visage::Canvas& canvas,
+                           const SampleTableCardLayout& layout,
+                           const SampleTableCardStyle& style) {
   constexpr std::array<std::string_view, 8> kValues {
     "0.00", "0.42", "0.88", "0.56", "-0.12", "-0.76", "-0.48", "0.22"
   };
 
   const float rounding = std::max(4.0f, layout.radius * 0.34f);
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
-  const float border_width = 1.5f;
+  const float border_width = style.table_border_width;
 
   fillRoundedRectPath(canvas,
                       layout.table.x,
@@ -949,7 +993,7 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
                       layout.table.width,
                       layout.table.height,
                       rounding,
-                      kSampleTableBorder);
+                      style.table_line);
 
   fillRoundedRectPath(canvas,
                       layout.table.x + border_width,
@@ -957,14 +1001,14 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
                       layout.table.width - border_width * 2.0f,
                       layout.table.height - border_width * 2.0f,
                       rounding - border_width,
-                      kSampleTableFill);
+                      style.table_fill);
 
-  canvas.setColor(kSampleTableLine);
+  canvas.setColor(style.table_line);
   for (size_t i = 1; i < kValues.size(); ++i) {
     const float x = layout.table.x + cell_width * static_cast<float>(i);
-    canvas.fill(x - 0.55f,
+    canvas.fill(x - style.table_divider_width * 0.5f,
                 layout.table.y + border_width,
-                1.1f,
+                style.table_divider_width,
                 layout.table.height - border_width * 2.0f);
   }
 
@@ -973,7 +1017,7 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
     text(canvas,
          std::string(kValues[i]),
          value_size,
-         0xff2f3947,
+         style.value_text,
          visage::Font::kCenter,
          layout.table.x + cell_width * static_cast<float>(i),
          layout.table.y,
@@ -982,12 +1026,14 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
   }
 }
 
-void drawSampleTableCard(DrawContext& context, const Dimensions& dimensions) {
+void drawSampleTableCard(DrawContext& context,
+                         const Dimensions& dimensions,
+                         const SampleTableCardStyle& style = kSampleTableCardStyle) {
   SampleTableCardLayout layout = sampleTableCardLayout(dimensions);
-  drawSampleTableCardShell(context.canvas, layout);
-  drawSampleTableCardBadge(context.canvas, layout);
-  drawSampleTableCardCopy(context.canvas, layout);
-  drawSampleValuesTable(context.canvas, layout);
+  drawSampleTableCardShell(context.canvas, layout, style);
+  drawSampleTableCardBadge(context.canvas, layout, style);
+  drawSampleTableCardCopy(context.canvas, layout, style);
+  drawSampleValuesTable(context.canvas, layout, style);
 }
 
 void drawDot(visage::Canvas& canvas, float x, float y, float radius, uint32_t color) {
@@ -1151,7 +1197,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 12>& styleStudies() {
+const std::array<StyleStudy, 13>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -1198,6 +1244,8 @@ void drawStyleStudy(DrawContext& context,
     drawBlueRidgeFramed(context, dimensions);
   else if (study_id == "sample-table-card")
     drawSampleTableCard(context, dimensions);
+  else if (study_id == "sample-table-card-page")
+    drawSampleTableCard(context, dimensions, kSampleTableCardPageStyle);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }
