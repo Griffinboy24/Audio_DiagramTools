@@ -801,13 +801,14 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
   const float height = static_cast<float>(dimensions.height);
   const float short_side = std::min(width, height);
-  const float margin = std::clamp(short_side * 0.105f, 18.0f, 30.0f);
-  const float card_height = std::clamp(width * 0.112f, 136.0f, height - margin * 2.6f);
+  const float margin = std::round(std::clamp(short_side * 0.105f, 18.0f, 30.0f));
+  const float card_height =
+      std::round(std::clamp(width * 0.112f, 136.0f, height - margin * 2.6f));
   const Rect card { margin,
-                    std::max(margin, (height - card_height) * 0.5f - margin * 0.15f),
+                    std::round(std::max(margin, (height - card_height) * 0.5f - margin * 0.15f)),
                     width - 2.0f * margin,
                     card_height };
-  const float radius = std::max(8.0f, height * 0.045f);
+  const float radius = std::round(std::max(8.0f, height * 0.045f));
   const float badge_radius = std::clamp(card.height * 0.122f, 18.0f, 23.0f);
   const float badge_x = card.x + card.height * 0.31f;
   const float badge_y = card.y + card.height * 0.34f;
@@ -815,15 +816,20 @@ SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
                     card.y + card.height * 0.22f,
                     card.width * 0.18f,
                     card.height * 0.64f };
-  const float table_x = card.x + std::max(card.width * 0.255f, 330.0f);
-  const float table_right = card.x + card.width - card.height * 0.30f;
+  const float table_x = std::round(card.x + std::max(card.width * 0.255f, 330.0f));
+  const float table_right = std::round(card.x + card.width - card.height * 0.30f);
   const Rect table { table_x,
-                     card.y + card.height * 0.24f,
+                     std::round(card.y + card.height * 0.24f),
                      table_right - table_x,
-                     card.height * 0.52f };
+                     std::round(card.height * 0.52f) };
 
   return { card, table, copy, radius, badge_radius, badge_x, badge_y };
 }
+
+constexpr uint32_t kSampleCardFace = 0xffffffff;
+constexpr uint32_t kSampleCardBorder = 0xffe8ebf0;
+constexpr uint32_t kSampleTableFill = 0xfff9fafc;
+constexpr uint32_t kSampleTableLine = 0xffe1e4e9;
 
 void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
   const float shadow_x = layout.card.x + 14.0f;
@@ -842,17 +848,17 @@ void drawCardShadow(visage::Canvas& canvas, const SampleTableCardLayout& layout)
 void drawSampleTableCardShell(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
   drawCardShadow(canvas, layout);
 
-  canvas.setColor(visage::Brush::vertical(0xffffffff, 0xfffeffff));
+  const float border_width = 1.0f;
+  canvas.setColor(kSampleCardBorder);
   canvas.roundedRectangle(layout.card.x, layout.card.y, layout.card.width, layout.card.height,
                           layout.radius);
 
-  canvas.setColor(0xffdfe5ee);
-  canvas.roundedRectangleBorder(layout.card.x,
-                                layout.card.y,
-                                layout.card.width,
-                                layout.card.height,
-                                layout.radius,
-                                1.0f);
+  canvas.setColor(kSampleCardFace);
+  canvas.roundedRectangle(layout.card.x + border_width,
+                          layout.card.y + border_width,
+                          layout.card.width - border_width * 2.0f,
+                          layout.card.height - border_width * 2.0f,
+                          layout.radius - border_width);
 }
 
 void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayout& layout) {
@@ -873,7 +879,7 @@ void drawSampleTableCardBadge(visage::Canvas& canvas, const SampleTableCardLayou
   text(canvas,
        "1",
        layout.badge_radius * 0.82f,
-       0xfff8fbff,
+       kSampleCardFace,
        visage::Font::kCenter,
        layout.badge_x - layout.badge_radius,
        layout.badge_y - layout.badge_radius - 1.0f,
@@ -904,26 +910,29 @@ void drawSampleValuesTable(visage::Canvas& canvas, const SampleTableCardLayout& 
 
   const float rounding = std::max(4.0f, layout.radius * 0.34f);
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
+  const float border_width = 1.15f;
 
-  canvas.setColor(0xfffbfdff);
+  canvas.setColor(kSampleTableLine);
   canvas.roundedRectangle(layout.table.x,
                           layout.table.y,
                           layout.table.width,
                           layout.table.height,
                           rounding);
 
-  canvas.setColor(0xffd8dee8);
-  canvas.roundedRectangleBorder(layout.table.x,
-                                layout.table.y,
-                                layout.table.width,
-                                layout.table.height,
-                                rounding,
-                                1.2f);
+  canvas.setColor(kSampleTableFill);
+  canvas.roundedRectangle(layout.table.x + border_width,
+                          layout.table.y + border_width,
+                          layout.table.width - border_width * 2.0f,
+                          layout.table.height - border_width * 2.0f,
+                          rounding - border_width);
 
-  canvas.setColor(0xffd8dee8);
+  canvas.setColor(kSampleTableLine);
   for (size_t i = 1; i < kValues.size(); ++i) {
     const float x = layout.table.x + cell_width * static_cast<float>(i);
-    canvas.fill(x - 0.55f, layout.table.y, 1.1f, layout.table.height);
+    canvas.fill(x - 0.55f,
+                layout.table.y + border_width,
+                1.1f,
+                layout.table.height - border_width * 2.0f);
   }
 
   const float value_size = std::clamp(layout.table.height * 0.28f, 18.0f, 22.0f);
