@@ -43,7 +43,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 16> kStyleStudies = {
+const std::array<StyleStudy, 19> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -60,6 +60,9 @@ const std::array<StyleStudy, 16> kStyleStudies = {
   StyleStudy { "sample-table-card-paper", "Warm paper table card with a tight editorial shadow" },
   StyleStudy { "sample-table-card-tight", "Near-white table card with crisp tight page shadow" },
   StyleStudy { "sample-table-card-dark-band", "Dark information band table card with a violet accent strip" },
+  StyleStudy { "sample-table-card-paper-ink", "Warm paper/ink table card with dotted plot-style rules" },
+  StyleStudy { "sample-table-card-schematic", "Crisp white schematic card with tight shadow and line-art badge" },
+  StyleStudy { "sample-table-card-tech-band", "Dark technical table band with violet strip and geometric details" },
 };
 
 float clamp01(float value) {
@@ -78,6 +81,10 @@ float gaussian(float value, float center, float width) {
 
 uint32_t alphaColor(uint8_t alpha, uint32_t rgb) {
   return (static_cast<uint32_t>(alpha) << 24) | (rgb & 0x00ffffffu);
+}
+
+bool hasAlpha(uint32_t color) {
+  return (color >> 24) != 0;
 }
 
 Rect studyArea(const Dimensions& dimensions, float left = 64.0f, float top = 52.0f,
@@ -803,6 +810,25 @@ struct SampleTableCardLayout {
   float badge_y = 0.0f;
 };
 
+enum class SampleCardSurface {
+  Solid,
+  VerticalGradient,
+};
+
+enum class SampleTableRules {
+  Solid,
+  PaperDotted,
+  SchematicLines,
+  TechCells,
+};
+
+enum class SampleBadgeTreatment {
+  Filled,
+  InkFilled,
+  LightOutline,
+  DarkOutline,
+};
+
 struct SampleTableCardStyle {
   uint32_t card_face = 0xffffffff;
   uint32_t card_border = 0xffe8ebf0;
@@ -831,6 +857,17 @@ struct SampleTableCardStyle {
   float shadow_far_height = 18.0f;
   float shadow_far_blur = 46.0f;
   float accent_band_width = 0.0f;
+  uint32_t card_face_bottom = 0xffffffff;
+  uint32_t table_fill_bottom = 0xfffcfcfd;
+  uint32_t accent_line = 0x00000000;
+  uint32_t detail_line = 0x00000000;
+  uint32_t detail_dot = 0x00000000;
+  float badge_shadow_offset = 5.0f;
+  float badge_shadow_blur = 16.0f;
+  float table_rounding_scale = 0.34f;
+  SampleCardSurface card_surface = SampleCardSurface::Solid;
+  SampleTableRules table_rules = SampleTableRules::Solid;
+  SampleBadgeTreatment badge_treatment = SampleBadgeTreatment::Filled;
 };
 
 constexpr SampleTableCardStyle kSampleTableCardStyle {};
@@ -954,6 +991,131 @@ constexpr SampleTableCardStyle kSampleTableCardDarkBandStyle {
   8.0f, // accent_band_width
 };
 
+constexpr SampleTableCardStyle makeSampleTableCardPaperInkStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xfffffdf8;
+  style.card_face_bottom = 0xfffbf7ee;
+  style.card_border = 0xffded7c9;
+  style.table_fill = 0xfffffcf5;
+  style.table_fill_bottom = 0xfffbf6eb;
+  style.table_line = 0xffd8d0c1;
+  style.title_text = 0xff25231f;
+  style.body_text = 0xff70675c;
+  style.value_text = 0xff302d28;
+  style.badge_top = 0xff25231f;
+  style.badge_bottom = 0xff11100f;
+  style.badge_text = 0xfffffdf8;
+  style.badge_shadow = 0x20000000;
+  style.badge_ring = 0x3025231f;
+  style.shadow_near = 0x16000000;
+  style.shadow_far = 0x06000000;
+  style.card_border_width = 1.6f;
+  style.table_border_width = 1.15f;
+  style.table_divider_width = 1.0f;
+  style.shadow_y_offset = -7.0f;
+  style.shadow_clamp_offset = -1.0f;
+  style.shadow_near_height = 13.0f;
+  style.shadow_near_blur = 18.0f;
+  style.shadow_far_inset = 48.0f;
+  style.shadow_far_y_offset = 5.0f;
+  style.shadow_far_height = 9.0f;
+  style.shadow_far_blur = 24.0f;
+  style.accent_line = 0xffd9545b;
+  style.badge_shadow_offset = 4.0f;
+  style.badge_shadow_blur = 12.0f;
+  style.table_rounding_scale = 0.30f;
+  style.card_surface = SampleCardSurface::VerticalGradient;
+  style.table_rules = SampleTableRules::PaperDotted;
+  style.badge_treatment = SampleBadgeTreatment::InkFilled;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardSchematicStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xffffffff;
+  style.card_face_bottom = 0xfffefefe;
+  style.card_border = 0xffe2e6ec;
+  style.table_fill = 0xfffcfcfd;
+  style.table_fill_bottom = 0xfffbfcfd;
+  style.table_line = 0xffd9dde4;
+  style.title_text = 0xff11151c;
+  style.body_text = 0xff687486;
+  style.value_text = 0xff25303d;
+  style.badge_top = 0xffffffff;
+  style.badge_bottom = 0xffffffff;
+  style.badge_text = 0xff121821;
+  style.badge_shadow = 0x00000000;
+  style.badge_ring = 0xff172033;
+  style.shadow_near = 0x11071a2e;
+  style.shadow_far = 0x05071a2e;
+  style.card_border_width = 1.4f;
+  style.table_border_width = 1.25f;
+  style.table_divider_width = 1.0f;
+  style.shadow_y_offset = -6.0f;
+  style.shadow_clamp_offset = -1.0f;
+  style.shadow_near_height = 12.0f;
+  style.shadow_near_blur = 16.0f;
+  style.shadow_far_inset = 50.0f;
+  style.shadow_far_y_offset = 5.0f;
+  style.shadow_far_height = 8.0f;
+  style.shadow_far_blur = 22.0f;
+  style.accent_line = 0xffd94f55;
+  style.badge_shadow_offset = 0.0f;
+  style.badge_shadow_blur = 0.0f;
+  style.table_rounding_scale = 0.26f;
+  style.card_surface = SampleCardSurface::VerticalGradient;
+  style.table_rules = SampleTableRules::SchematicLines;
+  style.badge_treatment = SampleBadgeTreatment::LightOutline;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardTechBandStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xff202432;
+  style.card_face_bottom = 0xff151925;
+  style.card_border = 0xff2e374a;
+  style.table_fill = 0xff111722;
+  style.table_fill_bottom = 0xff0f141f;
+  style.table_line = 0xff3a4357;
+  style.title_text = 0xfff3f6fb;
+  style.body_text = 0xffc2cbd8;
+  style.value_text = 0xfff5f8fc;
+  style.badge_top = 0x00000000;
+  style.badge_bottom = 0x00000000;
+  style.badge_text = 0xfff4f7fb;
+  style.badge_shadow = 0x00000000;
+  style.badge_ring = 0xffe4e9f2;
+  style.shadow_near = 0x12000000;
+  style.shadow_far = 0x05000000;
+  style.accent_band = 0xff8d3cff;
+  style.card_border_width = 1.5f;
+  style.table_border_width = 1.1f;
+  style.table_divider_width = 1.0f;
+  style.shadow_y_offset = -6.0f;
+  style.shadow_clamp_offset = -1.0f;
+  style.shadow_near_height = 12.0f;
+  style.shadow_near_blur = 18.0f;
+  style.shadow_far_inset = 48.0f;
+  style.shadow_far_y_offset = 5.0f;
+  style.shadow_far_height = 8.0f;
+  style.shadow_far_blur = 24.0f;
+  style.accent_band_width = 8.0f;
+  style.accent_line = 0xff8d3cff;
+  style.detail_line = 0x6679859b;
+  style.detail_dot = 0x5f9ba8bd;
+  style.badge_shadow_offset = 0.0f;
+  style.badge_shadow_blur = 0.0f;
+  style.table_rounding_scale = 0.22f;
+  style.card_surface = SampleCardSurface::VerticalGradient;
+  style.table_rules = SampleTableRules::TechCells;
+  style.badge_treatment = SampleBadgeTreatment::DarkOutline;
+  return style;
+}
+
+constexpr SampleTableCardStyle kSampleTableCardPaperInkStyle = makeSampleTableCardPaperInkStyle();
+constexpr SampleTableCardStyle kSampleTableCardSchematicStyle = makeSampleTableCardSchematicStyle();
+constexpr SampleTableCardStyle kSampleTableCardTechBandStyle = makeSampleTableCardTechBandStyle();
+
 SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
   const float height = static_cast<float>(dimensions.height);
@@ -998,18 +1160,22 @@ void drawCardShadow(visage::Canvas& canvas,
                         layout.card.width + clamp_margin * 2.0f,
                         layout.card.height);
 
-  canvas.setColor(style.shadow_near);
-  canvas.roundedRectangleShadow(
-      shadow_x, shadow_y, shadow_width, style.shadow_near_height, layout.radius * 0.70f,
-      style.shadow_near_blur);
+  if (hasAlpha(style.shadow_near)) {
+    canvas.setColor(style.shadow_near);
+    canvas.roundedRectangleShadow(
+        shadow_x, shadow_y, shadow_width, style.shadow_near_height, layout.radius * 0.70f,
+        style.shadow_near_blur);
+  }
 
-  canvas.setColor(style.shadow_far);
-  canvas.roundedRectangleShadow(shadow_x + style.shadow_far_inset,
-                                shadow_y + style.shadow_far_y_offset,
-                                shadow_width - style.shadow_far_inset * 2.0f,
-                                style.shadow_far_height,
-                                12.0f,
-                                style.shadow_far_blur);
+  if (hasAlpha(style.shadow_far)) {
+    canvas.setColor(style.shadow_far);
+    canvas.roundedRectangleShadow(shadow_x + style.shadow_far_inset,
+                                  shadow_y + style.shadow_far_y_offset,
+                                  shadow_width - style.shadow_far_inset * 2.0f,
+                                  style.shadow_far_height,
+                                  12.0f,
+                                  style.shadow_far_blur);
+  }
 
   canvas.restoreState();
 }
@@ -1027,6 +1193,111 @@ void fillRoundedRectPath(visage::Canvas& canvas,
   canvas.fill(path);
 }
 
+void fillRoundedRectPath(visage::Canvas& canvas,
+                         float x,
+                         float y,
+                         float width,
+                         float height,
+                         float radius,
+                         const visage::Brush& brush) {
+  visage::Path path;
+  path.addRoundedRectangle(x, y, width, height, radius);
+  canvas.setColor(brush);
+  canvas.fill(path);
+}
+
+void drawDottedVerticalRule(visage::Canvas& canvas,
+                            float x,
+                            float y,
+                            float height,
+                            float dot_size,
+                            float gap,
+                            uint32_t color) {
+  canvas.setColor(color);
+  for (float dot_y = y; dot_y <= y + height; dot_y += gap)
+    canvas.fill(x - dot_size * 0.5f, dot_y - dot_size * 0.5f, dot_size, dot_size);
+}
+
+void drawDottedHorizontalRule(visage::Canvas& canvas,
+                              float x,
+                              float y,
+                              float width,
+                              float dot_size,
+                              float gap,
+                              uint32_t color) {
+  canvas.setColor(color);
+  for (float dot_x = x; dot_x <= x + width; dot_x += gap)
+    canvas.fill(dot_x - dot_size * 0.5f, y - dot_size * 0.5f, dot_size, dot_size);
+}
+
+void drawSampleTableCardDetails(visage::Canvas& canvas,
+                                const SampleTableCardLayout& layout,
+                                const SampleTableCardStyle& style) {
+  if (!hasAlpha(style.detail_line) && !hasAlpha(style.detail_dot))
+    return;
+
+  const float right = layout.card.x + layout.card.width - style.card_border_width - 22.0f;
+  const float top = layout.card.y + style.card_border_width + 12.0f;
+  const float bottom = layout.card.y + layout.card.height - style.card_border_width - 12.0f;
+
+  if (hasAlpha(style.detail_line)) {
+    const float corner_size = layout.card.height * 0.32f;
+    visage::Path corner;
+    corner.moveTo(right - corner_size * 0.58f, top);
+    corner.lineTo(right - 14.0f, top);
+    corner.lineTo(right, top + 14.0f);
+    corner.lineTo(right, top + corner_size);
+    fillStroke(canvas, corner, 1.0f, style.detail_line, {}, 0.0f, visage::Path::EndCap::Square);
+
+    visage::Path lower;
+    lower.moveTo(right - corner_size * 0.88f, bottom);
+    lower.lineTo(right - corner_size * 0.18f, bottom);
+    lower.lineTo(right, bottom - corner_size * 0.18f);
+    lower.lineTo(right, bottom - corner_size * 0.78f);
+    fillStroke(canvas, lower, 1.0f, style.detail_line, {}, 0.0f, visage::Path::EndCap::Square);
+  }
+
+  if (hasAlpha(style.detail_dot)) {
+    const float dot = 1.45f;
+    const float gap = 9.0f;
+    const float origin_x = layout.card.x + layout.card.width - 168.0f;
+    const float origin_y = layout.card.y + layout.card.height - 48.0f;
+    canvas.setColor(style.detail_dot);
+    for (int row = 0; row < 5; ++row) {
+      for (int column = 0; column < 11; ++column) {
+        const float fade = static_cast<float>(column + row) / 14.0f;
+        if (fade < 0.15f)
+          continue;
+        canvas.fill(origin_x + column * gap, origin_y + row * gap, dot, dot);
+      }
+    }
+  }
+}
+
+void drawSampleTableCardAccents(visage::Canvas& canvas,
+                                const SampleTableCardLayout& layout,
+                                const SampleTableCardStyle& style) {
+  if (!hasAlpha(style.accent_line))
+    return;
+
+  if (style.table_rules == SampleTableRules::PaperDotted) {
+    const float x = layout.table.x - 24.0f;
+    const float y1 = layout.table.y + 10.0f;
+    const float y2 = layout.table.y + layout.table.height - 10.0f;
+    drawLine(canvas, x, y1, x, y2, 1.25f, alphaColor(180, style.accent_line), { 4.0f, 6.0f });
+    canvas.setColor(style.accent_line);
+    canvas.circle(x - 3.6f, (y1 + y2) * 0.5f - 3.6f, 7.2f);
+  }
+  else if (style.table_rules == SampleTableRules::SchematicLines) {
+    const float x = layout.table.x - 20.0f;
+    const float y1 = layout.table.y + layout.table.height * 0.20f;
+    const float y2 = layout.table.y + layout.table.height * 0.80f;
+    drawLine(canvas, x, y1, x, y2, 1.15f, alphaColor(150, style.accent_line), { 4.0f, 6.0f });
+    canvas.setColor(style.accent_line);
+    canvas.ring(x - 4.8f, (y1 + y2) * 0.5f - 4.8f, 9.6f, 1.55f);
+  }
+}
+
 void drawSampleTableCardShell(visage::Canvas& canvas,
                               const SampleTableCardLayout& layout,
                               const SampleTableCardStyle& style) {
@@ -1041,13 +1312,24 @@ void drawSampleTableCardShell(visage::Canvas& canvas,
                       layout.radius,
                       style.card_border);
 
-  fillRoundedRectPath(canvas,
-                      layout.card.x + border_width,
-                      layout.card.y + border_width,
-                      layout.card.width - border_width * 2.0f,
-                      layout.card.height - border_width * 2.0f,
-                      layout.radius - border_width,
-                      style.card_face);
+  if (style.card_surface == SampleCardSurface::VerticalGradient) {
+    fillRoundedRectPath(canvas,
+                        layout.card.x + border_width,
+                        layout.card.y + border_width,
+                        layout.card.width - border_width * 2.0f,
+                        layout.card.height - border_width * 2.0f,
+                        layout.radius - border_width,
+                        visage::Brush::vertical(style.card_face, style.card_face_bottom));
+  }
+  else {
+    fillRoundedRectPath(canvas,
+                        layout.card.x + border_width,
+                        layout.card.y + border_width,
+                        layout.card.width - border_width * 2.0f,
+                        layout.card.height - border_width * 2.0f,
+                        layout.radius - border_width,
+                        style.card_face);
+  }
 
   if (style.accent_band_width > 0.0f) {
     canvas.setColor(style.accent_band);
@@ -1062,18 +1344,31 @@ void drawSampleTableCardBadge(visage::Canvas& canvas,
                               const SampleTableCardLayout& layout,
                               const SampleTableCardStyle& style) {
   const float diameter = layout.badge_radius * 2.0f;
-  canvas.setColor(style.badge_shadow);
-  canvas.roundedRectangleShadow(layout.badge_x - layout.badge_radius,
-                                layout.badge_y - layout.badge_radius + 5.0f,
-                                diameter,
-                                diameter,
-                                layout.badge_radius,
-                                16.0f);
+  if (hasAlpha(style.badge_shadow) && style.badge_shadow_blur > 0.0f) {
+    canvas.setColor(style.badge_shadow);
+    canvas.roundedRectangleShadow(layout.badge_x - layout.badge_radius,
+                                  layout.badge_y - layout.badge_radius + style.badge_shadow_offset,
+                                  diameter,
+                                  diameter,
+                                  layout.badge_radius,
+                                  style.badge_shadow_blur);
+  }
 
-  canvas.setColor(visage::Brush::vertical(style.badge_top, style.badge_bottom));
-  canvas.circle(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter);
-  canvas.setColor(style.badge_ring);
-  canvas.ring(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter, 1.0f);
+  if (style.badge_treatment == SampleBadgeTreatment::LightOutline ||
+      style.badge_treatment == SampleBadgeTreatment::DarkOutline) {
+    if (hasAlpha(style.badge_top)) {
+      canvas.setColor(style.badge_top);
+      canvas.circle(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter);
+    }
+    canvas.setColor(style.badge_ring);
+    canvas.ring(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter, 1.5f);
+  }
+  else {
+    canvas.setColor(visage::Brush::vertical(style.badge_top, style.badge_bottom));
+    canvas.circle(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter);
+    canvas.setColor(style.badge_ring);
+    canvas.ring(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter, 1.0f);
+  }
 
   text(canvas,
        "1",
@@ -1111,7 +1406,7 @@ void drawSampleValuesTable(visage::Canvas& canvas,
     "0.00", "0.42", "0.88", "0.56", "-0.12", "-0.76", "-0.48", "0.22"
   };
 
-  const float rounding = std::max(4.0f, layout.radius * 0.34f);
+  const float rounding = std::max(4.0f, layout.radius * style.table_rounding_scale);
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
   const float border_width = style.table_border_width;
 
@@ -1123,21 +1418,57 @@ void drawSampleValuesTable(visage::Canvas& canvas,
                       rounding,
                       style.table_line);
 
-  fillRoundedRectPath(canvas,
-                      layout.table.x + border_width,
-                      layout.table.y + border_width,
-                      layout.table.width - border_width * 2.0f,
-                      layout.table.height - border_width * 2.0f,
-                      rounding - border_width,
-                      style.table_fill);
+  if (style.card_surface == SampleCardSurface::VerticalGradient) {
+    fillRoundedRectPath(canvas,
+                        layout.table.x + border_width,
+                        layout.table.y + border_width,
+                        layout.table.width - border_width * 2.0f,
+                        layout.table.height - border_width * 2.0f,
+                        rounding - border_width,
+                        visage::Brush::vertical(style.table_fill, style.table_fill_bottom));
+  }
+  else {
+    fillRoundedRectPath(canvas,
+                        layout.table.x + border_width,
+                        layout.table.y + border_width,
+                        layout.table.width - border_width * 2.0f,
+                        layout.table.height - border_width * 2.0f,
+                        rounding - border_width,
+                        style.table_fill);
+  }
 
-  canvas.setColor(style.table_line);
-  for (size_t i = 1; i < kValues.size(); ++i) {
-    const float x = layout.table.x + cell_width * static_cast<float>(i);
-    canvas.fill(x - style.table_divider_width * 0.5f,
-                layout.table.y + border_width,
-                style.table_divider_width,
-                layout.table.height - border_width * 2.0f);
+  if (style.table_rules == SampleTableRules::PaperDotted) {
+    const float top = layout.table.y + border_width + 6.0f;
+    const float height = layout.table.height - border_width * 2.0f - 12.0f;
+    for (size_t i = 1; i < kValues.size(); ++i) {
+      const float x = layout.table.x + cell_width * static_cast<float>(i);
+      drawDottedVerticalRule(canvas, x, top, height, 1.35f, 6.5f, style.table_line);
+    }
+    drawDottedHorizontalRule(canvas,
+                             layout.table.x + 8.0f,
+                             layout.table.y + layout.table.height * 0.50f,
+                             layout.table.width - 16.0f,
+                             1.15f,
+                             7.0f,
+                             alphaColor(80, style.table_line));
+  }
+  else {
+    canvas.setColor(style.table_line);
+    for (size_t i = 1; i < kValues.size(); ++i) {
+      const float x = layout.table.x + cell_width * static_cast<float>(i);
+      canvas.fill(x - style.table_divider_width * 0.5f,
+                  layout.table.y + border_width,
+                  style.table_divider_width,
+                  layout.table.height - border_width * 2.0f);
+    }
+
+    if (style.table_rules == SampleTableRules::TechCells && hasAlpha(style.accent_line)) {
+      canvas.setColor(alphaColor(128, style.accent_line));
+      canvas.fill(layout.table.x + border_width,
+                  layout.table.y + border_width,
+                  layout.table.width - border_width * 2.0f,
+                  1.0f);
+    }
   }
 
   const float value_size = std::clamp(layout.table.height * 0.28f, 18.0f, 22.0f);
@@ -1159,6 +1490,8 @@ void drawSampleTableCard(DrawContext& context,
                          const SampleTableCardStyle& style = kSampleTableCardStyle) {
   SampleTableCardLayout layout = sampleTableCardLayout(dimensions);
   drawSampleTableCardShell(context.canvas, layout, style);
+  drawSampleTableCardDetails(context.canvas, layout, style);
+  drawSampleTableCardAccents(context.canvas, layout, style);
   drawSampleTableCardBadge(context.canvas, layout, style);
   drawSampleTableCardCopy(context.canvas, layout, style);
   drawSampleValuesTable(context.canvas, layout, style);
@@ -1325,7 +1658,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 16>& styleStudies() {
+const std::array<StyleStudy, 19>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -1380,6 +1713,12 @@ void drawStyleStudy(DrawContext& context,
     drawSampleTableCard(context, dimensions, kSampleTableCardTightStyle);
   else if (study_id == "sample-table-card-dark-band")
     drawSampleTableCard(context, dimensions, kSampleTableCardDarkBandStyle);
+  else if (study_id == "sample-table-card-paper-ink")
+    drawSampleTableCard(context, dimensions, kSampleTableCardPaperInkStyle);
+  else if (study_id == "sample-table-card-schematic")
+    drawSampleTableCard(context, dimensions, kSampleTableCardSchematicStyle);
+  else if (study_id == "sample-table-card-tech-band")
+    drawSampleTableCard(context, dimensions, kSampleTableCardTechBandStyle);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }
