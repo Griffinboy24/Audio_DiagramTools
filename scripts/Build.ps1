@@ -42,6 +42,7 @@ Invoke-NativeChecked cmake $ConfigureArgs
 Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_render", "--parallel", "$Jobs")
 Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_encode_gif", "--parallel", "$Jobs")
 Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_style_lab", "--parallel", "$Jobs")
+Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_eight_sample_waveform", "--parallel", "$Jobs")
 
 if (-not $SkipTests) {
   Invoke-NativeChecked cmake @("--build", $BuildPath, "--config", $Config, "--target", "adt_smoke_tests", "--parallel", "$Jobs")
