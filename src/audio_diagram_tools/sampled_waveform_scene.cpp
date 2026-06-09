@@ -340,14 +340,14 @@ void drawWaveFill(visage::Canvas& canvas, const std::vector<SamplePoint>& points
 }
 
 void drawWaveform(DrawContext& context, const visage::Path& path) {
-  visage::Region& wide_bloom = addBlurRegion(context, 2.2f);
+  visage::Region& wide_bloom = addBlurRegion(context, 2.7f);
   drawInRegion(context, wide_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 3.0f, 0x2c7ea6ff);
+    fillStroke(region_canvas, path, 3.4f, 0x3f789dff);
   });
 
-  visage::Region& edge_bloom = addBlurRegion(context, 1.1f);
+  visage::Region& edge_bloom = addBlurRegion(context, 1.35f);
   drawInRegion(context, edge_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 2.1f, 0x46a6c8ff);
+    fillStroke(region_canvas, path, 2.4f, 0x5c9fc0ff);
   });
 
   visage::Region& foreground = addRegion(context, true);
