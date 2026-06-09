@@ -27,6 +27,19 @@ The first pass is dark, high-contrast, and technical without becoming monochrome
 
 These live in `adt::Palette` in `src/audio_diagram_tools/render_types.h`.
 
+## Griffinboy Waveform Reference
+
+The canonical Griffinboy waveform style reference is committed at
+`docs/style-reference/griffinboy-waveform-reference.png`.
+
+Treat this as the default house look for waveform-forward diagrams unless a specific
+article needs a different treatment. It establishes the thin rounded frame, the
+dark framed content gradient, subtle technical grid, softly lit blue-white trace,
+and waveform-underfill behavior.
+
+Do not overwrite this reference image during experiments. Render new studies or
+article graphics to new paths.
+
 ## Scene Conventions
 
 - Separate data/math decisions from drawing decisions.

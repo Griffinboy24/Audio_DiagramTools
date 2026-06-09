@@ -39,7 +39,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 10> kStyleStudies = {
+const std::array<StyleStudy, 11> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -50,6 +50,7 @@ const std::array<StyleStudy, 10> kStyleStudies = {
   StyleStudy { "paper-ink", "Light paper plot with ink primary trace and red dashed secondary trace" },
   StyleStudy { "mono-chirp", "Monochrome chirp trace with no colored glow" },
   StyleStudy { "blue-ridge", "Filled blue spectral ridge with bloom, grid, and peak marker" },
+  StyleStudy { "blue-ridge-framed", "Blue ridge study inside a reusable rounded diagram frame" },
 };
 
 float clamp01(float value) {
@@ -74,6 +75,10 @@ Rect studyArea(const Dimensions& dimensions, float left = 64.0f, float top = 52.
                float right = 64.0f, float bottom = 58.0f) {
   return { left, top, static_cast<float>(dimensions.width) - left - right,
            static_cast<float>(dimensions.height) - top - bottom };
+}
+
+Rect insetRect(const Rect& rect, float x, float y) {
+  return { rect.x + x, rect.y + y, rect.width - 2.0f * x, rect.height - 2.0f * y };
 }
 
 visage::Font labelFont(float size) {
@@ -574,110 +579,192 @@ std::vector<SignalPoint> makeSpectralRidge(const Rect& area, int samples) {
   return points;
 }
 
-void drawBlueRidgeBackground(visage::Canvas& canvas, const Dimensions& dimensions, const Rect& area) {
-  canvas.setColor(visage::Brush::vertical(0xff121b25, 0xff091019));
-  canvas.fill(0, 0, dimensions.width, dimensions.height);
+void drawBlueRidgeGrid(visage::Canvas& canvas, const Rect& area) {
+  constexpr uint32_t kGridColor = 0xff18232f;
+  constexpr float kGridWidth = 1.0f;
 
-  const float vertical_spacing = static_cast<float>(dimensions.width) / 10.8f;
-  const float first_vertical = static_cast<float>(dimensions.width) * 0.130f;
-  for (int i = 0; i < 12; ++i) {
-    const float x = first_vertical + vertical_spacing * static_cast<float>(i);
-    if (x > dimensions.width)
+  canvas.setColor(kGridColor);
+  canvas.fill(area.x, area.y, kGridWidth, area.height);
+  canvas.fill(area.x + area.width - kGridWidth, area.y, kGridWidth, area.height);
+
+  const float vertical_spacing = area.width / 11.0f;
+  for (int i = 1; i < 11; ++i) {
+    const float x = area.x + vertical_spacing * static_cast<float>(i);
+    if (x > area.x + area.width)
       break;
 
-    const uint32_t color = i % 4 == 1 ? 0x3a455b70 : 0x2d394d62;
-    canvas.setColor(color);
-    canvas.fill(x, 0.0f, 1.15f, area.height);
+    canvas.fill(x, area.y, kGridWidth, area.height);
   }
 
-  const float horizontal_spacing = static_cast<float>(dimensions.height) / 6.0f;
+  const float horizontal_spacing = area.height / 6.0f;
   const int rows = 6;
   for (int i = 0; i <= rows; ++i) {
-    const float y = horizontal_spacing * static_cast<float>(i);
-    if (y > area.height)
+    const float y = area.y + horizontal_spacing * static_cast<float>(i);
+    if (y > area.y + area.height)
       break;
 
-    const uint32_t color = i % 3 == 0 ? 0x37445a6c : 0x2c394d5f;
-    canvas.setColor(color);
-    canvas.fill(area.x, y, area.width, 1.15f);
+    canvas.fill(area.x, y, area.width, kGridWidth);
   }
+}
+
+void drawBlueRidgeBackground(visage::Canvas& canvas,
+                             const Dimensions& dimensions,
+                             const Rect& area,
+                             bool fill_canvas) {
+  canvas.setColor(visage::Brush::vertical(0xff181d2a, 0xff0c1116));
+  if (fill_canvas)
+    canvas.fill(0, 0, dimensions.width, dimensions.height);
+  else
+    canvas.fill(area.x, area.y, area.width, area.height);
 }
 
 void fillRidgeArea(visage::Canvas& canvas,
                    const std::vector<SignalPoint>& ridge,
+                   float top,
                    float bottom) {
   if (ridge.size() < 2)
     return;
 
-  const int bands = std::max(1, static_cast<int>(std::ceil(bottom)));
-  for (int band = 0; band < bands; ++band) {
-    const float band_top = bottom * static_cast<float>(band) / static_cast<float>(bands);
-    const float band_bottom = bottom * static_cast<float>(band + 1) / static_cast<float>(bands);
-    const float screen_fade = clamp01((bottom - band_top) / bottom);
-    const float alpha = 110.0f * std::pow(screen_fade, 1.22f);
-    if (alpha < 1.0f)
-      continue;
-
-    canvas.setColor(alphaColor(static_cast<uint8_t>(alpha), 0x718fd0));
-
-    bool open = false;
-    float start_x = 0.0f;
-    for (size_t i = 0; i < ridge.size(); ++i) {
-      const bool covered = ridge[i].y <= band_bottom;
-      if (covered && !open) {
-        open = true;
-        start_x = ridge[i].x;
-      }
-      else if (!covered && open) {
-        const float end_x = ridge[i].x;
-        canvas.fill(start_x, band_top, end_x - start_x, band_bottom - band_top + 0.75f);
-        open = false;
-      }
-    }
-
-    if (open) {
-      const float end_x = ridge.back().x;
-      canvas.fill(start_x, band_top, end_x - start_x, band_bottom - band_top + 0.75f);
-    }
-  }
+  const float extended_bottom = bottom + std::max(8.0f, (bottom - top) * 0.08f);
+  canvas.setColor(visage::Brush::vertical(0xa87492d5, 0x007492d5));
+  canvas.fill(fillToBaseline(ridge, extended_bottom));
 }
 
-void drawBlueRidge(DrawContext& context, const Dimensions& dimensions) {
+void drawBlueRidgePlot(DrawContext& context,
+                       const Dimensions& dimensions,
+                       const Rect& area,
+                       bool fill_canvas_background,
+                       bool fill_plot_background = true,
+                       bool show_peak_marker = true) {
   visage::Canvas& canvas = context.canvas;
-  const Rect area = studyArea(dimensions, 0.0f, 0.0f, 0.0f,
-                              static_cast<float>(dimensions.height) * 0.07f);
-  drawBlueRidgeBackground(canvas, dimensions, area);
+  if (fill_canvas_background || fill_plot_background)
+    drawBlueRidgeBackground(canvas, dimensions, area, fill_canvas_background);
 
   const auto ridge = makeSpectralRidge(area, 1800);
-  const float bottom = static_cast<float>(dimensions.height);
+  const auto fill_ridge = makeSpectralRidge(area, 260);
+  const float bottom = area.y + area.height;
   const visage::Path crest = pathFromPoints(ridge);
 
-  fillRidgeArea(canvas, ridge, bottom);
+  drawBlueRidgeGrid(canvas, area);
+  fillRidgeArea(canvas, fill_ridge, area.y, bottom);
 
   visage::Region& wide_bloom = addBlurRegion(context, 2.2f);
   drawInRegion(context, wide_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 3.0f, 0x307ea6ff);
+    fillStroke(region_canvas, crest, 3.0f, 0x2c7ea6ff);
   });
 
   visage::Region& edge_bloom = addBlurRegion(context, 1.1f);
   drawInRegion(context, edge_bloom, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 2.2f, 0x4ca6c8ff);
+    fillStroke(region_canvas, crest, 2.1f, 0x46a6c8ff);
   });
 
   visage::Region& foreground = addRegion(context, true);
   drawInRegion(context, foreground, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 2.0f, 0xff9fb9ef);
-    fillStroke(region_canvas, crest, 0.58f, 0xfff1f6ff);
+    fillStroke(region_canvas, crest, 2.0f, 0xffafc2f2);
+    fillStroke(region_canvas, crest, 0.55f, 0xe8e2e8f6);
 
-    const auto peak = std::max_element(ridge.begin(), ridge.end(), [](const SignalPoint& a,
-                                                                      const SignalPoint& b) {
-      return a.value < b.value;
-    });
-    if (peak != ridge.end()) {
-      region_canvas.setColor(0xfff4f8ff);
-      region_canvas.circle(peak->x - 3.0f, peak->y - 3.0f, 6.0f);
+    if (show_peak_marker) {
+      const auto peak = std::max_element(ridge.begin(), ridge.end(), [](const SignalPoint& a,
+                                                                        const SignalPoint& b) {
+        return a.value < b.value;
+      });
+      if (peak != ridge.end()) {
+        region_canvas.setColor(0xfff4f8ff);
+        region_canvas.circle(peak->x - 3.0f, peak->y - 3.0f, 6.0f);
+      }
     }
   });
+}
+
+void drawBlueRidge(DrawContext& context, const Dimensions& dimensions) {
+  const Rect area = studyArea(dimensions, 0.0f, 0.0f, 0.0f,
+                              static_cast<float>(dimensions.height) * 0.07f);
+  drawBlueRidgePlot(context, dimensions, area, true);
+}
+
+struct DiagramFrameLayout {
+  Rect outer;
+  Rect bevel;
+  Rect content;
+  Rect plot;
+  float radius = 10.0f;
+};
+
+DiagramFrameLayout diagramFrameLayout(const Dimensions& dimensions) {
+  const float width = static_cast<float>(dimensions.width);
+  const float height = static_cast<float>(dimensions.height);
+  const Rect outer { width * 0.0225f, height * 0.058f, width * 0.955f, height * 0.914f };
+  const Rect bevel = insetRect(outer, std::max(1.8f, width * 0.0025f),
+                               std::max(1.8f, height * 0.009f));
+  const Rect content = insetRect(bevel, std::max(1.7f, width * 0.0025f),
+                                 std::max(1.7f, height * 0.008f));
+  const float plot_x = std::max(18.0f, width * 0.027f);
+  const float plot_top = std::max(13.0f, height * 0.064f);
+  const float plot_bottom = std::max(10.0f, height * 0.050f);
+  const Rect plot { content.x + plot_x, content.y + plot_top,
+                    content.width - 2.0f * plot_x,
+                    content.height - plot_top - plot_bottom };
+  return { outer, bevel, content, plot, std::max(8.0f, height * 0.045f) };
+}
+
+void drawFrameCorner(visage::Canvas& canvas,
+                     float x,
+                     float y,
+                     float horizontal,
+                     float vertical,
+                     int x_direction,
+                     int y_direction) {
+  visage::Path corner;
+  corner.moveTo(x + horizontal * static_cast<float>(x_direction), y);
+  corner.lineTo(x, y);
+  corner.lineTo(x, y + vertical * static_cast<float>(y_direction));
+  fillStroke(canvas, corner, 1.2f, 0x8897d7c5, {}, 0.0f, visage::Path::EndCap::Square);
+}
+
+void drawDiagramFrameCorners(visage::Canvas& canvas, const DiagramFrameLayout& layout) {
+  const float inset = 6.0f;
+  const float h = 9.5f;
+  const float v = 9.5f;
+  drawFrameCorner(canvas, layout.content.x + inset, layout.content.y + inset, h, v, 1, 1);
+  drawFrameCorner(canvas, layout.content.x + layout.content.width - inset,
+                  layout.content.y + inset, h, v, -1, 1);
+  drawFrameCorner(canvas, layout.content.x + inset,
+                  layout.content.y + layout.content.height - inset, h, v, 1, -1);
+  drawFrameCorner(canvas, layout.content.x + layout.content.width - inset,
+                  layout.content.y + layout.content.height - inset, h, v, -1, -1);
+}
+
+void drawDiagramFrame(visage::Canvas& canvas,
+                      const Dimensions& dimensions,
+                      const DiagramFrameLayout& layout) {
+  canvas.setColor(0xfff4f4f9);
+  canvas.fill(0, 0, dimensions.width, dimensions.height);
+
+  canvas.setColor(0xff071016);
+  canvas.roundedRectangle(layout.outer.x, layout.outer.y, layout.outer.width, layout.outer.height,
+                          layout.radius);
+
+  canvas.setColor(visage::Brush::vertical(0xff373b44, 0xff1e2124));
+  canvas.roundedRectangle(layout.bevel.x, layout.bevel.y, layout.bevel.width, layout.bevel.height,
+                          layout.radius - 2.0f);
+
+  canvas.setColor(visage::Brush::vertical(0xff181d2a, 0xff0c1116));
+  canvas.roundedRectangle(layout.content.x, layout.content.y, layout.content.width, layout.content.height,
+                          layout.radius - 4.5f);
+
+  canvas.setColor(0x81364c59);
+  canvas.roundedRectangleBorder(layout.bevel.x, layout.bevel.y, layout.bevel.width, layout.bevel.height,
+                                layout.radius - 2.0f, 1.0f);
+  canvas.setColor(0x7e0a1119);
+  canvas.roundedRectangleBorder(layout.content.x, layout.content.y, layout.content.width,
+                                layout.content.height, layout.radius - 4.5f, 1.0f);
+}
+
+void drawBlueRidgeFramed(DrawContext& context, const Dimensions& dimensions) {
+  DiagramFrameLayout layout = diagramFrameLayout(dimensions);
+  drawDiagramFrame(context.canvas, dimensions, layout);
+  drawBlueRidgePlot(context, dimensions, layout.plot, false, false, false);
+  drawDiagramFrameCorners(context.canvas, layout);
 }
 
 void drawDot(visage::Canvas& canvas, float x, float y, float radius, uint32_t color) {
@@ -841,7 +928,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 10>& styleStudies() {
+const std::array<StyleStudy, 11>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -884,6 +971,8 @@ void drawStyleStudy(DrawContext& context,
     drawMonoChirp(context, dimensions);
   else if (study_id == "blue-ridge")
     drawBlueRidge(context, dimensions);
+  else if (study_id == "blue-ridge-framed")
+    drawBlueRidgeFramed(context, dimensions);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }
