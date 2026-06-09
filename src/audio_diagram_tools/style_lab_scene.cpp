@@ -660,8 +660,8 @@ void drawBlueRidgePlot(DrawContext& context,
 
   visage::Region& foreground = addRegion(context, true);
   drawInRegion(context, foreground, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, crest, 2.0f, 0xffafc2f2);
-    fillStroke(region_canvas, crest, 0.55f, 0xe8e2e8f6);
+    fillStroke(region_canvas, crest, 2.0f, 0xffb9c9f5);
+    fillStroke(region_canvas, crest, 0.55f, 0xe8e9eefb);
 
     if (show_peak_marker) {
       const auto peak = std::max_element(ridge.begin(), ridge.end(), [](const SignalPoint& a,

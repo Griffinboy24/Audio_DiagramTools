@@ -10,6 +10,8 @@
 namespace adt {
 namespace {
 
+constexpr float kPi = 3.14159265358979323846f;
+
 struct Rect {
   float x = 0.0f;
   float y = 0.0f;
@@ -176,6 +178,12 @@ float amplitudeScale(const Rect& plot) {
   return plot.height * 0.42f;
 }
 
+float idealizedSineAmplitude(float normalized_x) {
+  constexpr float kCyclesAcrossPlot = 1.05f;
+  constexpr float kAmplitude = 0.86f;
+  return kAmplitude * std::sin(2.0f * kPi * kCyclesAcrossPlot * normalized_x);
+}
+
 std::vector<SamplePoint> samplePoints(const Rect& plot, const EightSampleWaveformSpec& spec) {
   std::vector<SamplePoint> points;
   points.reserve(spec.amplitudes.size());
@@ -187,7 +195,7 @@ std::vector<SamplePoint> samplePoints(const Rect& plot, const EightSampleWavefor
   for (size_t i = 0; i < spec.amplitudes.size(); ++i) {
     const float t = static_cast<float>(i) / denominator;
     const float x = plot.x + plot.width * t;
-    const float amplitude = std::clamp(spec.amplitudes[i], -1.0f, 1.0f);
+    const float amplitude = idealizedSineAmplitude(t);
     points.push_back({ x, center_y - amplitude * scale, amplitude });
   }
 
@@ -203,6 +211,24 @@ visage::Path waveformPath(const std::vector<SamplePoint>& points) {
       path.lineTo(points[i].x, points[i].y);
   }
   return path;
+}
+
+std::vector<SamplePoint> sineWavePoints(const Rect& plot, int samples) {
+  std::vector<SamplePoint> points;
+  samples = std::max(2, samples);
+  points.reserve(static_cast<size_t>(samples));
+
+  const float center_y = axisY(plot);
+  const float scale = amplitudeScale(plot);
+
+  for (int i = 0; i < samples; ++i) {
+    const float t = static_cast<float>(i) / static_cast<float>(samples - 1);
+    const float x = plot.x + plot.width * t;
+    const float amplitude = idealizedSineAmplitude(t);
+    points.push_back({ x, center_y - amplitude * scale, amplitude });
+  }
+
+  return points;
 }
 
 SamplePoint zeroCrossing(const SamplePoint& a, const SamplePoint& b, float center_y) {
@@ -326,16 +352,19 @@ void drawWaveform(DrawContext& context, const visage::Path& path) {
 
   visage::Region& foreground = addRegion(context, true);
   drawInRegion(context, foreground, [&](visage::Canvas& region_canvas) {
-    fillStroke(region_canvas, path, 2.0f, 0xffafc2f2);
-    fillStroke(region_canvas, path, 0.55f, 0xe8e2e8f6);
+    fillStroke(region_canvas, path, 2.0f, 0xffb9c9f5);
+    fillStroke(region_canvas, path, 0.55f, 0xe8e9eefb);
   });
 }
 
-void drawSamplePoints(visage::Canvas& canvas, const std::vector<SamplePoint>& points) {
-  const float radius = 4.7f;
-  canvas.setColor(0xfff4f8ff);
-  for (const SamplePoint& point : points)
-    canvas.circle(point.x - radius, point.y - radius, radius * 2.0f);
+void drawSamplePoints(DrawContext& context, const std::vector<SamplePoint>& points) {
+  const float radius = 5.8f;
+  visage::Region& points_region = addRegion(context, true);
+  drawInRegion(context, points_region, [&](visage::Canvas& region_canvas) {
+    region_canvas.setColor(0xfff4f8ff);
+    for (const SamplePoint& point : points)
+      region_canvas.circle(point.x - radius, point.y - radius, radius * 2.0f);
+  });
 }
 
 void drawEightSampleWaveform(DrawContext& context, const EightSampleWaveformSpec& spec) {
@@ -344,12 +373,14 @@ void drawEightSampleWaveform(DrawContext& context, const EightSampleWaveformSpec
   drawFrame(canvas, context.dimensions, layout);
 
   const std::vector<SamplePoint> points = samplePoints(layout.plot, spec);
+  const std::vector<SamplePoint> smooth_points = sineWavePoints(layout.plot, 900);
+  const std::vector<SamplePoint> fill_points = sineWavePoints(layout.plot, 260);
   const float center_y = axisY(layout.plot);
   drawGrid(canvas, layout.plot, points.size());
-  drawWaveFill(canvas, points, center_y);
+  drawWaveFill(canvas, fill_points, center_y);
   drawZeroAxis(canvas, layout.plot);
-  drawWaveform(context, waveformPath(points));
-  drawSamplePoints(canvas, points);
+  drawWaveform(context, waveformPath(smooth_points));
+  drawSamplePoints(context, points);
   drawFrameCorners(canvas, layout);
 }
 
