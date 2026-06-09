@@ -43,7 +43,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 13> kStyleStudies = {
+const std::array<StyleStudy, 16> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -57,6 +57,9 @@ const std::array<StyleStudy, 13> kStyleStudies = {
   StyleStudy { "blue-ridge-framed", "Blue ridge study inside a reusable rounded diagram frame" },
   StyleStudy { "sample-table-card", "Pale text and table card with Griffinboy-compatible rounded geometry" },
   StyleStudy { "sample-table-card-page", "Higher-contrast table card variant for white article pages" },
+  StyleStudy { "sample-table-card-paper", "Warm paper table card with a tight editorial shadow" },
+  StyleStudy { "sample-table-card-tight", "Near-white table card with crisp tight page shadow" },
+  StyleStudy { "sample-table-card-dark-band", "Dark information band table card with a violet accent strip" },
 };
 
 float clamp01(float value) {
@@ -808,15 +811,26 @@ struct SampleTableCardStyle {
   uint32_t title_text = 0xff111827;
   uint32_t body_text = 0xff718096;
   uint32_t value_text = 0xff2f3947;
+  uint32_t badge_top = 0xff17233a;
+  uint32_t badge_bottom = 0xff08111f;
+  uint32_t badge_text = 0xffffffff;
   uint32_t badge_shadow = 0x34081527;
   uint32_t badge_ring = 0x661f2d46;
   uint32_t shadow_near = 0x10081527;
   uint32_t shadow_far = 0x080b1728;
+  uint32_t accent_band = 0x00000000;
   float card_border_width = 3.0f;
   float table_border_width = 1.5f;
   float table_divider_width = 1.1f;
   float shadow_y_offset = -13.0f;
   float shadow_clamp_offset = 0.25f;
+  float shadow_near_height = 24.0f;
+  float shadow_near_blur = 34.0f;
+  float shadow_far_inset = 34.0f;
+  float shadow_far_y_offset = 8.0f;
+  float shadow_far_height = 18.0f;
+  float shadow_far_blur = 46.0f;
+  float accent_band_width = 0.0f;
 };
 
 constexpr SampleTableCardStyle kSampleTableCardStyle {};
@@ -828,15 +842,116 @@ constexpr SampleTableCardStyle kSampleTableCardPageStyle {
   0xff0f1724, // title_text
   0xff5f6d82, // body_text
   0xff253142, // value_text
+  0xff17233a, // badge_top
+  0xff08111f, // badge_bottom
+  0xffffffff, // badge_text
   0x30081527, // badge_shadow
   0x5c1f2d46, // badge_ring
   0x0d081527, // shadow_near
   0x060b1728, // shadow_far
+  0x00000000, // accent_band
   3.0f, // card_border_width
   1.45f, // table_border_width
   1.15f, // table_divider_width
   -16.0f, // shadow_y_offset
   -1.75f, // shadow_clamp_offset
+  24.0f, // shadow_near_height
+  34.0f, // shadow_near_blur
+  34.0f, // shadow_far_inset
+  8.0f, // shadow_far_y_offset
+  18.0f, // shadow_far_height
+  46.0f, // shadow_far_blur
+  0.0f, // accent_band_width
+};
+
+constexpr SampleTableCardStyle kSampleTableCardPaperStyle {
+  0xfffffcf6, // card_face
+  0xffddd8cf, // card_border
+  0xfffffdf9, // table_fill
+  0xffd8d1c7, // table_line
+  0xff242321, // title_text
+  0xff766d62, // body_text
+  0xff34302b, // value_text
+  0xff252525, // badge_top
+  0xff121212, // badge_bottom
+  0xfffffcf6, // badge_text
+  0x26000000, // badge_shadow
+  0x44333333, // badge_ring
+  0x18000000, // shadow_near
+  0x07000000, // shadow_far
+  0x00000000, // accent_band
+  2.0f, // card_border_width
+  1.25f, // table_border_width
+  1.05f, // table_divider_width
+  -9.0f, // shadow_y_offset
+  -1.0f, // shadow_clamp_offset
+  16.0f, // shadow_near_height
+  20.0f, // shadow_near_blur
+  42.0f, // shadow_far_inset
+  7.0f, // shadow_far_y_offset
+  12.0f, // shadow_far_height
+  30.0f, // shadow_far_blur
+  0.0f, // accent_band_width
+};
+
+constexpr SampleTableCardStyle kSampleTableCardTightStyle {
+  0xffffffff, // card_face
+  0xffdfe5ec, // card_border
+  0xfffcfdff, // table_fill
+  0xffd8dee7, // table_line
+  0xff111827, // title_text
+  0xff657287, // body_text
+  0xff2c3848, // value_text
+  0xff17233a, // badge_top
+  0xff08111f, // badge_bottom
+  0xffffffff, // badge_text
+  0x2a081527, // badge_shadow
+  0x5a1f2d46, // badge_ring
+  0x16081527, // shadow_near
+  0x050b1728, // shadow_far
+  0x00000000, // accent_band
+  2.0f, // card_border_width
+  1.25f, // table_border_width
+  1.05f, // table_divider_width
+  -8.0f, // shadow_y_offset
+  -2.0f, // shadow_clamp_offset
+  15.0f, // shadow_near_height
+  18.0f, // shadow_near_blur
+  46.0f, // shadow_far_inset
+  7.0f, // shadow_far_y_offset
+  10.0f, // shadow_far_height
+  26.0f, // shadow_far_blur
+  0.0f, // accent_band_width
+};
+
+constexpr SampleTableCardStyle kSampleTableCardDarkBandStyle {
+  0xff171b25, // card_face
+  0xff2b3343, // card_border
+  0xff111722, // table_fill
+  0xff323b4c, // table_line
+  0xfff5f7fb, // title_text
+  0xffb8c2d1, // body_text
+  0xffedf2f8, // value_text
+  0xff2c3547, // badge_top
+  0xff101722, // badge_bottom
+  0xfff5f7fb, // badge_text
+  0x26000000, // badge_shadow
+  0x668b95a6, // badge_ring
+  0x16081527, // shadow_near
+  0x08081527, // shadow_far
+  0xff8f36ff, // accent_band
+  2.0f, // card_border_width
+  1.2f, // table_border_width
+  1.0f, // table_divider_width
+  -10.0f, // shadow_y_offset
+  -1.0f, // shadow_clamp_offset
+  18.0f, // shadow_near_height
+  24.0f, // shadow_near_blur
+  44.0f, // shadow_far_inset
+  7.0f, // shadow_far_y_offset
+  12.0f, // shadow_far_height
+  34.0f, // shadow_far_blur
+  8.0f, // accent_band_width
 };
 
 SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
@@ -885,11 +1000,16 @@ void drawCardShadow(visage::Canvas& canvas,
 
   canvas.setColor(style.shadow_near);
   canvas.roundedRectangleShadow(
-      shadow_x, shadow_y, shadow_width, 24.0f, layout.radius * 0.70f, 34.0f);
+      shadow_x, shadow_y, shadow_width, style.shadow_near_height, layout.radius * 0.70f,
+      style.shadow_near_blur);
 
   canvas.setColor(style.shadow_far);
-  canvas.roundedRectangleShadow(
-      shadow_x + 34.0f, shadow_y + 8.0f, shadow_width - 68.0f, 18.0f, 12.0f, 46.0f);
+  canvas.roundedRectangleShadow(shadow_x + style.shadow_far_inset,
+                                shadow_y + style.shadow_far_y_offset,
+                                shadow_width - style.shadow_far_inset * 2.0f,
+                                style.shadow_far_height,
+                                12.0f,
+                                style.shadow_far_blur);
 
   canvas.restoreState();
 }
@@ -928,6 +1048,14 @@ void drawSampleTableCardShell(visage::Canvas& canvas,
                       layout.card.height - border_width * 2.0f,
                       layout.radius - border_width,
                       style.card_face);
+
+  if (style.accent_band_width > 0.0f) {
+    canvas.setColor(style.accent_band);
+    canvas.fill(layout.card.x + border_width,
+                layout.card.y + border_width,
+                style.accent_band_width,
+                layout.card.height - border_width * 2.0f);
+  }
 }
 
 void drawSampleTableCardBadge(visage::Canvas& canvas,
@@ -942,7 +1070,7 @@ void drawSampleTableCardBadge(visage::Canvas& canvas,
                                 layout.badge_radius,
                                 16.0f);
 
-  canvas.setColor(visage::Brush::vertical(0xff17233a, 0xff08111f));
+  canvas.setColor(visage::Brush::vertical(style.badge_top, style.badge_bottom));
   canvas.circle(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter);
   canvas.setColor(style.badge_ring);
   canvas.ring(layout.badge_x - layout.badge_radius, layout.badge_y - layout.badge_radius, diameter, 1.0f);
@@ -950,7 +1078,7 @@ void drawSampleTableCardBadge(visage::Canvas& canvas,
   text(canvas,
        "1",
        layout.badge_radius * 0.82f,
-       style.card_face,
+       style.badge_text,
        visage::Font::kCenter,
        layout.badge_x - layout.badge_radius,
        layout.badge_y - layout.badge_radius - 1.0f,
@@ -1197,7 +1325,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 13>& styleStudies() {
+const std::array<StyleStudy, 16>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -1246,6 +1374,12 @@ void drawStyleStudy(DrawContext& context,
     drawSampleTableCard(context, dimensions);
   else if (study_id == "sample-table-card-page")
     drawSampleTableCard(context, dimensions, kSampleTableCardPageStyle);
+  else if (study_id == "sample-table-card-paper")
+    drawSampleTableCard(context, dimensions, kSampleTableCardPaperStyle);
+  else if (study_id == "sample-table-card-tight")
+    drawSampleTableCard(context, dimensions, kSampleTableCardTightStyle);
+  else if (study_id == "sample-table-card-dark-band")
+    drawSampleTableCard(context, dimensions, kSampleTableCardDarkBandStyle);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }
