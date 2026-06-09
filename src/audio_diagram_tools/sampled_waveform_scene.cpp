@@ -49,10 +49,16 @@ Rect insetRect(const Rect& rect, float x, float y) {
   return { rect.x + x, rect.y + y, rect.width - 2.0f * x, rect.height - 2.0f * y };
 }
 
+float standardFrameGutter(const Dimensions& dimensions) {
+  const float short_side = static_cast<float>(std::min(dimensions.width, dimensions.height));
+  return std::clamp(short_side * 0.035f, 10.0f, 18.0f);
+}
+
 FrameLayout griffinboyFrameLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
   const float height = static_cast<float>(dimensions.height);
-  const Rect outer { width * 0.0225f, height * 0.058f, width * 0.955f, height * 0.914f };
+  const float gutter = standardFrameGutter(dimensions);
+  const Rect outer { gutter, gutter, width - 2.0f * gutter, height - 2.0f * gutter };
   const Rect bevel = insetRect(outer, std::max(1.8f, width * 0.0025f),
                                std::max(1.8f, height * 0.009f));
   const Rect content = insetRect(bevel, std::max(1.7f, width * 0.0025f),
@@ -138,10 +144,7 @@ void drawFrameCorners(visage::Canvas& canvas, const FrameLayout& layout) {
                   layout.content.y + layout.content.height - inset, h, v, -1, -1);
 }
 
-void drawFrame(visage::Canvas& canvas, const Dimensions& dimensions, const FrameLayout& layout) {
-  canvas.setColor(0xfff4f4f9);
-  canvas.fill(0, 0, dimensions.width, dimensions.height);
-
+void drawFrame(visage::Canvas& canvas, const FrameLayout& layout) {
   canvas.setColor(0xff071016);
   canvas.roundedRectangle(layout.outer.x, layout.outer.y, layout.outer.width, layout.outer.height,
                           layout.radius);
@@ -339,7 +342,7 @@ void drawSamplePoints(DrawContext& context, const std::vector<SamplePoint>& poin
 void drawEightSampleWaveform(DrawContext& context, const EightSampleWaveformSpec& spec) {
   visage::Canvas& canvas = context.canvas;
   const FrameLayout layout = griffinboyFrameLayout(context.dimensions);
-  drawFrame(canvas, context.dimensions, layout);
+  drawFrame(canvas, layout);
 
   const std::vector<SamplePoint> points = samplePoints(layout.plot, spec);
   const visage::Path waveform = sineWavePath(layout.plot);

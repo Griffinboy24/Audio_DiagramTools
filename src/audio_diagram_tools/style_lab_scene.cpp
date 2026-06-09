@@ -693,10 +693,16 @@ struct DiagramFrameLayout {
   float radius = 10.0f;
 };
 
+float standardFrameGutter(const Dimensions& dimensions) {
+  const float short_side = static_cast<float>(std::min(dimensions.width, dimensions.height));
+  return std::clamp(short_side * 0.035f, 10.0f, 18.0f);
+}
+
 DiagramFrameLayout diagramFrameLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
   const float height = static_cast<float>(dimensions.height);
-  const Rect outer { width * 0.0225f, height * 0.058f, width * 0.955f, height * 0.914f };
+  const float gutter = standardFrameGutter(dimensions);
+  const Rect outer { gutter, gutter, width - 2.0f * gutter, height - 2.0f * gutter };
   const Rect bevel = insetRect(outer, std::max(1.8f, width * 0.0025f),
                                std::max(1.8f, height * 0.009f));
   const Rect content = insetRect(bevel, std::max(1.7f, width * 0.0025f),
@@ -737,12 +743,7 @@ void drawDiagramFrameCorners(visage::Canvas& canvas, const DiagramFrameLayout& l
                   layout.content.y + layout.content.height - inset, h, v, -1, -1);
 }
 
-void drawDiagramFrame(visage::Canvas& canvas,
-                      const Dimensions& dimensions,
-                      const DiagramFrameLayout& layout) {
-  canvas.setColor(0xfff4f4f9);
-  canvas.fill(0, 0, dimensions.width, dimensions.height);
-
+void drawDiagramFrame(visage::Canvas& canvas, const DiagramFrameLayout& layout) {
   canvas.setColor(0xff071016);
   canvas.roundedRectangle(layout.outer.x, layout.outer.y, layout.outer.width, layout.outer.height,
                           layout.radius);
@@ -765,7 +766,7 @@ void drawDiagramFrame(visage::Canvas& canvas,
 
 void drawBlueRidgeFramed(DrawContext& context, const Dimensions& dimensions) {
   DiagramFrameLayout layout = diagramFrameLayout(dimensions);
-  drawDiagramFrame(context.canvas, dimensions, layout);
+  drawDiagramFrame(context.canvas, layout);
   drawBlueRidgePlot(context, dimensions, layout.plot, false, false, false);
   drawDiagramFrameCorners(context.canvas, layout);
 }
