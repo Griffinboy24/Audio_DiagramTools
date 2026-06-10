@@ -43,7 +43,7 @@ struct DrawContext {
   std::vector<std::unique_ptr<visage::BlurPostEffect>> blur_effects;
 };
 
-const std::array<StyleStudy, 23> kStyleStudies = {
+const std::array<StyleStudy, 26> kStyleStudies = {
   StyleStudy { "warm-scope", "Warm oscilloscope overlay with solid/dashed phase traces" },
   StyleStudy { "spectral-callout", "Dense spectral trace with a restrained callout treatment" },
   StyleStudy { "blue-decay", "Soft blue chirp trace with bloom and sparse scale markers" },
@@ -67,6 +67,9 @@ const std::array<StyleStudy, 23> kStyleStudies = {
   StyleStudy { "sample-table-card-tech-band-blue", "Dark technical table band using Griffinboy waveform blues" },
   StyleStudy { "sample-table-card-tech-band-pale-grid", "Violet technical band with pale array value grid" },
   StyleStudy { "sample-table-card-paper-rim", "Warm paper card with raised rim tones and no cast shadow" },
+  StyleStudy { "sample-table-card-postcard-flat", "Flat white postcard math card with crisp table rules" },
+  StyleStudy { "sample-table-card-worksheet-strip", "Square worksheet strip with no cast shadow" },
+  StyleStudy { "sample-table-card-index-card", "Quiet off-white index card with readable array values" },
 };
 
 float clamp01(float value) {
@@ -875,6 +878,11 @@ struct SampleTableCardStyle {
   uint32_t rim_right = 0x00000000;
   uint32_t rim_inner = 0x00000000;
   float rim_width = 0.0f;
+  float card_radius_override = -1.0f;
+  float table_radius_override = -1.0f;
+  float title_size_scale = 1.0f;
+  float body_size_scale = 1.0f;
+  float value_size_scale = 1.0f;
   SampleCardSurface card_surface = SampleCardSurface::Solid;
   SampleTableRules table_rules = SampleTableRules::Solid;
   SampleBadgeTreatment badge_treatment = SampleBadgeTreatment::Filled;
@@ -1180,6 +1188,104 @@ constexpr SampleTableCardStyle makeSampleTableCardPaperRimStyle() {
   return style;
 }
 
+constexpr SampleTableCardStyle makeSampleTableCardPostcardFlatStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xffffffff;
+  style.card_face_bottom = 0xfffbfcfe;
+  style.card_border = 0xffd7dce4;
+  style.table_fill = 0xfffbfcfd;
+  style.table_fill_bottom = 0xfff8fafc;
+  style.table_line = 0xffc9d0da;
+  style.title_text = 0xff111827;
+  style.body_text = 0xff5d6878;
+  style.value_text = 0xff1f2937;
+  style.badge_top = 0xff111827;
+  style.badge_bottom = 0xff111827;
+  style.badge_text = 0xffffffff;
+  style.badge_shadow = 0x10081527;
+  style.badge_ring = 0x00000000;
+  style.shadow_near = 0x0a081527;
+  style.shadow_far = 0x00000000;
+  style.card_border_width = 1.4f;
+  style.table_border_width = 1.25f;
+  style.table_divider_width = 1.05f;
+  style.shadow_y_offset = -7.0f;
+  style.shadow_clamp_offset = -1.5f;
+  style.shadow_near_height = 10.0f;
+  style.shadow_near_blur = 16.0f;
+  style.card_surface = SampleCardSurface::VerticalGradient;
+  style.card_radius_override = 3.0f;
+  style.table_radius_override = 1.5f;
+  style.title_size_scale = 1.04f;
+  style.body_size_scale = 1.03f;
+  style.value_size_scale = 1.12f;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardWorksheetStripStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xffffffff;
+  style.card_face_bottom = 0xffffffff;
+  style.card_border = 0xffcfd6df;
+  style.table_fill = 0xffffffff;
+  style.table_fill_bottom = 0xffffffff;
+  style.table_line = 0xffd3d8e0;
+  style.title_text = 0xff17212f;
+  style.body_text = 0xff667384;
+  style.value_text = 0xff202b3a;
+  style.badge_top = 0xffffffff;
+  style.badge_bottom = 0xffffffff;
+  style.badge_text = 0xff17212f;
+  style.badge_shadow = 0x00000000;
+  style.badge_ring = 0xff17212f;
+  style.shadow_near = 0x00000000;
+  style.shadow_far = 0x00000000;
+  style.card_border_width = 1.25f;
+  style.table_border_width = 1.15f;
+  style.table_divider_width = 1.0f;
+  style.card_radius_override = 0.0f;
+  style.table_radius_override = 0.0f;
+  style.title_size_scale = 1.02f;
+  style.body_size_scale = 1.0f;
+  style.value_size_scale = 1.15f;
+  style.badge_treatment = SampleBadgeTreatment::LightOutline;
+  return style;
+}
+
+constexpr SampleTableCardStyle makeSampleTableCardIndexCardStyle() {
+  SampleTableCardStyle style = kSampleTableCardStyle;
+  style.card_face = 0xfffcfbf7;
+  style.card_face_bottom = 0xfff7f8fa;
+  style.card_border = 0xffd9dee6;
+  style.table_fill = 0xffffffff;
+  style.table_fill_bottom = 0xfffbfcfd;
+  style.table_line = 0xffcfd5df;
+  style.title_text = 0xff152033;
+  style.body_text = 0xff687485;
+  style.value_text = 0xff1f2a3a;
+  style.badge_top = 0xff172033;
+  style.badge_bottom = 0xff172033;
+  style.badge_text = 0xfffcfbf7;
+  style.badge_shadow = 0x14081527;
+  style.badge_ring = 0x00000000;
+  style.shadow_near = 0x0d081527;
+  style.shadow_far = 0x00000000;
+  style.card_border_width = 1.3f;
+  style.table_border_width = 1.2f;
+  style.table_divider_width = 1.0f;
+  style.shadow_y_offset = -6.0f;
+  style.shadow_clamp_offset = -1.5f;
+  style.shadow_near_height = 9.0f;
+  style.shadow_near_blur = 14.0f;
+  style.card_surface = SampleCardSurface::VerticalGradient;
+  style.card_radius_override = 5.0f;
+  style.table_radius_override = 2.0f;
+  style.title_size_scale = 1.03f;
+  style.body_size_scale = 1.02f;
+  style.value_size_scale = 1.13f;
+  return style;
+}
+
 constexpr SampleTableCardStyle kSampleTableCardPaperInkStyle = makeSampleTableCardPaperInkStyle();
 constexpr SampleTableCardStyle kSampleTableCardSchematicStyle = makeSampleTableCardSchematicStyle();
 constexpr SampleTableCardStyle kSampleTableCardTechBandStyle = makeSampleTableCardTechBandStyle();
@@ -1190,6 +1296,11 @@ constexpr SampleTableCardStyle kSampleTableCardTechBandBlueStyle =
 constexpr SampleTableCardStyle kSampleTableCardTechBandPaleGridStyle =
     makeSampleTableCardTechBandPaleGridStyle();
 constexpr SampleTableCardStyle kSampleTableCardPaperRimStyle = makeSampleTableCardPaperRimStyle();
+constexpr SampleTableCardStyle kSampleTableCardPostcardFlatStyle =
+    makeSampleTableCardPostcardFlatStyle();
+constexpr SampleTableCardStyle kSampleTableCardWorksheetStripStyle =
+    makeSampleTableCardWorksheetStripStyle();
+constexpr SampleTableCardStyle kSampleTableCardIndexCardStyle = makeSampleTableCardIndexCardStyle();
 
 SampleTableCardLayout sampleTableCardLayout(const Dimensions& dimensions) {
   const float width = static_cast<float>(dimensions.width);
@@ -1519,8 +1630,12 @@ void drawSampleTableCardBadge(visage::Canvas& canvas,
 void drawSampleTableCardCopy(visage::Canvas& canvas,
                              const SampleTableCardLayout& layout,
                              const SampleTableCardStyle& style) {
-  const float title_size = std::clamp(layout.card.height * 0.145f, 20.0f, 25.0f);
-  const float body_size = std::clamp(layout.card.height * 0.100f, 14.0f, 18.0f);
+  const float title_size = std::clamp(layout.card.height * 0.145f * style.title_size_scale,
+                                      20.0f,
+                                      26.5f);
+  const float body_size = std::clamp(layout.card.height * 0.100f * style.body_size_scale,
+                                     14.0f,
+                                     19.0f);
   const float title_line = title_size * 1.10f;
   const float body_y = layout.copy.y + title_line * 2.16f;
 
@@ -1541,7 +1656,9 @@ void drawSampleValuesTable(visage::Canvas& canvas,
     "0.00", "0.42", "0.88", "0.56", "-0.12", "-0.76", "-0.48", "0.22"
   };
 
-  const float rounding = std::max(4.0f, layout.radius * style.table_rounding_scale);
+  const float rounding = style.table_radius_override >= 0.0f
+                             ? style.table_radius_override
+                             : std::max(4.0f, layout.radius * style.table_rounding_scale);
   const float cell_width = layout.table.width / static_cast<float>(kValues.size());
   const float border_width = style.table_border_width;
 
@@ -1606,7 +1723,8 @@ void drawSampleValuesTable(visage::Canvas& canvas,
     }
   }
 
-  const float value_size = std::clamp(layout.table.height * 0.28f, 18.0f, 22.0f);
+  const float value_size =
+      std::clamp(layout.table.height * 0.28f * style.value_size_scale, 18.0f, 24.0f);
   for (size_t i = 0; i < kValues.size(); ++i) {
     text(canvas,
          std::string(kValues[i]),
@@ -1624,6 +1742,8 @@ void drawSampleTableCard(DrawContext& context,
                          const Dimensions& dimensions,
                          const SampleTableCardStyle& style = kSampleTableCardStyle) {
   SampleTableCardLayout layout = sampleTableCardLayout(dimensions);
+  if (style.card_radius_override >= 0.0f)
+    layout.radius = style.card_radius_override;
   drawSampleTableCardShell(context.canvas, layout, style);
   drawSampleTableCardDetails(context.canvas, layout, style);
   drawSampleTableCardAccents(context.canvas, layout, style);
@@ -1793,7 +1913,7 @@ void drawMonoChirp(DrawContext& context, const Dimensions& dimensions) {
 
 } // namespace
 
-const std::array<StyleStudy, 23>& styleStudies() {
+const std::array<StyleStudy, 26>& styleStudies() {
   return kStyleStudies;
 }
 
@@ -1862,6 +1982,12 @@ void drawStyleStudy(DrawContext& context,
     drawSampleTableCard(context, dimensions, kSampleTableCardTechBandPaleGridStyle);
   else if (study_id == "sample-table-card-paper-rim")
     drawSampleTableCard(context, dimensions, kSampleTableCardPaperRimStyle);
+  else if (study_id == "sample-table-card-postcard-flat")
+    drawSampleTableCard(context, dimensions, kSampleTableCardPostcardFlatStyle);
+  else if (study_id == "sample-table-card-worksheet-strip")
+    drawSampleTableCard(context, dimensions, kSampleTableCardWorksheetStripStyle);
+  else if (study_id == "sample-table-card-index-card")
+    drawSampleTableCard(context, dimensions, kSampleTableCardIndexCardStyle);
   else
     throw std::runtime_error("Unknown style study: " + std::string(study_id));
 }

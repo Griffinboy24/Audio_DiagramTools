@@ -15,7 +15,7 @@ struct StyleStudy {
   std::string_view description;
 };
 
-const std::array<StyleStudy, 23>& styleStudies();
+const std::array<StyleStudy, 26>& styleStudies();
 std::optional<StyleStudy> styleStudyById(std::string_view id);
 
 visage::Screenshot renderStyleStudyFrame(std::string_view study_id,
