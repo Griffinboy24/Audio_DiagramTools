@@ -81,6 +81,9 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
   else if (graphic_id == "hise-node-container") {
     drawHiseNodeContainer(context, dimensions, options.hise_node_container);
   }
+  else if (graphic_id == "block-processing-graphic") {
+    drawBlockProcessingGraphic(context, dimensions, timeline, options.block_processing);
+  }
   else {
     throw std::runtime_error("Unknown canonical graphic: " + std::string(graphic_id));
   }

@@ -1,7 +1,8 @@
-#include "audio_diagram_tools/block_processing_experiment.h"
+#include "audio_diagram_tools/canonical_components.h"
+#include "audio_diagram_tools/composition.h"
 #include "audio_diagram_tools/gif_exporter.h"
-#include "audio_diagram_tools/png_export.h"
 
+#include <cmath>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -11,12 +12,12 @@
 namespace {
 
 struct CliOptions {
-  adt::Dimensions dimensions { 920, 520 };
+  adt::Dimensions dimensions { 920, 400 };
   std::filesystem::path output_path = "artifacts/experiments/block-processing-prototype.png";
   std::filesystem::path gif_path;
   int frame = 96;
-  int frames = 480;
-  double fps = 20.0;
+  int frames = 150;
+  double fps = 15.0;
   bool render_gif = false;
   bool help = false;
 };
@@ -26,13 +27,13 @@ void printHelp() {
       << "Block processing experiment renderer\n\n"
       << "Usage:\n"
       << "  adt_block_processing_experiment --out artifacts/experiments/block.png\n"
-      << "  adt_block_processing_experiment --gif artifacts/experiments/block.gif --frames 480 --fps 20\n\n"
+      << "  adt_block_processing_experiment --gif artifacts/experiments/block.gif --frames 150 --fps 15\n\n"
       << "Options:\n"
       << "  --width <px>      Output width. Default: 920\n"
-      << "  --height <px>     Output height. Default: 520\n"
+      << "  --height <px>     Output HISE image height. Default: 400\n"
       << "  --frame <index>   Still frame index. Default: 96\n"
-      << "  --frames <count>  GIF frame count. Default: 480\n"
-      << "  --fps <value>     GIF frame rate. Default: 20\n"
+      << "  --frames <count>  GIF frame count. Default: 150\n"
+      << "  --fps <value>     GIF frame rate. Default: 15\n"
       << "  --out <png>       Still PNG output path.\n"
       << "  --gif <gif>       Animated GIF output path.\n"
       << "  --help            Show this help.\n";
@@ -103,6 +104,8 @@ CliOptions parseArgs(int argc, char** argv) {
 
   if (options.dimensions.width <= 0 || options.dimensions.height <= 0)
     throw std::runtime_error("Width and height must be positive.");
+  if (options.dimensions.width != adt::composition::hiseArticleImageDimensions().width)
+    throw std::runtime_error("HISE article composition width is fixed at 920px.");
   if (options.frames <= 0)
     throw std::runtime_error("Frame count must be positive.");
   if (options.fps <= 0.0)
@@ -117,6 +120,31 @@ void ensureParentDirectory(const std::filesystem::path& file_path) {
     std::filesystem::create_directories(parent);
 }
 
+adt::composition::Scene makeBlockProcessingScene(const CliOptions& options) {
+  adt::composition::Profile profile =
+      adt::composition::hiseDarkArticleImageProfile(options.dimensions.height);
+
+  const int inner_height = static_cast<int>(std::lround(
+      static_cast<float>(profile.dimensions.height) - profile.top_padding - profile.bottom_padding));
+  if (inner_height <= 0)
+    throw std::runtime_error("HISE article height leaves no room for the block-processing graphic.");
+
+  adt::canonical::BlockProcessingOptions block_options;
+  block_options.clear_background = true;
+
+  adt::composition::StackOptions stack_options;
+  stack_options.top_padding = profile.top_padding;
+  stack_options.default_gap = 0.0f;
+  stack_options.bottom_padding = profile.bottom_padding;
+  stack_options.auto_height = false;
+
+  adt::composition::StackBuilder builder(profile, stack_options);
+  builder.add(adt::canonical::blockProcessingGraphic(
+                  block_options, { profile.dimensions.width, inner_height }),
+              0.0f);
+  return builder.build();
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -127,22 +155,22 @@ int main(int argc, char** argv) {
       return 0;
     }
 
+    const adt::composition::Scene scene = makeBlockProcessingScene(options);
+
     ensureParentDirectory(options.output_path);
     const adt::Timeline still_timeline =
         adt::Timeline::forFrame(options.frame, options.frames, options.fps);
-    adt::savePngWithStraightAlpha(
-        options.output_path.string(),
-        adt::experiments::renderBlockProcessingExperimentFrame(options.dimensions, still_timeline));
+    adt::composition::saveSceneFrame(options.output_path.string(), scene, still_timeline);
     std::cout << "Rendered still to " << options.output_path.string() << "\n";
 
     if (options.render_gif) {
       ensureParentDirectory(options.gif_path);
       adt::GifExportSpec spec;
-      spec.dimensions = options.dimensions;
+      spec.dimensions = scene.profile.dimensions;
       spec.frame_count = options.frames;
       spec.fps = options.fps;
       adt::saveAnimatedGif(options.gif_path.string(), spec, [&](const adt::Timeline& timeline) {
-        return adt::experiments::renderBlockProcessingExperimentFrame(options.dimensions, timeline);
+        return adt::composition::renderSceneFrame(scene, timeline);
       });
       std::cout << "Rendered GIF to " << options.gif_path.string() << "\n";
     }

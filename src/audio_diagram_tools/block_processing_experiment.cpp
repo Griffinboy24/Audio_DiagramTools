@@ -19,8 +19,7 @@ using canonical::drawing::Rect;
 
 constexpr float kPi = canonical::drawing::kPi;
 
-constexpr uint32_t kBackground = 0xff191919;
-constexpr uint32_t kBackgroundRim = 0xff242424;
+constexpr uint32_t kBackground = 0xff1d1d1d;
 constexpr uint32_t kBlockFillTop = 0xff333333;
 constexpr uint32_t kBlockFillBottom = 0xff242424;
 constexpr uint32_t kProcessedFillTop = 0xff2d3a33;
@@ -38,8 +37,9 @@ constexpr uint32_t kBlockMidline = 0xff474747;
 constexpr uint32_t kBlockTick = 0xff3a3a3a;
 constexpr uint32_t kActiveGlow = 0xff7acd93;
 
-constexpr float kWavePeriodBlocks = 16.0f;
-constexpr float kBaseWaveCyclesPerLoop = 9.0f;
+constexpr float kWavePeriodBlocks = 5.0f;
+constexpr float kBaseWaveCyclesPerLoop = 2.0f;
+constexpr float kWavePhaseOffsetCycles = 0.137f;
 constexpr float kLoopAge = 6.0f;
 constexpr float kLoopBlockCycles = kWavePeriodBlocks;
 constexpr float kLoopStartOffsetBlocks = 0.43f;
@@ -97,15 +97,17 @@ float wrapBlockCoordinate(float x_blocks) {
 
 float waveInput(float x_blocks) {
   const float x = wrapBlockCoordinate(x_blocks) / kWavePeriodBlocks;
-  const float main = std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + 0.21f));
-  const float texture = 0.18f * std::sin(2.0f * kPi * (x * 21.0f - 0.07f));
-  const float motion = 0.08f * std::sin(2.0f * kPi * (x * 33.0f + 0.41f));
-  return std::clamp(main * 0.74f + texture + motion, -0.92f, 0.92f);
+  const float main =
+      std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + kWavePhaseOffsetCycles));
+  const float texture = 0.055f * std::sin(2.0f * kPi * (x * 11.0f - 0.07f));
+  const float motion = 0.025f * std::sin(2.0f * kPi * (x * 19.0f + 0.41f));
+  return std::clamp(main * 0.82f + texture + motion, -0.92f, 0.92f);
 }
 
 float waveProcessed(float x_blocks) {
   const float x = wrapBlockCoordinate(x_blocks) / kWavePeriodBlocks;
-  const float clean = std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + 0.21f));
+  const float clean =
+      std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + kWavePhaseOffsetCycles));
   return std::clamp(std::tanh(clean * 1.16f) * 0.82f, -0.90f, 0.90f);
 }
 
@@ -131,7 +133,8 @@ std::vector<BlockWavePoint> blockWavePoints(const Rect& block,
 
   for (int i = 0; i < samples; ++i) {
     const float local = static_cast<float>(i) / static_cast<float>(samples - 1);
-    const float value = mixedWave(audio_start_blocks + local, processed_mix);
+    const float output_stream_local = 1.0f - local;
+    const float value = mixedWave(audio_start_blocks + output_stream_local, processed_mix);
     points.push_back({
         plot.x + plot.width * local,
         center_y - value * amplitude,
@@ -211,26 +214,26 @@ void drawBlock(visage::Canvas& canvas,
   if (opacity <= 0.0f)
     return;
 
-  const float emphasis = std::max(active_amount, processed_mix * 0.45f);
+  const float processed_outline = ease(processed_mix);
   const uint32_t fill_top = scaleAlpha(
       lerpColor(lerpColor(kBlockFillTop, kProcessedFillTop, processed_mix),
                 kActiveFillTop,
-                active_amount),
+                active_amount * processed_outline),
       opacity);
   const uint32_t fill_bottom = scaleAlpha(
       lerpColor(lerpColor(kBlockFillBottom, kProcessedFillBottom, processed_mix),
                 kActiveFillBottom,
-                active_amount),
+                active_amount * processed_outline),
       opacity);
   const uint32_t bevel = scaleAlpha(
-      lerpColor(lerpColor(kBlockBevel, kProcessedBevel, processed_mix), kActiveBevel, emphasis),
+      lerpColor(kBlockBevel, kActiveBevel, processed_outline),
       opacity);
   const uint32_t wave = scaleAlpha(lerpColor(kInputWave, kOutputWave, processed_mix), opacity);
   const uint32_t wave_shadow = scaleAlpha(kWaveShadow, opacity * 0.78f);
   const float radius = 2.75f;
 
-  if (active_amount > 0.03f) {
-    canvas.setColor(scaleAlpha(kActiveGlow, active_amount * opacity * 0.13f));
+  if (processed_outline > 0.03f) {
+    canvas.setColor(scaleAlpha(kActiveGlow, processed_outline * opacity * 0.13f));
     canvas.roundedRectangle(
         block.x - 3.0f, block.y - 3.0f, block.width + 6.0f, block.height + 6.0f, radius + 2.0f);
   }
@@ -277,8 +280,6 @@ void drawBlock(visage::Canvas& canvas,
                                0.65f,
                                scaleAlpha(kBlockMidline, opacity * 0.82f));
 
-  canvas.setColor(scaleAlpha(lerpColor(0xff4b4b4b, kActiveGlow, processed_mix), opacity * 0.92f));
-  canvas.fill(block.x + 5.0f, block.y + 6.0f, 2.2f, block.height - 12.0f);
   canvas.setColor(scaleAlpha(kBlockOuterStroke, opacity * 0.78f));
   canvas.fill(block.x + block.width - 6.5f, block.y + 6.0f, 1.3f, block.height - 12.0f);
 
@@ -291,24 +292,12 @@ void drawBlock(visage::Canvas& canvas,
   const visage::Path wave_path = blockWavePath(wave_points);
   canonical::drawing::fillStroke(canvas, wave_path, 2.9f, wave_shadow);
   canonical::drawing::fillStroke(canvas, wave_path, 1.35f, wave);
+
 }
 
 void drawBackground(visage::Canvas& canvas, const Dimensions& dimensions) {
   canvas.setColor(kBackground);
   canvas.fill(0, 0, dimensions.width, dimensions.height);
-
-  canvas.setColor(0x26000000);
-  canvas.rectangle(0.0f, 0.0f, static_cast<float>(dimensions.width), 26.0f);
-  canvas.rectangle(0.0f,
-                   static_cast<float>(dimensions.height) - 30.0f,
-                   static_cast<float>(dimensions.width),
-                   30.0f);
-  canvas.setColor(kBackgroundRim);
-  canvas.rectangle(0.0f, 0.0f, static_cast<float>(dimensions.width), 1.0f);
-  canvas.rectangle(0.0f,
-                   static_cast<float>(dimensions.height) - 1.0f,
-                   static_cast<float>(dimensions.width),
-                   1.0f);
 }
 
 struct BlockState {
@@ -386,7 +375,7 @@ void drawProcessedOutputChain(visage::Canvas& canvas,
                               float view_right) {
   for (int slot = 1; slot <= 16; ++slot) {
     const float slot_offset = static_cast<float>(slot);
-    const float audio_start_blocks = leading_block + slot_offset;
+    const float audio_start_blocks = leading_block - slot_offset;
     const float x = intake_x + (local_cycle + slot_offset) * block_width;
     if (x >= view_right + block_width)
       continue;
@@ -396,15 +385,37 @@ void drawProcessedOutputChain(visage::Canvas& canvas,
   }
 }
 
-} // namespace
+void drawEndpointLabels(visage::Canvas& canvas, float y, float view_width) {
+  constexpr float kLabelWidth = 178.0f;
+  constexpr float kLabelHeight = 32.0f;
+  constexpr float kLabelSize = 20.5f;
+  constexpr uint32_t kEndpointLabelColor = 0xffb8beb9;
 
-visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimensions,
-                                                        const Timeline& timeline) {
-  visage::Canvas canvas;
-  canvas.setWindowless(dimensions.width, dimensions.height);
-  canvas.updateTime(timeline.time_seconds);
-  DrawContext context(canvas, dimensions);
+  canonical::drawing::fauxBoldText(canvas,
+                                   "INPUT",
+                                   kLabelSize,
+                                   kEndpointLabelColor,
+                                   visage::Font::kCenter,
+                                   34.0f,
+                                   y,
+                                   kLabelWidth,
+                                   kLabelHeight);
+  canonical::drawing::fauxBoldText(canvas,
+                                   "OUTPUT",
+                                   kLabelSize,
+                                   kEndpointLabelColor,
+                                   visage::Font::kCenter,
+                                   view_width - kLabelWidth - 34.0f,
+                                   y,
+                                   kLabelWidth,
+                                   kLabelHeight);
+}
 
+void drawBlockProcessing(DrawContext& context,
+                         const Dimensions& dimensions,
+                         const Timeline& timeline,
+                         const canonical::BlockProcessingOptions& options) {
+  visage::Canvas& canvas = context.canvas;
   const float w = static_cast<float>(dimensions.width);
   const float h = static_cast<float>(dimensions.height);
   const float center_x = w * 0.5f;
@@ -413,16 +424,23 @@ visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimens
   const float node_w = 500.0f * node_scale;
   const float node_h = 357.0f * node_scale;
   const float node_x = center_x - node_w * 0.5f;
-  const float node_y = 43.0f;
 
   const float block_width = 92.0f;
   const float block_height = 48.0f;
+  const float node_to_stream_gap = 14.0f;
+  constexpr float kLabelBandHeight = 40.0f;
+  const float scene_visual_height = kLabelBandHeight + node_h + node_to_stream_gap + block_height;
+  const float node_y =
+      std::max(kLabelBandHeight, (h - scene_visual_height) * 0.5f + kLabelBandHeight);
   const float intake_x = center_x - block_width * 0.5f;
-  const float stream_y = std::min(h - 82.0f, node_y + node_h + 14.0f);
+  const float stream_y = node_y + node_h + node_to_stream_gap;
   const float process_y = node_y + 84.0f * node_scale + (231.0f * node_scale - block_height) * 0.5f;
   const float input_x = -block_width - 72.0f;
 
-  drawBackground(canvas, dimensions);
+  if (options.clear_background)
+    drawBackground(canvas, dimensions);
+
+  drawEndpointLabels(canvas, node_y - 26.0f, w);
 
   const float loop_phase_blocks =
       kLoopStartOffsetBlocks + static_cast<float>(timeline.normalized_time) * kLoopBlockCycles;
@@ -433,7 +451,7 @@ visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimens
       canvas, leading_block, local_cycle, intake_x, block_width, block_height, stream_y, w);
 
   canonical::HiseNodeContainerOptions node_options;
-  node_options.label = "";
+  node_options.label = "DSP";
   canonical::renderers::drawHiseNodeContainerAt(context, node_options, node_x, node_y, node_scale);
 
   const BlockState block =
@@ -453,6 +471,27 @@ visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimens
               block.processed_mix,
               block.active_amount);
   }
+}
+
+} // namespace
+
+void drawBlockProcessingExperiment(canonical::drawing::DrawContext& context,
+                                   const Dimensions& dimensions,
+                                   const Timeline& timeline,
+                                   const canonical::BlockProcessingOptions& options) {
+  drawBlockProcessing(context, dimensions, timeline, options);
+}
+
+visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimensions,
+                                                        const Timeline& timeline) {
+  visage::Canvas canvas;
+  canvas.setWindowless(dimensions.width, dimensions.height);
+  canvas.updateTime(timeline.time_seconds);
+  DrawContext context(canvas, dimensions);
+
+  canonical::BlockProcessingOptions options;
+  options.clear_background = true;
+  drawBlockProcessing(context, dimensions, timeline, options);
 
   canvas.submit();
   return canvas.takeScreenshot();
@@ -466,3 +505,14 @@ void saveBlockProcessingExperimentFrame(const std::string& output_path,
 }
 
 } // namespace adt::experiments
+
+namespace adt::canonical::renderers {
+
+void drawBlockProcessingGraphic(drawing::DrawContext& context,
+                                const Dimensions& dimensions,
+                                const Timeline& timeline,
+                                const BlockProcessingOptions& options) {
+  experiments::drawBlockProcessingExperiment(context, dimensions, timeline, options);
+}
+
+} // namespace adt::canonical::renderers

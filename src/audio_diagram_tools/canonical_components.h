@@ -27,6 +27,7 @@ inline constexpr std::string_view kAudioFilePlayerGraphic = "audio-file-player-g
 inline constexpr std::string_view kSpeakerAnimationGraphic = "speaker-animation-graphic";
 inline constexpr std::string_view kAudioFileToSpeakerScene = "audio-file-to-speaker-scene";
 inline constexpr std::string_view kHiseNodeContainer = "hise-node-container";
+inline constexpr std::string_view kBlockProcessingGraphic = "block-processing-graphic";
 
 } // namespace ids
 
@@ -59,12 +60,17 @@ struct HiseNodeContainerOptions {
   bool draw_close_button = true;
 };
 
+struct BlockProcessingOptions {
+  bool clear_background = true;
+};
+
 struct RenderOptions {
   AudioFilePlayerOptions audio_file_player;
   SpeakerMotionOptions speaker_motion;
   DoubleArrowOptions double_arrow;
   AudioFileToSpeakerSceneOptions audio_file_to_speaker;
   HiseNodeContainerOptions hise_node_container;
+  BlockProcessingOptions block_processing;
 };
 
 struct Component {
@@ -73,7 +79,7 @@ struct Component {
   RenderOptions options;
 };
 
-const std::array<CanonicalGraphic, 7>& canonicalGraphics();
+const std::array<CanonicalGraphic, 8>& canonicalGraphics();
 std::optional<CanonicalGraphic> canonicalGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -89,6 +95,8 @@ Component audioFileToSpeakerScene(const AudioFileToSpeakerSceneOptions& options 
                                   Dimensions dimensions = {});
 Component hiseNodeContainer(const HiseNodeContainerOptions& options = {},
                             Dimensions dimensions = {});
+Component blockProcessingGraphic(const BlockProcessingOptions& options = {},
+                                 Dimensions dimensions = {});
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,
                                                const Dimensions& dimensions,

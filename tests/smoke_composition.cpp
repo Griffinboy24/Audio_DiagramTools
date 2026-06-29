@@ -58,5 +58,27 @@ int main() {
     return 1;
   }
 
+  adt::canonical::BlockProcessingOptions block_options;
+  block_options.clear_background = true;
+
+  adt::composition::Profile dark_profile = adt::composition::hiseDarkArticleImageProfile(368);
+  adt::composition::StackOptions block_stack_options;
+  block_stack_options.top_padding = dark_profile.top_padding;
+  block_stack_options.default_gap = 0.0f;
+  block_stack_options.bottom_padding = dark_profile.bottom_padding;
+  block_stack_options.auto_height = false;
+
+  adt::composition::StackBuilder block_builder(dark_profile, block_stack_options);
+  block_builder.add(adt::canonical::blockProcessingGraphic(block_options, { 920, 330 }), 0.0f);
+  const adt::composition::Scene block_scene = block_builder.build();
+  const visage::Screenshot block_screenshot =
+      adt::composition::renderSceneFrame(block_scene, timeline);
+
+  if (block_screenshot.width() != 920 || block_screenshot.height() != 368 ||
+      !hasVisibleVariation(block_screenshot)) {
+    std::cerr << "Block processing composition render failed.\n";
+    return 1;
+  }
+
   return 0;
 }

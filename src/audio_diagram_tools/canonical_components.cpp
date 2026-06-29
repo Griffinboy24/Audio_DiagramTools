@@ -9,7 +9,7 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 7> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 8> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
@@ -31,6 +31,9 @@ const std::array<CanonicalGraphic, 7> kCanonicalGraphics = {
   CanonicalGraphic { ids::kHiseNodeContainer,
                      "Canonical HISE-style dark node/container with editable label",
                      { 500, 357 } },
+  CanonicalGraphic { ids::kBlockProcessingGraphic,
+                     "Canonical block-processing DSP animation graphic",
+                     { 920, 330 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -46,7 +49,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 7>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 8>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -108,6 +111,12 @@ Component hiseNodeContainer(const HiseNodeContainerOptions& options, Dimensions 
   RenderOptions render_options;
   render_options.hise_node_container = options;
   return makeComponent(ids::kHiseNodeContainer, dimensions, render_options);
+}
+
+Component blockProcessingGraphic(const BlockProcessingOptions& options, Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.block_processing = options;
+  return makeComponent(ids::kBlockProcessingGraphic, dimensions, render_options);
 }
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,

@@ -130,6 +130,7 @@ graphics. New C++ code should prefer component builders. The current CLI ids are
 - `speaker-animation-graphic`
 - `audio-file-to-speaker-scene`
 - `hise-node-container`
+- `block-processing-graphic`
 
 New article graphics should target these component builders and option structs.
 Old style-study ids are not part of the supported public workflow.
@@ -170,6 +171,13 @@ graphic should intentionally read as a dark block rather than disappear into the
 forum page. Source images are expected to be scaled by the forum when embedded,
 so the important invariant is consistent internal spacing and clear render-time
 metadata, not matching the browser's final CSS pixel size.
+
+Single-purpose dark graphics, such as the block-processing DSP animation, should
+still enter this flow as canonical components. When the animation relies on
+edge cropping or moving blocks, render the component at the full `920px` HISE
+width with an opaque dark background that matches `hiseDarkArticleImageProfile()`;
+then place it inside the profile so top/bottom padding stays controlled by the
+composition layer.
 
 The first code layer for this is `src/audio_diagram_tools/composition.h`. It is
 intentionally small: a `Profile` describes the target canvas and content band,

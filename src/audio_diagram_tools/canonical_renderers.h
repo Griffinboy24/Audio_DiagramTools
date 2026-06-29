@@ -50,6 +50,10 @@ void drawHiseNodeContainerAt(drawing::DrawContext& context,
                              float origin_x,
                              float origin_y,
                              float scale);
+void drawBlockProcessingGraphic(drawing::DrawContext& context,
+                                const Dimensions& dimensions,
+                                const Timeline& timeline,
+                                const BlockProcessingOptions& options);
 
 visage::Screenshot renderFrame(std::string_view graphic_id,
                                const Dimensions& dimensions,
