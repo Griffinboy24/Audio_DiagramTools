@@ -1,8 +1,9 @@
-#include "audio_diagram_tools/style_lab_scene.h"
+#include "audio_diagram_tools/canonical_components.h"
 #include "audio_diagram_tools/waveform_scene.h"
 
 #include <cstdint>
 #include <iostream>
+#include <string>
 
 int main() {
   const auto preset = adt::canvasPresetById("blog-wide");
@@ -11,9 +12,9 @@ int main() {
     return 1;
   }
 
-  const auto study = adt::styleStudyById("filled-ribbon");
-  if (!study) {
-    std::cerr << "Style study lookup failed.\n";
+  const auto canonical_graphic = adt::canonical::audioFileToSpeakerScene();
+  if (canonical_graphic.canonical_id != std::string(adt::canonical::ids::kAudioFileToSpeakerScene)) {
+    std::cerr << "Canonical graphic lookup failed.\n";
     return 1;
   }
 

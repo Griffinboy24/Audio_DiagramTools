@@ -1,0 +1,14 @@
+{
+  "schema": "audio-diagram-tools.article-project.v1",
+  "targetProfile": "hise-published-topic",
+  "topicTitle": "[Blog] My Favourite C++ Open Source DSP References",
+  "author": "griffinboy",
+  "age": "22 days ago",
+  "category": "Blog Entries",
+  "posts": "10 posts",
+  "posters": "5 posters",
+  "views": "443 views",
+  "chrome": "member",
+  "assetRoot": "./renders",
+  "markdown": "./article.md"
+}

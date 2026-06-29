@@ -70,11 +70,24 @@ set(VISAGE_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory("${AUDIO_DIAGRAM_VISAGE_DIR}" "${CMAKE_BINARY_DIR}/_deps/visage")
 
 add_library(audio_diagram_tools STATIC
+  src/audio_diagram_tools/article_project.cpp
+  src/audio_diagram_tools/audio_file_motion.cpp
+  src/audio_diagram_tools/block_processing_experiment.cpp
+  src/audio_diagram_tools/canonical_array_graphic.cpp
+  src/audio_diagram_tools/canonical_audio_file_player_graphic.cpp
+  src/audio_diagram_tools/canonical_audio_file_to_speaker_scene.cpp
+  src/audio_diagram_tools/canonical_components.cpp
+  src/audio_diagram_tools/canonical_double_arrow_graphic.cpp
+  src/audio_diagram_tools/canonical_drawing.cpp
+  src/audio_diagram_tools/composition.cpp
+  src/audio_diagram_tools/canonical_hise_node_container.cpp
   src/audio_diagram_tools/gif_exporter.cpp
   src/audio_diagram_tools/png_export.cpp
   src/audio_diagram_tools/render_types.cpp
   src/audio_diagram_tools/sampled_waveform_scene.cpp
-  src/audio_diagram_tools/style_lab_scene.cpp
+  src/audio_diagram_tools/canonical_graphics.cpp
+  src/audio_diagram_tools/canonical_sample_values_plot.cpp
+  src/audio_diagram_tools/canonical_speaker_animation_graphic.cpp
   src/audio_diagram_tools/waveform_scene.cpp
 )
 
@@ -121,11 +134,11 @@ target_link_libraries(adt_encode_gif
     adt::audio_diagram_tools
 )
 
-add_executable(adt_style_lab
-  examples/adt_style_lab.cpp
+add_executable(adt_render_graphic
+  examples/adt_render_graphic.cpp
 )
 
-target_link_libraries(adt_style_lab
+target_link_libraries(adt_render_graphic
   PRIVATE
     adt::audio_diagram_tools
 )
@@ -135,6 +148,24 @@ add_executable(adt_eight_sample_waveform
 )
 
 target_link_libraries(adt_eight_sample_waveform
+  PRIVATE
+    adt::audio_diagram_tools
+)
+
+add_executable(adt_create_article_project
+  examples/adt_create_article_project.cpp
+)
+
+target_link_libraries(adt_create_article_project
+  PRIVATE
+    adt::audio_diagram_tools
+)
+
+add_executable(adt_block_processing_experiment
+  examples/adt_block_processing_experiment.cpp
+)
+
+target_link_libraries(adt_block_processing_experiment
   PRIVATE
     adt::audio_diagram_tools
 )
@@ -163,4 +194,37 @@ if(ADT_BUILD_TESTS)
   )
 
   add_test(NAME adt_gif_smoke_tests COMMAND adt_gif_smoke_tests)
+
+  add_executable(adt_canonical_smoke_tests
+    tests/smoke_canonical.cpp
+  )
+
+  target_link_libraries(adt_canonical_smoke_tests
+    PRIVATE
+      adt::audio_diagram_tools
+  )
+
+  add_test(NAME adt_canonical_smoke_tests COMMAND adt_canonical_smoke_tests)
+
+  add_executable(adt_composition_smoke_tests
+    tests/smoke_composition.cpp
+  )
+
+  target_link_libraries(adt_composition_smoke_tests
+    PRIVATE
+      adt::audio_diagram_tools
+  )
+
+  add_test(NAME adt_composition_smoke_tests COMMAND adt_composition_smoke_tests)
+
+  add_executable(adt_audio_file_motion_tests
+    tests/smoke_audio_file_motion.cpp
+  )
+
+  target_link_libraries(adt_audio_file_motion_tests
+    PRIVATE
+      adt::audio_diagram_tools
+  )
+
+  add_test(NAME adt_audio_file_motion_tests COMMAND adt_audio_file_motion_tests)
 endif()

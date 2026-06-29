@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HISE Published Topic Preview Lab</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./hise-published-topic.css?v=20260627-griffin-dark-bg-1">
+  </head>
+  <body>
+    <aside class="lab-tools" aria-label="Preview tools">
+      <div class="lab-title-row">
+        <h2>Preview Lab</h2>
+        <button id="toggleLab" type="button">Hide</button>
+      </div>
+      <label>
+        Project JSON
+        <input id="projectPath" type="text" spellcheck="false"
+          value="../articles/hise-audio-file-to-speaker-demo/article.json">
+      </label>
+      <button id="loadProject" class="lab-primary" type="button">Load article</button>
+      <label>
+        Single asset override
+        <input id="assetPath" type="text" spellcheck="false"
+          value="">
+      </label>
+      <label>
+        Image background
+        <select id="imageBackground">
+          <option value="normal">HISE normal</option>
+          <option value="griffin-dark">Griffin dark #1D1D1D</option>
+          <option value="offwhite">Off-white seam check</option>
+          <option value="checker">Checker seam check</option>
+          <option value="dark">Dark seam check</option>
+        </select>
+      </label>
+      <label>
+        Forum chrome
+        <select id="sessionChrome">
+          <option value="member">Logged-in style</option>
+          <option value="guest">Guest style</option>
+        </select>
+      </label>
+      <label class="lab-check">
+        <input id="showGuides" type="checkbox">
+        Show layout guides
+      </label>
+      <label class="lab-check">
+        <input id="showScale" type="checkbox">
+        Show scale report
+      </label>
+      <label class="lab-check">
+        <input id="showSpecimen" type="checkbox">
+        Show markdown specimen
+      </label>
+      <p id="scaleReport">Waiting for asset...</p>
+    </aside>
+
+    <header class="hise-topbar">
+      <div class="hise-topbar-inner">
+        <span class="hise-brand" aria-label="HISE forum">
+          <img class="hise-logo-img" src="./assets/hise-site-logo.png" alt="">
+          <span class="hise-forum">Forum</span>
+        </span>
+        <span class="hise-menu" aria-label="Categories"><i class="fa fa-fw fa-list"></i></span>
+        <nav class="hise-member-left" aria-label="Member shortcuts">
+          <span class="hise-icon-small"><i class="fa fa-clock-o"></i></span>
+          <span class="hise-badge-icon"><i class="fa fa-fw fa-book"></i><b>6</b></span>
+          <span class="hise-icon-small"><i class="fa fa-user"></i></span>
+        </nav>
+        <nav class="hise-actions" aria-label="Forum actions">
+          <span class="hise-icon"><i class="fa fa-lg fa-fw fa-search"></i></span>
+          <span class="hise-icon"><i class="fa fa-fw fa-lightbulb-o"></i></span>
+          <span class="hise-member-action"><i class="fa fa-bell-o"></i></span>
+          <span class="hise-member-action"><i class="fa fa-comment-o"></i></span>
+          <span class="hise-mini-avatar" aria-hidden="true"></span>
+          <span class="hise-guest-action">Register</span>
+          <span class="hise-guest-action">Login</span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="hise-page">
+      <section class="topic-header">
+        <h1 class="topic-title-heading">
+          <div class="topic-title">
+            <span class="fs-3" component="topic/title">[Blog] My Favourite C++ Open Source DSP References</span>
+          </div>
+        </h1>
+        <div class="topic-meta">
+          <span><i class="fa fa-fw fa-pencil"></i> Blog Entries</span>
+          <span>10 posts</span>
+          <span>5 posters</span>
+          <span>443 views</span>
+          <span><i class="fa fa-rss-square"></i></span>
+          <div class="topic-member-tools" aria-label="Topic tools">
+            <span><i class="fa fa-fw fa-print"></i></span>
+            <span><i class="fa fa-fw fa-bell-slash-o"></i></span>
+            <span><i class="fa fa-fw fa-sort"></i></span>
+            <span><i class="fa fa-fw fa-gear"></i></span>
+          </div>
+          <button class="reply-button"><span class="guest-label">Log in to reply</span><span class="member-label">Reply</span></button>
+          <button class="reply-menu" aria-label="Reply menu"><i class="fa fa-caret-down"></i></button>
+        </div>
+      </section>
+
+      <article class="post-card">
+        <aside class="post-author" aria-label="Post author">
+          <div class="avatar" aria-hidden="true"></div>
+          <span class="post-author-name">griffinboy</span>
+        </aside>
+
+        <section class="post-content" aria-label="Post content">
+          <div class="post-time"><i class="fa fa-fw fa-pencil-square"></i> 22 days ago</div>
+          <div id="articleBody" class="markdown-body" aria-live="polite"></div>
+          <section class="markdown-specimen" aria-label="Markdown specimen">
+              <h1>heading</h1>
+              <h2>heading</h2>
+              <h3>heading</h3>
+              <h4>heading</h4>
+              <h5>heading</h5>
+              <h6>heading</h6>
+              <p>Normal Text</p>
+              <ul>
+                <li>list item</li>
+                <li>list item</li>
+              </ul>
+              <p><em>italicised text</em><br>
+                <strong>bolded text</strong><br>
+                <del>strikethrough text</del></p>
+              <pre><code class="hljs">code_text</code></pre>
+              <p><code>inline_code</code> <span class="specimen-link">link text</span></p>
+              <blockquote><p>quote text</p></blockquote>
+          </section>
+        </section>
+      </article>
+    </main>
+
+    <script src="./vendor/markdown-it-14.1.0.min.js"></script>
+    <script src="./hise-published-topic.js"></script>
+  </body>
+</html>

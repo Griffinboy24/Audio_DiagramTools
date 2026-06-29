@@ -10,6 +10,7 @@
 /artifacts/
 /renders/
 /frames/
+docs/style-reference/**/*.png
 *.gif
 *.mp4
 *.webm

@@ -2,20 +2,23 @@
 
 Custom tools for producing consistent still and animated diagrams for audio science blog posts.
 
-This repo is starting as a lean C++/Visage rendering pipeline: reusable visual tokens, deterministic PNG output, and a frame-sequence-to-GIF lane that can evolve as the house style settles.
+This repo is a C++/Visage rendering pipeline for reusable Griffinboy audio-science
+graphics, animated diagrams, and HISE article previews.
 
 ## What Is Here
 
 - `audio_diagram_tools`: a small reusable C++ library for drawing branded audio diagrams with Visage.
 - `adt_render`: a CLI example that renders a volume-modulated sine wave as a PNG still or numbered PNG frames.
-- `adt_style_lab`: a CLI for rendering structural style studies without baking them into the production example.
+- `adt_render_graphic`: the canonical graphic renderer for accepted components and compound scenes.
 - `adt_eight_sample_waveform`: the first production science diagram, showing eight discrete samples forming a waveform.
+- `preview_lab/`: local HISE article preview tooling.
+- `articles/`: article-project folders, each with markdown and project-specific assets.
 - `scripts/Build.ps1`: configure, build, and run the smoke test.
 - `scripts/RenderExample.ps1`: build and render the first example.
 - `scripts/EncodeGif.ps1`: build and render the first animated GIF through the C++ `cgif` encoder.
-- `scripts/RenderStyleLab.ps1`: render the current set of visual style studies.
 - `scripts/RenderEightSampleWaveform.ps1`: render the eight-sample digital-audio waveform graphic.
 - `docs/visual-system.md`: first-pass visual conventions.
+- `docs/project-structure.md`: project/article organization notes.
 - `docs/pipeline.md`: rendering and GIF workflow.
 
 ## Quick Start
@@ -27,16 +30,14 @@ Visage is expected at `build/_vendor/visage` locally. That source is not committ
 .\scripts\RenderExample.ps1 -Out artifacts/stills/am_sine.png
 .\scripts\RenderExample.ps1 -Frames 120 -OutDir artifacts/frames/am_sine
 .\scripts\EncodeGif.ps1 -Frames 120 -Out artifacts/gifs/am_sine.gif
-.\scripts\RenderStyleLab.ps1 -OutDir artifacts/style_lab
 .\scripts\RenderEightSampleWaveform.ps1 -Out artifacts/science/eight-sample-waveform.png
+.\out\build\adt_render_graphic.exe --graphic audio-file-to-speaker-scene --preferred-size --out artifacts/canonical/audio-file-to-speaker-scene.png
+.\out\build\adt_render_graphic.exe --graphic audio-file-to-speaker-scene --preferred-size --gif --frames 180 --fps 18 --out artifacts/canonical/audio-file-to-speaker-scene.gif
 ```
 
 The helper scripts use named canvas presets by default: `blog-wide` for stills/frame
 sequences and `gif-preview` for GIFs. Use `-Preset`, `-Width`, or `-Height` when a
 specific render needs to step outside those defaults.
-
-`RenderStyleLab.ps1` defaults to `blog-banner` and renders studies that vary drawing
-structure, not just palette. Treat those as taste probes, not final branding decisions.
 
 If Visage lives elsewhere:
 
@@ -58,6 +59,8 @@ examples/                  command-line render entry points
 scripts/                   local build/render/export helpers
 tests/                     smoke tests for headless rendering
 docs/                      visual and pipeline notes
+preview_lab/               HISE/forum article preview emulator
+articles/                  article-project folders
 ```
 
 Generated renders go under `artifacts/`, which is ignored.
