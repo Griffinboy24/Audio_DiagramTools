@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace adt::experiments {
 namespace {
@@ -37,7 +38,8 @@ constexpr uint32_t kBlockMidline = 0xff474747;
 constexpr uint32_t kBlockTick = 0xff3a3a3a;
 constexpr uint32_t kActiveGlow = 0xff7acd93;
 
-constexpr float kWavePeriodBlocks = 8.0f;
+constexpr float kWavePeriodBlocks = 16.0f;
+constexpr float kBaseWaveCyclesPerLoop = 9.0f;
 constexpr float kLoopAge = 6.0f;
 constexpr float kLoopBlockCycles = kWavePeriodBlocks;
 constexpr float kLoopStartOffsetBlocks = 0.43f;
@@ -95,15 +97,15 @@ float wrapBlockCoordinate(float x_blocks) {
 
 float waveInput(float x_blocks) {
   const float x = wrapBlockCoordinate(x_blocks) / kWavePeriodBlocks;
-  const float main = std::sin(2.0f * kPi * (x * 3.0f + 0.08f));
-  const float texture = 0.18f * std::sin(2.0f * kPi * (x * 7.0f - 0.17f));
-  const float motion = 0.08f * std::sin(2.0f * kPi * (x * 11.0f + 0.34f));
+  const float main = std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + 0.21f));
+  const float texture = 0.18f * std::sin(2.0f * kPi * (x * 21.0f - 0.07f));
+  const float motion = 0.08f * std::sin(2.0f * kPi * (x * 33.0f + 0.41f));
   return std::clamp(main * 0.74f + texture + motion, -0.92f, 0.92f);
 }
 
 float waveProcessed(float x_blocks) {
   const float x = wrapBlockCoordinate(x_blocks) / kWavePeriodBlocks;
-  const float clean = std::sin(2.0f * kPi * (x * 3.0f + 0.08f));
+  const float clean = std::sin(2.0f * kPi * (x * kBaseWaveCyclesPerLoop + 0.21f));
   return std::clamp(std::tanh(clean * 1.16f) * 0.82f, -0.90f, 0.90f);
 }
 
@@ -111,26 +113,92 @@ float mixedWave(float stream_x_blocks, float processed_mix) {
   return lerp(waveInput(stream_x_blocks), waveProcessed(stream_x_blocks), processed_mix);
 }
 
-visage::Path blockWavePath(const Rect& block, float audio_start_blocks, float processed_mix) {
-  const Rect plot { block.x + 7.0f, block.y + 9.0f, block.width - 14.0f, block.height - 18.0f };
-  const float center_y = plot.y + plot.height * 0.5f;
-  const float amplitude = plot.height * 0.39f;
-  const int samples = 60;
+struct BlockWavePoint {
+  float x = 0.0f;
+  float y = 0.0f;
+  float value = 0.0f;
+};
 
-  visage::Path path;
+std::vector<BlockWavePoint> blockWavePoints(const Rect& block,
+                                            float audio_start_blocks,
+                                            float processed_mix) {
+  const Rect plot { block.x + 1.0f, block.y + 7.0f, block.width - 2.0f, block.height - 14.0f };
+  const float center_y = plot.y + plot.height * 0.5f;
+  const float amplitude = plot.height * 0.46f;
+  const int samples = 72;
+  std::vector<BlockWavePoint> points;
+  points.reserve(samples);
+
   for (int i = 0; i < samples; ++i) {
     const float local = static_cast<float>(i) / static_cast<float>(samples - 1);
-    const float x = plot.x + plot.width * local;
     const float value = mixedWave(audio_start_blocks + local, processed_mix);
-    const float y = center_y - value * amplitude;
+    points.push_back({
+        plot.x + plot.width * local,
+        center_y - value * amplitude,
+        value,
+    });
+  }
 
+  return points;
+}
+
+visage::Path blockWavePath(const std::vector<BlockWavePoint>& points) {
+  visage::Path path;
+  for (size_t i = 0; i < points.size(); ++i) {
     if (i == 0)
-      path.moveTo(x, y);
+      path.moveTo(points[i].x, points[i].y);
     else
-      path.lineTo(x, y);
+      path.lineTo(points[i].x, points[i].y);
   }
 
   return path;
+}
+
+std::vector<visage::Path> blockWaveFillPaths(const std::vector<BlockWavePoint>& points,
+                                             float center_y) {
+  std::vector<visage::Path> fills;
+  if (points.size() < 2)
+    return fills;
+
+  std::vector<BlockWavePoint> lobe;
+  lobe.push_back(points.front());
+
+  const auto same_side = [](float a, float b) {
+    return (a >= 0.0f && b >= 0.0f) || (a <= 0.0f && b <= 0.0f);
+  };
+
+  const auto add_lobe = [&](const std::vector<BlockWavePoint>& source) {
+    if (source.size() < 2)
+      return;
+
+    visage::Path fill;
+    fill.moveTo(source.front().x, center_y);
+    for (const BlockWavePoint& point : source)
+      fill.lineTo(point.x, point.y);
+    fill.lineTo(source.back().x, center_y);
+    fill.close();
+    fills.push_back(fill);
+  };
+
+  for (size_t i = 1; i < points.size(); ++i) {
+    const BlockWavePoint& previous = points[i - 1];
+    const BlockWavePoint& point = points[i];
+
+    if (!same_side(previous.value, point.value)) {
+      const float denom = previous.value - point.value;
+      const float t = std::abs(denom) < 0.00001f ? 0.0f : previous.value / denom;
+      const BlockWavePoint crossing { lerp(previous.x, point.x, t), center_y, 0.0f };
+      lobe.push_back(crossing);
+      add_lobe(lobe);
+      lobe.clear();
+      lobe.push_back(crossing);
+    }
+
+    lobe.push_back(point);
+  }
+
+  add_lobe(lobe);
+  return fills;
 }
 
 void drawBlock(visage::Canvas& canvas,
@@ -214,7 +282,13 @@ void drawBlock(visage::Canvas& canvas,
   canvas.setColor(scaleAlpha(kBlockOuterStroke, opacity * 0.78f));
   canvas.fill(block.x + block.width - 6.5f, block.y + 6.0f, 1.3f, block.height - 12.0f);
 
-  const visage::Path wave_path = blockWavePath(block, audio_start_blocks, processed_mix);
+  const std::vector<BlockWavePoint> wave_points =
+      blockWavePoints(block, audio_start_blocks, processed_mix);
+  canvas.setColor(scaleAlpha(lerpColor(kInputWave, kOutputWave, processed_mix), opacity * 0.12f));
+  for (const visage::Path& fill_path : blockWaveFillPaths(wave_points, center_y))
+    canvas.fill(fill_path);
+
+  const visage::Path wave_path = blockWavePath(wave_points);
   canonical::drawing::fillStroke(canvas, wave_path, 2.9f, wave_shadow);
   canonical::drawing::fillStroke(canvas, wave_path, 1.35f, wave);
 }
@@ -246,6 +320,7 @@ struct BlockState {
 };
 
 BlockState blockState(float age,
+                      float local_cycle,
                       float audio_start_blocks,
                       float block_width,
                       float block_height,
@@ -260,6 +335,7 @@ BlockState blockState(float age,
   float y = stream_y;
   float processed_mix = 0.0f;
   float active_amount = 0.0f;
+  const float output_slot_x = intake_x + local_cycle * block_width;
 
   if (age >= kApproachEndAge && age < kHoldBeforeLiftEndAge) {
     x = intake_x;
@@ -280,13 +356,13 @@ BlockState blockState(float age,
   }
   else if (age >= kProcessEndAge && age < kDropEndAge) {
     const float t = ease(interval(age, kProcessEndAge, kDropEndAge));
-    x = intake_x;
+    x = lerp(intake_x, output_slot_x, t);
     y = lerp(process_y, stream_y, t);
     processed_mix = 1.0f;
     active_amount = lerp(1.0f, 0.20f, t);
   }
   else if (age >= kDropEndAge) {
-    x = intake_x;
+    x = output_slot_x;
     y = stream_y;
     processed_mix = 1.0f;
   }
@@ -300,24 +376,18 @@ BlockState blockState(float age,
   };
 }
 
-float outputPushProgress(float age) {
-  if (age < kDropEndAge)
-    return 0.0f;
-
-  return ease(interval(age, kDropEndAge, kLoopAge));
-}
-
 void drawProcessedOutputChain(visage::Canvas& canvas,
-                              float stream_phase_blocks,
+                              float leading_block,
+                              float local_cycle,
                               float intake_x,
                               float block_width,
                               float block_height,
                               float stream_y,
                               float view_right) {
-  const float leading_block = std::floor(stream_phase_blocks);
   for (int slot = 1; slot <= 16; ++slot) {
-    const float audio_start_blocks = leading_block - static_cast<float>(slot);
-    const float x = intake_x + (stream_phase_blocks - audio_start_blocks) * block_width;
+    const float slot_offset = static_cast<float>(slot);
+    const float audio_start_blocks = leading_block + slot_offset;
+    const float x = intake_x + (local_cycle + slot_offset) * block_width;
     if (x >= view_right + block_width)
       continue;
 
@@ -359,31 +429,24 @@ visage::Screenshot renderBlockProcessingExperimentFrame(const Dimensions& dimens
   const float leading_block = std::floor(loop_phase_blocks);
   const float local_cycle = loop_phase_blocks - leading_block;
   const float age = local_cycle * kLoopAge;
-  const float output_push = outputPushProgress(age);
   drawProcessedOutputChain(
-      canvas, loop_phase_blocks, intake_x, block_width, block_height, stream_y, w);
+      canvas, leading_block, local_cycle, intake_x, block_width, block_height, stream_y, w);
 
   canonical::HiseNodeContainerOptions node_options;
   node_options.label = "";
   canonical::renderers::drawHiseNodeContainerAt(context, node_options, node_x, node_y, node_scale);
 
   const BlockState block =
-      blockState(
-          age, leading_block, block_width, block_height, stream_y, process_y, input_x, intake_x);
-  if (block.visible && age >= kDropEndAge) {
-    const Rect pushed_block {
-      intake_x + output_push * block_width,
-      block.rect.y,
-      block.rect.width,
-      block.rect.height,
-    };
-    drawBlock(canvas,
-              pushed_block,
-              block.audio_start_blocks,
-              block.processed_mix,
-              block.active_amount);
-  }
-  else if (block.visible && block.rect.x + block.rect.width > -4.0f && block.rect.x < w + 4.0f) {
+      blockState(age,
+                 local_cycle,
+                 leading_block,
+                 block_width,
+                 block_height,
+                 stream_y,
+                 process_y,
+                 input_x,
+                 intake_x);
+  if (block.visible && block.rect.x + block.rect.width > -4.0f && block.rect.x < w + 4.0f) {
     drawBlock(canvas,
               block.rect,
               block.audio_start_blocks,

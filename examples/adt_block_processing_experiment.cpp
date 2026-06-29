@@ -15,8 +15,8 @@ struct CliOptions {
   std::filesystem::path output_path = "artifacts/experiments/block-processing-prototype.png";
   std::filesystem::path gif_path;
   int frame = 96;
-  int frames = 192;
-  double fps = 24.0;
+  int frames = 480;
+  double fps = 20.0;
   bool render_gif = false;
   bool help = false;
 };
@@ -26,13 +26,13 @@ void printHelp() {
       << "Block processing experiment renderer\n\n"
       << "Usage:\n"
       << "  adt_block_processing_experiment --out artifacts/experiments/block.png\n"
-      << "  adt_block_processing_experiment --gif artifacts/experiments/block.gif --frames 126 --fps 18\n\n"
+      << "  adt_block_processing_experiment --gif artifacts/experiments/block.gif --frames 480 --fps 20\n\n"
       << "Options:\n"
       << "  --width <px>      Output width. Default: 920\n"
       << "  --height <px>     Output height. Default: 520\n"
       << "  --frame <index>   Still frame index. Default: 96\n"
-      << "  --frames <count>  GIF frame count. Default: 192\n"
-      << "  --fps <value>     GIF frame rate. Default: 24\n"
+      << "  --frames <count>  GIF frame count. Default: 480\n"
+      << "  --fps <value>     GIF frame rate. Default: 20\n"
       << "  --out <png>       Still PNG output path.\n"
       << "  --gif <gif>       Animated GIF output path.\n"
       << "  --help            Show this help.\n";
