@@ -87,6 +87,7 @@ add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/sampled_waveform_scene.cpp
   src/audio_diagram_tools/canonical_graphics.cpp
   src/audio_diagram_tools/canonical_sample_values_plot.cpp
+  src/audio_diagram_tools/canonical_sample_table_playback_scene.cpp
   src/audio_diagram_tools/canonical_speaker_animation_graphic.cpp
   src/audio_diagram_tools/waveform_scene.cpp
 )

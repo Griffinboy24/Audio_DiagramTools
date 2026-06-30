@@ -14,6 +14,9 @@ namespace adt::canonical::renderers {
 
 void drawArrayGraphic(drawing::DrawContext& context, const Dimensions& dimensions);
 void drawSampleValuesPlot(drawing::DrawContext& context, const Dimensions& dimensions);
+void drawSampleTablePlaybackScene(drawing::DrawContext& context,
+                                  const Dimensions& dimensions,
+                                  const Timeline& timeline);
 void drawDoubleArrowGraphic(visage::Canvas& canvas, const Dimensions& dimensions);
 void drawDoubleArrowGraphicWithColor(visage::Canvas& canvas,
                                      const Dimensions& dimensions,

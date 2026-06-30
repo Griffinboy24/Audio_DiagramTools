@@ -69,6 +69,27 @@ int main() {
     return 1;
   }
 
+  const auto playback_component = adt::canonical::sampleTablePlaybackScene();
+  const auto playback_metadata =
+      adt::canonical::canonicalGraphicById(playback_component.canonical_id);
+  if (!playback_metadata) {
+    std::cerr << "Canonical sample table playback scene lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot playback_scene = adt::canonical::renderCanonicalGraphicFrame(
+      playback_component.canonical_id,
+      playback_component.dimensions,
+      timeline,
+      playback_component.options);
+
+  if (playback_scene.width() != playback_component.dimensions.width ||
+      playback_scene.height() != playback_component.dimensions.height ||
+      !hasVisibleVariation(playback_scene)) {
+    std::cerr << "Canonical sample table playback scene render failed.\n";
+    return 1;
+  }
+
   const auto voice_scene_component = adt::canonical::voiceSampleToSpeakerScene();
   const auto voice_scene_metadata =
       adt::canonical::canonicalGraphicById(voice_scene_component.canonical_id);

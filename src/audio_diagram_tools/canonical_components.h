@@ -22,6 +22,7 @@ namespace ids {
 
 inline constexpr std::string_view kArrayGraphic = "array-graphic";
 inline constexpr std::string_view kSampleValuesPlot = "sample-values-plot";
+inline constexpr std::string_view kSampleTablePlaybackScene = "sample-table-playback-scene";
 inline constexpr std::string_view kDoubleArrowGraphic = "double-arrow-graphic";
 inline constexpr std::string_view kAudioFilePlayerGraphic = "audio-file-player-graphic";
 inline constexpr std::string_view kSpeakerAnimationGraphic = "speaker-animation-graphic";
@@ -88,12 +89,13 @@ struct Component {
   RenderOptions options;
 };
 
-const std::array<CanonicalGraphic, 9>& canonicalGraphics();
+const std::array<CanonicalGraphic, 10>& canonicalGraphics();
 std::optional<CanonicalGraphic> canonicalGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
 Component arrayGraphic(Dimensions dimensions = {});
 Component sampleValuesPlot(Dimensions dimensions = {});
+Component sampleTablePlaybackScene(Dimensions dimensions = {});
 Component doubleArrowGraphic(const DoubleArrowOptions& options = {},
                              Dimensions dimensions = {});
 Component audioFilePlayerGraphic(const AudioFilePlayerOptions& options = {},

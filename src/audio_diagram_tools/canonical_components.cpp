@@ -9,13 +9,16 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 9> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 10> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
   CanonicalGraphic { ids::kSampleValuesPlot,
                      "Canonical pale discrete sample-value plot card",
                      { 1644, 612 } },
+  CanonicalGraphic { ids::kSampleTablePlaybackScene,
+                     "Canonical HISE-width animated table-to-reconstructed-waveform scene",
+                     { 920, 520 } },
   CanonicalGraphic { ids::kDoubleArrowGraphic,
                      "Canonical compact double-down transition arrow",
                      { 346, 270 } },
@@ -52,7 +55,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 9>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 10>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -83,6 +86,10 @@ Component arrayGraphic(Dimensions dimensions) {
 
 Component sampleValuesPlot(Dimensions dimensions) {
   return makeComponent(ids::kSampleValuesPlot, dimensions, {});
+}
+
+Component sampleTablePlaybackScene(Dimensions dimensions) {
+  return makeComponent(ids::kSampleTablePlaybackScene, dimensions, {});
 }
 
 Component doubleArrowGraphic(const DoubleArrowOptions& options, Dimensions dimensions) {

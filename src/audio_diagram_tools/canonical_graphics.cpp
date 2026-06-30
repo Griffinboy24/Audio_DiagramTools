@@ -22,6 +22,9 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
   else if (graphic_id == "sample-values-plot") {
     drawSampleValuesPlot(context, dimensions);
   }
+  else if (graphic_id == "sample-table-playback-scene") {
+    drawSampleTablePlaybackScene(context, dimensions, timeline);
+  }
   else if (graphic_id == "double-arrow-graphic") {
     if (options.double_arrow.single_color)
       drawDoubleArrowGraphicWithColor(canvas, dimensions, *options.double_arrow.single_color);
