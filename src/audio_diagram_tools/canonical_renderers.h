@@ -27,7 +27,10 @@ void drawAudioFilePlayerGraphicAt(drawing::DrawContext& context,
                                   bool clear_background,
                                   bool draw_waveform,
                                   float playhead_progress,
-                                  bool erase_sweep);
+                                  bool erase_sweep,
+                                  AudioWaveformKind waveform_kind = AudioWaveformKind::LoopingFile,
+                                  std::string_view label = {},
+                                  bool draw_playhead = true);
 void drawSpeakerConeMotionExperimentAt(drawing::DrawContext& context,
                                        const Dimensions& dimensions,
                                        const Timeline& timeline,
@@ -42,6 +45,10 @@ void drawAudioFileToSpeakerScene(drawing::DrawContext& context,
                                  const Dimensions& dimensions,
                                  const Timeline& timeline,
                                  const AudioFileToSpeakerSceneOptions& options);
+void drawVoiceSampleToSpeakerScene(drawing::DrawContext& context,
+                                   const Dimensions& dimensions,
+                                   const Timeline& timeline,
+                                   const AudioFileToSpeakerSceneOptions& options);
 void drawHiseNodeContainer(drawing::DrawContext& context,
                            const Dimensions& dimensions,
                            const HiseNodeContainerOptions& options);

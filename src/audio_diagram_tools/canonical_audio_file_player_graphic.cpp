@@ -21,7 +21,10 @@ void drawAudioFilePlayerGraphicAt(DrawContext& context,
                                   bool clear_background,
                                   bool draw_waveform,
                                   float playhead_progress,
-                                  bool erase_sweep) {
+                                  bool erase_sweep,
+                                  AudioWaveformKind waveform_kind,
+                                  std::string_view label,
+                                  bool draw_playhead) {
   constexpr Rect kReferenceOuter { 43.0f, 83.0f, 1322.0f, 371.0f };
 
   auto sx = [&](float x) { return origin_x + x * scale; };
@@ -71,15 +74,18 @@ void drawAudioFilePlayerGraphicAt(DrawContext& context,
   (void)timeline;
   const float playhead_t = playhead_progress;
   const float playhead_x = plot.x + plot.width * playhead_t;
+  const float clamped_playhead_t = std::clamp(playhead_t, 0.0f, 1.0f);
+  const float clamped_playhead_x = plot.x + plot.width * clamped_playhead_t;
   const float trail_left = plot.x;
   const float trail_right = plot.x + plot.width;
   const float trail_top = plot.y;
   const float trail_bottom = separator_y;
   canvas.setColor(0x2f5f6fda);
   constexpr int kTrailSlices = 240;
-  const float trail_start_x = erase_sweep ? playhead_x : trail_left;
+  const float trail_start_x = erase_sweep ? clamped_playhead_x : trail_left;
   const float trail_width =
-      std::max(0.0f, erase_sweep ? trail_right - playhead_x : playhead_x - trail_left);
+      std::max(0.0f,
+               erase_sweep ? trail_right - clamped_playhead_x : clamped_playhead_x - trail_left);
   for (int i = 0; i < kTrailSlices; ++i) {
     const float start = trail_width * static_cast<float>(i) / static_cast<float>(kTrailSlices);
     const float end = trail_width * static_cast<float>(i + 1) / static_cast<float>(kTrailSlices);
@@ -88,13 +94,31 @@ void drawAudioFilePlayerGraphicAt(DrawContext& context,
 
   drawTimelineGrid(canvas, plot, 8);
 
-  if (draw_waveform)
-    drawPlayedFutureWaveformTrace(
-        context, makeComplexAudioWaveform(plot, 1800), plot, scale, playhead_t, erase_sweep);
+  if (draw_waveform) {
+    if (waveform_kind == AudioWaveformKind::VoiceSample) {
+      const std::vector<SignalPoint> waveform = makeVoiceSampleWaveform(plot, 900);
+      drawStablePlayedFutureWaveformTrace(context, waveform, scale, clamped_playhead_t,
+                                          erase_sweep);
+    }
+    else {
+      const std::vector<SignalPoint> waveform = makeComplexAudioWaveform(plot, 1800);
+      drawPlayedFutureWaveformTrace(context,
+                                    waveform,
+                                    plot,
+                                    scale,
+                                    clamped_playhead_t,
+                                    erase_sweep);
+    }
+  }
   drawTimelineZeroAxis(canvas, plot);
 
+  const std::string_view start_time_label =
+      waveform_kind == AudioWaveformKind::VoiceSample ? "0 s" : "0:00";
+  const std::string_view end_time_label =
+      waveform_kind == AudioWaveformKind::VoiceSample ? "3 s" : "0:03";
+
   text(canvas,
-       "0:00",
+       std::string(start_time_label),
        24.5f * scale,
        0xffeef2f8,
        visage::Font::kTopLeft,
@@ -103,7 +127,7 @@ void drawAudioFilePlayerGraphicAt(DrawContext& context,
        110.0f * scale,
        40.0f * scale);
   text(canvas,
-       "0:03",
+       std::string(end_time_label),
        24.5f * scale,
        0xffeef2f8,
        visage::Font::kTopRight,
@@ -111,6 +135,23 @@ void drawAudioFilePlayerGraphicAt(DrawContext& context,
        separator_y + 16.0f * scale,
        110.0f * scale,
        40.0f * scale);
+
+  if (!label.empty()) {
+    fauxBoldText(canvas,
+                 std::string(label),
+                 24.5f * scale,
+                 0xffd8def5,
+                 visage::Font::kCenter,
+                 plot.x + plot.width * 0.5f - 145.0f * scale,
+                 separator_y + 16.0f * scale,
+                 290.0f * scale,
+                 40.0f * scale);
+  }
+
+  if (!draw_playhead) {
+    drawDiagramFrameCorners(canvas, layout);
+    return;
+  }
 
   visage::Region& playhead_bloom = addBlurRegion(context, 2.4f * scale);
   drawInRegion(context, playhead_bloom, [&](visage::Canvas& region_canvas) {

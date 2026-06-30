@@ -11,12 +11,13 @@
 
 namespace adt::canonical::renderers {
 using namespace drawing;
+namespace {
 
-void drawAudioFileToSpeakerScene(DrawContext& context,
-                                 const Dimensions& dimensions,
-                                 const Timeline& timeline,
-                                 const canonical::AudioFileToSpeakerSceneOptions& options =
-                                     canonical::AudioFileToSpeakerSceneOptions {}) {
+void drawAudioFileToSpeakerSceneImpl(DrawContext& context,
+                                     const Dimensions& dimensions,
+                                     const Timeline& timeline,
+                                     const canonical::AudioFileToSpeakerSceneOptions& options,
+                                     bool voice_sample) {
   constexpr float kContentWidth = 800.0f;
   constexpr float kContentHeight = 626.0f;
   constexpr float kReferenceWidth = 920.0f;
@@ -47,7 +48,8 @@ void drawAudioFileToSpeakerScene(DrawContext& context,
   const float player_scale = kPlayerOuter.width / kAudioReferenceOuterWidth * scene_scale;
   const float player_origin_x = cx(kPlayerOuter.x) - kAudioReferenceOuterX * player_scale;
   const float player_origin_y = sy(kPlayerOuter.y) - kAudioReferenceOuterY * player_scale;
-  const AudioFileSweep sweep = audioFileTwoStageSweep(timeline);
+  const AudioFileSweep sweep =
+      voice_sample ? voiceSampleOneShotSweep(timeline) : audioFileTwoStageSweep(timeline);
   drawAudioFilePlayerGraphicAt(
       context,
       dimensions,
@@ -56,9 +58,12 @@ void drawAudioFileToSpeakerScene(DrawContext& context,
       player_origin_y,
       player_scale,
       false,
-      true,
+      sweep.show_waveform,
       sweep.playhead_progress,
-      sweep.erase_pass);
+      sweep.erase_pass,
+      voice_sample ? AudioWaveformKind::VoiceSample : AudioWaveformKind::LoopingFile,
+      std::string_view {},
+      sweep.show_playhead);
 
   const float arrow_center_x = cx(kContentWidth * 0.5f);
   drawChevron(canvas,
@@ -83,9 +88,12 @@ void drawAudioFileToSpeakerScene(DrawContext& context,
   const float speaker_origin_x =
       cx((kContentWidth - kSpeakerReferenceWidth * kSpeakerScale) * 0.5f + 42.0f);
   const float speaker_origin_y = sy(268.0f);
-  const float waveform_drive =
+  const float sample_drive = voice_sample ?
+      speakerDriveForVoiceSampleProgress(sweep.playhead_progress) :
       speakerDriveForAudioFileProgress(sweep.playhead_progress);
-  const float sound_drive = waveform_drive;
+  const bool voice_silent = voice_sample && !sweep.show_playhead;
+  const float cone_drive = voice_silent ? 0.0f : sample_drive;
+  const float sound_drive = voice_silent ? 0.0f : sample_drive;
   drawSpeakerConeMotionExperimentAt(
       context,
       dimensions,
@@ -95,7 +103,7 @@ void drawAudioFileToSpeakerScene(DrawContext& context,
       speaker_scale,
       false,
       false,
-      waveform_drive,
+      cone_drive,
       sound_drive);
 
   if (!options.draw_caption)
@@ -105,42 +113,66 @@ void drawAudioFileToSpeakerScene(DrawContext& context,
   drawInRegion(context, caption, [&](visage::Canvas& caption_canvas) {
     constexpr float kCaptionLabelSize = 23.0f;
     constexpr float kCaptionBodySize = 21.6f;
-    constexpr float kCaptionCenterX = kContentWidth * 0.5f + 22.0f;
     constexpr float kCaptionHeight = 32.0f;
-    constexpr float kTopLabelWidth = 56.0f;
-    constexpr float kTopBodyWidth = 316.0f;
-    constexpr float kBottomLabelWidth = 100.0f;
-    constexpr float kBottomBodyWidth = 372.0f;
-    constexpr float kTopRowWidth = kTopLabelWidth + kTopBodyWidth;
-    constexpr float kBottomRowWidth = kBottomLabelWidth + kBottomBodyWidth;
-    const float top_x = kCaptionCenterX - kTopRowWidth * 0.5f;
-    const float bottom_x = kCaptionCenterX - kBottomRowWidth * 0.5f;
+    const float caption_center_x = voice_sample ? kContentWidth * 0.5f :
+                                                  kContentWidth * 0.5f + 22.0f;
+    const float label_body_gap = voice_sample ? 14.0f : 0.0f;
+    const float top_label_width = voice_sample ? 60.0f : 56.0f;
+    const float top_body_width = voice_sample ? 244.0f : 316.0f;
+    const float bottom_label_width = voice_sample ? 106.0f : 100.0f;
+    const float bottom_body_width = voice_sample ? 92.0f : 372.0f;
+    const float top_row_width = top_label_width + label_body_gap + top_body_width;
+    const float bottom_row_width = bottom_label_width + label_body_gap + bottom_body_width;
+    const float top_row_x = caption_center_x - top_row_width * 0.5f;
+    const float bottom_row_x =
+        caption_center_x - bottom_row_width * 0.5f - (voice_sample ? 28.0f : 0.0f);
+    const std::string_view top_body =
+        voice_sample ? "Vocal sample audio" : "Sound over time (waveform).";
+    const std::string_view bottom_body =
+        voice_sample ? "Speaker" : "Speaker cone follows that motion.";
 
     fauxBoldText(caption_canvas, "Top:", ss(kCaptionLabelSize), 0xff4167d6,
-                 visage::Font::kTopLeft, cx(top_x), sy(538.0f), ss(kTopLabelWidth),
+                 visage::Font::kTopRight, cx(top_row_x), sy(538.0f), ss(top_label_width),
                  ss(kCaptionHeight));
     text(caption_canvas,
-         "Sound over time (waveform).",
+         std::string(top_body),
          ss(kCaptionBodySize),
          0xff171b24,
          visage::Font::kTopLeft,
-         cx(top_x + kTopLabelWidth),
+         cx(top_row_x + top_label_width + label_body_gap),
          sy(538.0f),
-         ss(kTopBodyWidth),
+         ss(top_body_width),
          ss(kCaptionHeight));
     fauxBoldText(caption_canvas, "Bottom:", ss(kCaptionLabelSize), 0xff4167d6,
-                 visage::Font::kTopLeft, cx(bottom_x), sy(570.0f), ss(kBottomLabelWidth),
+                 visage::Font::kTopRight, cx(bottom_row_x), sy(570.0f),
+                 ss(bottom_label_width),
                  ss(kCaptionHeight));
     text(caption_canvas,
-         "Speaker cone follows that motion.",
+         std::string(bottom_body),
          ss(kCaptionBodySize),
          0xff171b24,
          visage::Font::kTopLeft,
-         cx(bottom_x + kBottomLabelWidth),
+         cx(bottom_row_x + bottom_label_width + label_body_gap),
          sy(570.0f),
-         ss(kBottomBodyWidth),
+         ss(bottom_body_width),
          ss(kCaptionHeight));
   });
+}
+
+} // namespace
+
+void drawAudioFileToSpeakerScene(DrawContext& context,
+                                 const Dimensions& dimensions,
+                                 const Timeline& timeline,
+                                 const canonical::AudioFileToSpeakerSceneOptions& options) {
+  drawAudioFileToSpeakerSceneImpl(context, dimensions, timeline, options, false);
+}
+
+void drawVoiceSampleToSpeakerScene(DrawContext& context,
+                                   const Dimensions& dimensions,
+                                   const Timeline& timeline,
+                                   const canonical::AudioFileToSpeakerSceneOptions& options) {
+  drawAudioFileToSpeakerSceneImpl(context, dimensions, timeline, options, true);
 }
 
 } // namespace adt::canonical::renderers

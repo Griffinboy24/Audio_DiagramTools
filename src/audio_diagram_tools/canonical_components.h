@@ -26,16 +26,25 @@ inline constexpr std::string_view kDoubleArrowGraphic = "double-arrow-graphic";
 inline constexpr std::string_view kAudioFilePlayerGraphic = "audio-file-player-graphic";
 inline constexpr std::string_view kSpeakerAnimationGraphic = "speaker-animation-graphic";
 inline constexpr std::string_view kAudioFileToSpeakerScene = "audio-file-to-speaker-scene";
+inline constexpr std::string_view kVoiceSampleToSpeakerScene = "voice-sample-to-speaker-scene";
 inline constexpr std::string_view kHiseNodeContainer = "hise-node-container";
 inline constexpr std::string_view kBlockProcessingGraphic = "block-processing-graphic";
 
 } // namespace ids
+
+enum class AudioWaveformKind {
+  LoopingFile,
+  VoiceSample,
+};
 
 struct AudioFilePlayerOptions {
   bool draw_waveform = true;
   bool clear_background = true;
   std::optional<float> playhead_progress;
   bool erase_sweep = false;
+  bool draw_playhead = true;
+  AudioWaveformKind waveform_kind = AudioWaveformKind::LoopingFile;
+  std::string label;
 };
 
 struct SpeakerMotionOptions {
@@ -79,7 +88,7 @@ struct Component {
   RenderOptions options;
 };
 
-const std::array<CanonicalGraphic, 8>& canonicalGraphics();
+const std::array<CanonicalGraphic, 9>& canonicalGraphics();
 std::optional<CanonicalGraphic> canonicalGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -93,6 +102,8 @@ Component speakerAnimationGraphic(const SpeakerMotionOptions& options = {},
                                   Dimensions dimensions = {});
 Component audioFileToSpeakerScene(const AudioFileToSpeakerSceneOptions& options = {},
                                   Dimensions dimensions = {});
+Component voiceSampleToSpeakerScene(const AudioFileToSpeakerSceneOptions& options = {},
+                                    Dimensions dimensions = {});
 Component hiseNodeContainer(const HiseNodeContainerOptions& options = {},
                             Dimensions dimensions = {});
 Component blockProcessingGraphic(const BlockProcessingOptions& options = {},

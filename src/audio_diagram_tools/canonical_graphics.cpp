@@ -51,7 +51,10 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
                                  options.audio_file_player.clear_background,
                                  options.audio_file_player.draw_waveform,
                                  playhead,
-                                 erase_sweep);
+                                 erase_sweep,
+                                 options.audio_file_player.waveform_kind,
+                                 options.audio_file_player.label,
+                                 options.audio_file_player.draw_playhead);
   }
   else if (graphic_id == "speaker-animation-graphic") {
     constexpr float kReferenceWidth = 1020.0f;
@@ -77,6 +80,12 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
                                 dimensions,
                                 timeline,
                                 options.audio_file_to_speaker);
+  }
+  else if (graphic_id == "voice-sample-to-speaker-scene") {
+    drawVoiceSampleToSpeakerScene(context,
+                                  dimensions,
+                                  timeline,
+                                  options.audio_file_to_speaker);
   }
   else if (graphic_id == "hise-node-container") {
     drawHiseNodeContainer(context, dimensions, options.hise_node_container);

@@ -14,6 +14,7 @@ PNGs. Generated PNGs are previews only and belong under `artifacts/`.
 | Griffinboy audio file player graphic | `canonical::audioFilePlayerGraphic()` in `src/audio_diagram_tools/canonical_components.h`; motion model in `src/audio_diagram_tools/audio_file_motion.cpp` | Dark waveform-style file-player frame, technical grid, progress trail, playhead treatment, timestamps, corner ticks, and subtle cast shadow. |
 | Griffinboy speaker animation graphic | `canonical::speakerAnimationGraphic()` in `src/audio_diagram_tools/canonical_components.h` | Procedural speaker-cone animation with clean technical geometry, moving masked dust cap, sound-wave marks, and centered explanatory annotation text. |
 | Audio file to speaker scene | `canonical::audioFileToSpeakerScene()` in `src/audio_diagram_tools/canonical_components.h` | HISE-width compound scene joining file-player motion, double arrow, speaker animation, and explanatory text. |
+| Voice sample to speaker scene | `canonical::voiceSampleToSpeakerScene()` in `src/audio_diagram_tools/canonical_components.h` | HISE-width companion scene using a detailed decaying voice-sample waveform, two-pass fill/wipe playback with hidden playhead holds, and speaker motion driven by the sample. |
 | HISE node container | `canonical::hiseNodeContainer()` in `src/audio_diagram_tools/canonical_components.h` | Dark HISE-style node/container treatment with layered panel rectangles, top-heavy shadow gradient, HISE-style label font, power glyph, and close glyph. |
 
 ## Rules

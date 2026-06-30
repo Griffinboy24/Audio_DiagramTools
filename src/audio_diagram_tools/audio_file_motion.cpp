@@ -88,6 +88,34 @@ float audioFileWaveformValue(float progress) {
   return std::clamp(value, -0.94f, 0.94f);
 }
 
+float voiceSampleWaveformValue(float progress) {
+  if (progress <= 0.0f || progress >= 1.0f)
+    return 0.0f;
+
+  const float attack = smoothstep(0.0f, 0.024f, progress);
+  const float release = 1.0f - smoothstep(0.72f, 1.0f, progress);
+  const float decay = std::exp(-2.15f * progress);
+  const float envelope = attack * release * (0.18f + 0.82f * decay);
+
+  const float chirp_phase = 62.0f * progress - 18.0f * progress * progress;
+  const float formant_phase = 103.0f * progress - 44.0f * progress * progress +
+                              1.7f * std::sin(2.0f * kPi * progress);
+  const float breath_phase = 151.0f * progress - 39.0f * progress * progress + 0.23f;
+  const float body =
+      0.58f * std::sin(2.0f * kPi * chirp_phase) +
+      0.30f * std::sin(2.0f * kPi * formant_phase + 0.35f) +
+      0.12f * std::sin(2.0f * kPi * breath_phase);
+
+  const float consonant_burst =
+      0.34f * std::sin(2.0f * kPi * (178.0f * progress + 0.19f)) *
+      std::exp(-760.0f * (progress - 0.13f) * (progress - 0.13f));
+  const float second_burst =
+      0.24f * std::sin(2.0f * kPi * (142.0f * progress + 0.41f)) *
+      std::exp(-560.0f * (progress - 0.42f) * (progress - 0.42f));
+
+  return std::clamp(envelope * body + consonant_burst + second_burst, -0.96f, 0.96f);
+}
+
 float audioFilePlayheadProgress(const Timeline& timeline) {
   return static_cast<float>(timeline.normalized_time);
 }
@@ -95,11 +123,37 @@ float audioFilePlayheadProgress(const Timeline& timeline) {
 AudioFileSweep audioFileTwoStageSweep(const Timeline& timeline) {
   const float sweep = std::fmod(audioFilePlayheadProgress(timeline) * 2.0f, 2.0f);
   const bool erase_pass = sweep >= 1.0f;
-  return { erase_pass ? sweep - 1.0f : sweep, erase_pass };
+  return { erase_pass ? sweep - 1.0f : sweep, erase_pass, true, true };
+}
+
+AudioFileSweep voiceSampleOneShotSweep(const Timeline& timeline) {
+  const float phase = audioFilePlayheadProgress(timeline) -
+                      std::floor(audioFilePlayheadProgress(timeline));
+  constexpr float kHoldDuration = 0.165f;
+  constexpr float kPassDuration = (1.0f - 2.0f * kHoldDuration) * 0.5f;
+  constexpr float kFirstHoldStart = kPassDuration;
+  constexpr float kFirstHoldEnd = kFirstHoldStart + kHoldDuration;
+  constexpr float kSecondPassEnd = kFirstHoldEnd + kPassDuration;
+  constexpr float kRightEdgeHold = 0.995f;
+
+  if (phase < kFirstHoldStart)
+    return { phase / kPassDuration, false, true, true };
+
+  if (phase < kFirstHoldEnd)
+    return { kRightEdgeHold, false, false, true };
+
+  if (phase < kSecondPassEnd)
+    return { (phase - kFirstHoldEnd) / kPassDuration, true, true, true };
+
+  return { kRightEdgeHold, true, false, true };
 }
 
 float speakerDriveForAudioFileProgress(float progress, float gain) {
   return std::clamp(audioFileWaveformValue(progress) * gain, -1.0f, 1.0f);
+}
+
+float speakerDriveForVoiceSampleProgress(float progress, float gain) {
+  return std::clamp(voiceSampleWaveformValue(progress) * gain, -1.0f, 1.0f);
 }
 
 } // namespace adt

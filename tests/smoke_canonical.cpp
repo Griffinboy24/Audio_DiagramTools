@@ -69,6 +69,27 @@ int main() {
     return 1;
   }
 
+  const auto voice_scene_component = adt::canonical::voiceSampleToSpeakerScene();
+  const auto voice_scene_metadata =
+      adt::canonical::canonicalGraphicById(voice_scene_component.canonical_id);
+  if (!voice_scene_metadata) {
+    std::cerr << "Canonical voice sample scene lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot voice_scene = adt::canonical::renderCanonicalGraphicFrame(
+      voice_scene_component.canonical_id,
+      voice_scene_component.dimensions,
+      timeline,
+      voice_scene_component.options);
+
+  if (voice_scene.width() != voice_scene_component.dimensions.width ||
+      voice_scene.height() != voice_scene_component.dimensions.height ||
+      !hasVisibleVariation(voice_scene)) {
+    std::cerr << "Canonical voice sample scene render failed.\n";
+    return 1;
+  }
+
   adt::canonical::AudioFilePlayerOptions player_options;
   player_options.playhead_progress = 0.35f;
   player_options.erase_sweep = false;

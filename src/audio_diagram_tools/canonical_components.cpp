@@ -9,7 +9,7 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 8> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 9> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
@@ -27,6 +27,9 @@ const std::array<CanonicalGraphic, 8> kCanonicalGraphics = {
                      { 1020, 592 } },
   CanonicalGraphic { ids::kAudioFileToSpeakerScene,
                      "Canonical HISE-width compound scene mapping a file waveform to speaker motion",
+                     { 920, 642 } },
+  CanonicalGraphic { ids::kVoiceSampleToSpeakerScene,
+                     "Canonical HISE-width compound scene mapping a voice sample to speaker motion",
                      { 920, 642 } },
   CanonicalGraphic { ids::kHiseNodeContainer,
                      "Canonical HISE-style dark node/container with editable label",
@@ -49,7 +52,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 8>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 9>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -105,6 +108,13 @@ Component audioFileToSpeakerScene(const AudioFileToSpeakerSceneOptions& options,
   RenderOptions render_options;
   render_options.audio_file_to_speaker = options;
   return makeComponent(ids::kAudioFileToSpeakerScene, dimensions, render_options);
+}
+
+Component voiceSampleToSpeakerScene(const AudioFileToSpeakerSceneOptions& options,
+                                    Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.audio_file_to_speaker = options;
+  return makeComponent(ids::kVoiceSampleToSpeakerScene, dimensions, render_options);
 }
 
 Component hiseNodeContainer(const HiseNodeContainerOptions& options, Dimensions dimensions) {

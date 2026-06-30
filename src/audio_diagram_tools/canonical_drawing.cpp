@@ -278,6 +278,21 @@ std::vector<SignalPoint> makeComplexAudioWaveform(const Rect& area, int samples)
   return points;
 }
 
+std::vector<SignalPoint> makeVoiceSampleWaveform(const Rect& area, int samples) {
+  std::vector<SignalPoint> points;
+  points.reserve(static_cast<size_t>(samples));
+  const float center = area.y + area.height * 0.5f;
+  const float amplitude = area.height * 0.46f;
+
+  for (int i = 0; i < samples; ++i) {
+    const float t = static_cast<float>(i) / static_cast<float>(samples - 1);
+    const float value = voiceSampleWaveformValue(t);
+    points.push_back({ t, area.x + area.width * t, center - value * amplitude, value });
+  }
+
+  return points;
+}
+
 void drawGriffinWaveformTrace(DrawContext& context,
                               const std::vector<SignalPoint>& points,
                               const Rect& plot,
@@ -402,11 +417,49 @@ void drawPlayedFutureWaveformTrace(DrawContext& context,
     0.55f,
   };
 
+  const bool all_played = (!erase_pass && playhead_t >= 0.99f) ||
+                          (erase_pass && playhead_t <= 0.01f);
+  const bool none_played = (!erase_pass && playhead_t <= 0.01f) ||
+                           (erase_pass && playhead_t >= 0.99f);
+  if (all_played) {
+    drawGriffinWaveformLineTrace(context, points, scale, kPlayedLine);
+    return;
+  }
+
+  if (none_played) {
+    drawGriffinWaveformLineTrace(context, points, scale, kFutureTrace);
+    return;
+  }
+
   const std::vector<SignalPoint> played =
       erase_pass ? waveformSegment(points, playhead_t, 1.0f)
                  : waveformSegment(points, 0.0f, playhead_t);
   drawGriffinWaveformLineTrace(context, points, scale, kFutureTrace);
   drawGriffinWaveformLineTrace(context, played, scale, kPlayedLine);
+}
+
+void drawStablePlayedFutureWaveformTrace(DrawContext& context,
+                                         const std::vector<SignalPoint>& points,
+                                         float scale,
+                                         float playhead_t,
+                                         bool erase_pass) {
+  if (points.size() < 2)
+    return;
+
+  const float t = std::clamp(playhead_t, 0.0f, 1.0f);
+  const std::vector<SignalPoint> played =
+      erase_pass ? waveformSegment(points, t, 1.0f) : waveformSegment(points, 0.0f, t);
+  visage::Canvas& canvas = context.canvas;
+
+  const visage::Path future = pathFromPoints(points);
+  fillStroke(canvas, future, 2.0f * scale, 0x9095a8c8);
+  fillStroke(canvas, future, 0.48f * scale, 0xb0d8e8f4);
+
+  if (played.size() >= 2) {
+    const visage::Path active = pathFromPoints(played);
+    fillStroke(canvas, active, 2.35f * scale, 0xffb3c5f4);
+    fillStroke(canvas, active, 0.58f * scale, 0xf4e4ecfb);
+  }
 }
 
 

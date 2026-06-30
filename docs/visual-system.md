@@ -103,6 +103,13 @@ component needs to react to the current file position. This keeps the player
 waveform shape, two-stage wipe loop, and speaker drive mapping from drifting
 apart.
 
+The companion `adt::canonical::voiceSampleToSpeakerScene()` graphic uses the
+same player/speaker composition, but swaps in a short decaying voice-sample
+waveform. It plays left to right, briefly hides the playhead at the right edge,
+then repeats the left-to-right pass while wiping the fill before a second
+right-edge hold. This lets beginner-facing articles contrast the simplified
+looping teaching waveform with a more realistic audio-rate snippet.
+
 ## Griffinboy Speaker Animation Graphic
 
 The canonical speaker animation graphic with annotations is code, not an image.
@@ -129,6 +136,7 @@ graphics. New C++ code should prefer component builders. The current CLI ids are
 - `audio-file-player-graphic`
 - `speaker-animation-graphic`
 - `audio-file-to-speaker-scene`
+- `voice-sample-to-speaker-scene`
 - `hise-node-container`
 - `block-processing-graphic`
 

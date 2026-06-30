@@ -107,6 +107,7 @@ std::vector<SignalPoint> waveformSegment(const std::vector<SignalPoint>& points,
                                          float start_t,
                                          float end_t);
 std::vector<SignalPoint> makeComplexAudioWaveform(const Rect& area, int samples);
+std::vector<SignalPoint> makeVoiceSampleWaveform(const Rect& area, int samples);
 void drawGriffinWaveformTrace(DrawContext& context,
                               const std::vector<SignalPoint>& points,
                               const Rect& plot,
@@ -117,6 +118,11 @@ void drawPlayedFutureWaveformTrace(DrawContext& context,
                                    float scale,
                                    float playhead_t,
                                    bool erase_pass = false);
+void drawStablePlayedFutureWaveformTrace(DrawContext& context,
+                                         const std::vector<SignalPoint>& points,
+                                         float scale,
+                                         float playhead_t,
+                                         bool erase_pass = false);
 void drawFrameCorner(visage::Canvas& canvas,
                      float x,
                      float y,
