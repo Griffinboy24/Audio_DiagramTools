@@ -14,8 +14,8 @@ Use `article.md` for the post body. Use `renders/` for accepted article figures
 and GIFs. Use `assets/` for source/reference material that belongs only to that
 article.
 
-The root preview dashboard reads `articles/index.json`. When a new article is
-created, add it to that index so it appears on `preview.html`.
+The optional root article index reads `articles/index.json`. When a new article
+is created, add it to that index so it appears on `ARTICLE_INDEX.html`.
 
 Create a new article scaffold from the repository root:
 

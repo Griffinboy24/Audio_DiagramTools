@@ -6,20 +6,11 @@ inspect them in a target page context.
 
 ## HISE Published Topic
 
-For normal article work, use the root dashboard:
+For normal article reading, open `preview.html` from the repository root. That
+file is a direct static preview of the current blog post and does not need this
+lab server.
 
-```powershell
-.\preview.ps1 -Open
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8066/preview.html
-```
-
-The dashboard reads `articles/index.json` and links to each article in reader
-mode and lab-tools mode.
+Use `ARTICLE_INDEX.html` only when you want a simple list of article projects.
 
 For direct project-backed previews, serve the repository root first:
 
@@ -33,9 +24,9 @@ Then open:
 http://127.0.0.1:8066/preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=1
 ```
 
-Opening the HTML file directly still shows a built-in fallback article, but
-browsers often block local JSON/Markdown loading from `file://`, so the local
-server is the normal development route.
+Opening `preview_lab/hise-published-topic.html` directly still shows a built-in
+fallback article, but browsers often block local JSON/Markdown loading from
+`file://`, so the local server is only for lab/debug work.
 
 This profile is based on live measurements from published HISE forum blog
 topics:
@@ -69,8 +60,8 @@ collapsed and the scale report is hidden. Use `tools=1` to expand the lab.
 ## Article Projects
 
 Article projects live under `articles/<article-name>/` and are intentionally
-plain, file-driven folders. The root dashboard is the project picker. The lab
-itself still loads one project JSON file at a time.
+plain, file-driven folders. `ARTICLE_INDEX.html` is the lightweight project
+index. The lab itself still loads one project JSON file at a time.
 
 ```text
 articles/hise-dsp-buffer/

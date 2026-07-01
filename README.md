@@ -25,19 +25,9 @@ graphics, animated diagrams, and HISE article previews.
 
 Visage is expected at `build/_vendor/visage` locally. That source is not committed because it is third-party/vendor state.
 
-For article work, start here:
-
-```powershell
-.\preview.ps1 -Open
-```
-
-or double-click `OPEN_ARTICLE_PREVIEW.cmd`.
-
-That serves the repo and opens the root dashboard:
-
-```text
-http://127.0.0.1:8066/preview.html
-```
+For article work, double-click `OPEN_CURRENT_BLOG_POST.html` from the
+repository root. It opens `preview.html`, a direct browser preview of the
+current HISE blog post that does not require the local server.
 
 ```powershell
 .\scripts\Build.ps1
@@ -73,7 +63,9 @@ examples/                  command-line render entry points
 scripts/                   local build/render/export helpers
 tests/                     smoke tests for headless rendering
 docs/                      visual and pipeline notes
-preview.html               root article preview dashboard
+OPEN_CURRENT_BLOG_POST.html obvious root shortcut to the current post
+preview.html               direct preview of the current blog post
+ARTICLE_INDEX.html         optional article project index
 preview_lab/               underlying HISE/forum article preview emulator
 articles/                  article-project folders and article index
 ```

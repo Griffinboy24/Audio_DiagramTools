@@ -33,13 +33,13 @@ def main() -> None:
         directory=str(root),
     )
     server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler)
-    dashboard_url = f"http://127.0.0.1:{args.port}/preview.html"
+    current_post_url = f"http://127.0.0.1:{args.port}/preview.html"
     url = article_url(args.port, args.project, args.tools)
     print(f"Serving {root}")
-    print(f"Dashboard: {dashboard_url}")
-    print(f"Article:   {url}")
+    print(f"Current post: {current_post_url}")
+    print(f"Lab article:  {url}")
     if args.open_browser:
-        threading.Timer(0.25, lambda: webbrowser.open(dashboard_url)).start()
+        threading.Timer(0.25, lambda: webbrowser.open(current_post_url)).start()
     server.serve_forever()
 
 
