@@ -1,125 +1,115 @@
-What does DSP code actually receive?
+Audio coding starts with the speaker.
 
-In HISE, it is not usually given an entire audio stream at once. It is called again and again with short runs of sample values.
+A speaker makes sound by moving air. It moves forward, it moves back, and that movement creates changes in air pressure.
 
-The code changes or creates values for the current run, then the next run arrives.
-
-That short run is a buffer.
-
-The easiest way to make that concrete is to start at the speaker.
-
-## Start at the speaker
-
-A speaker makes sound by moving air. The cone moves forward and backward, pushing and pulling the air in front of it.
-
-Draw that movement over time and you get a waveform.
+Draw the movement over time and you get a waveform.
 
 ![Speaker cone following a waveform](./renders/speaker-waveform.gif)
 
-The diagram is slowed down so the motion is visible. When the signal moves up, the cone moves one way. When the signal moves down, it moves the other way.
+When the signal moves up, the speaker moves one way. When the signal moves down, it moves the other way.
 
 Real audio moves much faster:
 
 ![Voice sample driving a speaker](./renders/voice-sample-speaker.gif)
 
-The motion is too fast to follow frame by frame here, but the relationship is the same. The speaker follows the signal over time.
+The motion is too fast to follow frame by frame, but the idea is the same. A changing signal produces changing speaker movement.
 
-## The signal as samples
+## The numbers
 
-In digital audio, that changing signal is represented as a sequence of values.
+In digital audio, we represent that changing signal as numbers.
 
-Each value is one sample: the signal height at one moment in time.
+Each number is a **sample**: the height of the signal at one moment in time.
 
-A tiny example might look like this:
-
-```text
 [0.00,  0.70,  0.82,  0.27,  -0.51,  -0.86,  -0.51,  0.27]
-```
 
-Read the values from left to right and the waveform shape appears.
+Read the numbers from left to right and the waveform shape appears.
 
 ![Sample numbers plotted as points](./renders/sample-array-to-plot.png)
 
-Values above zero sit above the centre line. Values below zero sit below it.
+Positive numbers sit above the centre line. Negative numbers sit below it. Zero is the centre.
 
-The table and the drawing are not two different things. They are two views of the same data.
+The table and the drawing are the same data in two forms:
 
 ![Sample table and waveform playback](./renders/sample-table-playback.gif)
 
-The table is the code-friendly view. The drawing is the human-friendly view.
+The table is useful for code. The drawing is useful for us.
 
-For DSP, the important point is that the samples are not labels for the waveform. They are the material the code works on.
+## The stream
 
-## Real audio is dense
+The example above is tiny so we can see every value.
 
-The example above has only eight values because it is a teaching diagram.
-
-Real audio contains far more. At 48 kHz, one second of mono audio contains 48,000 sample values. Stereo contains two streams of that size.
+Real audio is dense. At 48 kHz, one second of mono audio contains 48,000 sample values. Stereo has two streams of that size.
 
 ![Dense samples continue beyond the page](./renders/dense-sample-waveform.png)
 
-Nothing new has been introduced here. There are just many more samples, packed much more tightly in time.
+Nothing has changed conceptually. There are just many more samples, packed much more tightly in time.
 
-## Buffers
+## The buffer
 
-An effect does not receive all of those samples at once.
+An effect does not process the whole stream in one go.
 
-During playback, HISE keeps calling the effect with short runs of consecutive samples. Each run is a buffer.
+It works in short blocks.
+
+Those blocks are called **buffers**.
 
 ![Waveform split into chunks](./renders/waveform-buffer-split.png)
 
-A buffer is a processing block, not a musical phrase.
+A buffer is a short block of sample values.
 
-Its edges do not have to line up with peaks, zero crossings, notes, transients, or waveform cycles. A buffer boundary is just where this block ends and the next block begins.
+The block edges are not part of the sound. They do not have to line up with peaks, zero crossings, notes, transients, or waveform cycles.
 
-That is why the audio still has to be treated as one continuous stream. The blocks are separate only while the engine is handing them to the effect.
+They are just processing boundaries.
 
 ![Buffers moving through DSP code into the output stream](./renders/buffer-through-dsp.gif)
 
-At this level, an effect has a simple shape:
+For a normal audio effect, the shape is:
 
-1. receive a buffer of samples
-2. change the samples
+1. take the current buffer
+2. change the sample values
 3. pass the buffer onward
 
-Then the next buffer arrives.
+Then the next buffer comes through.
 
-## Gain as the first effect
+## Gain
 
-Gain is a useful first example because it does not change the timing of the samples. It only changes their height.
+Gain is the cleanest example.
 
-In HISE, the effect might appear as a node with controls:
+In HISE, a gain node might look like this:
 
 ![HISE gain node](./renders/hise-gain-node.png)
 
-At the sample level, lowering the volume means scaling the values toward zero.
+Volume is the height of the waveform. To make the sound quieter, make the numbers smaller.
 
 ![Waveform being scaled taller and smaller](./renders/waveform-volume-scale.gif)
 
-If the gain is `0.5`, each sample becomes half as large.
+Multiply every sample by 0.5, and the waveform is half as tall.
 
 ![Before and after multiplying samples by 0.5](./renders/sample-gain-comparison.png)
 
 Same order. Same shape. Smaller values.
 
-In code, the centre of the operation is just a loop over the current buffer:
+The core operation is just a loop over the buffer:
 
 ![HISE gain node pseudocode](./renders/hise-gain-node-code.png)
 
-If `gain` is `1.0`, the samples stay where they are. If `gain` is `0.5`, the waveform is half as tall. If `gain` is `0.0`, every sample becomes zero, which is silence.
+If gain is 1.0, the samples stay the same. If gain is 0.5, the waveform is half as tall. If gain is 0.0, every sample becomes zero, which is silence.
 
-A real gain node also has controls, smoothing, parameter handling, and normal plugin behaviour around it. The core audio operation is still just multiplication.
+A real gain node has controls, smoothing, and parameter handling around it. The audio idea is still multiplication.
 
-## The pattern
+## Effects and generators
 
-This is the basic shape behind audio effects: an effect receives a buffer, changes the sample values inside it, and passes it on.
+That is the basic shape of an audio effect:
 
-Gain multiplies the samples. Distortion bends or clips them. Delay stores samples and writes them back later.
+take a buffer, change the numbers, pass it on.
 
-An oscillator is the same idea from the other direction. Instead of modifying incoming samples, it writes new samples into the buffer.
+Different effects change the numbers in different ways. Gain multiplies them. Distortion bends or clips them. Delay stores them and writes them back later.
+
+An oscillator is slightly different. It does not need an incoming waveform. It can fill an empty buffer with new sample values.
 
 ![Oscillator block factory writing sine samples](./renders/oscillator-block-factory.gif)
 
-That is the foundation for the next part: audio is a stream of sample values, buffers are the short blocks HISE gives to DSP code, and effects work by changing or creating those values.
+That is enough for part one.
 
-Next we can ask what happens when those values repeat at different speeds, and why that creates pitch, tone, and spectrum.
+Audio is represented as sample values. A buffer is a short block of those values. DSP code works by changing them, storing them, or writing new ones.
+
+Next: how repeating numbers become pitch, tone, and spectrum.
