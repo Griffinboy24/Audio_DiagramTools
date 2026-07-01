@@ -1,6 +1,21 @@
-A speaker makes sound by moving air.
+This is the first post in a beginner series about how DSP works in HISE. The aim is to make C++ DSP feel less like a black box.
 
-If the cone moves forward, the air pressure rises. If it moves back, the air pressure falls. Do that fast enough and you hear it as sound. A waveform is a drawing of that movement over time.
+The first mental shift is this: HISE is not sending your code "sound" as a mysterious audio object. It is sending numbers. More specifically, it is sending short blocks of sample values called **buffers**.
+
+This post starts with basic audio theory on purpose. If you already know what samples and buffers are, feel free to skim; I want the series to have a shared mental model before we get into HISE nodes, callbacks, and actual C++ processing code.
+
+By the end of this post, the important model is:
+
+- digital audio is a stream of sample values
+- HISE gives your DSP code those samples in small buffers
+- an effect changes the numbers inside each buffer
+- the changed buffer is passed onward
+
+## Sound starts as movement
+
+A speaker makes sound by moving air. If the cone moves forward, the air pressure rises. If it moves back, the air pressure falls. Do that fast enough and you hear it as sound.
+
+A waveform is a drawing of that movement over time.
 
 ![Speaker cone following a waveform](./renders/speaker-waveform.gif)
 
@@ -12,7 +27,7 @@ Real audio is usually much messier than a tidy teaching wave:
 
 Even here, the idea is the same. The speaker follows a value that changes over time.
 
-## Samples are points on the waveform
+## Computers store waveforms as samples
 
 A computer does not store a smooth curve directly. It stores a series of measurements along the curve, and each measurement is called a **sample**.
 
@@ -26,7 +41,7 @@ The table and the drawing are the same data. The table is the machine-friendly v
 
 ![Sample table and waveform playback](./renders/sample-table-playback.gif)
 
-That is the first important idea: **digital audio is a stream of sample values.**
+This is the first important idea: digital audio is not a magic audio object inside the computer. It is a stream of sample values.
 
 ## Real audio has a lot of samples
 
@@ -36,7 +51,7 @@ The eight-sample example is only a teaching picture. Real audio is much denser. 
 
 So when we talk about "the waveform" inside a computer, we are really talking about a long list of numbers changing very quickly.
 
-## Buffers are short runs of samples
+## HISE processes audio in buffers
 
 An audio effect in HISE does not usually process a whole sound file at once. The audio engine hands the effect a short run of samples, the effect processes that run, and then the next run arrives.
 
@@ -48,15 +63,22 @@ The chunk edges are not musical. They do not care where the waveform starts, pea
 
 ![Buffers moving through DSP code into the output stream](./renders/buffer-through-dsp.gif)
 
-The moving-block version is the same idea shown as a process: a buffer arrives, the DSP code changes the numbers inside it, and the processed buffer joins the output stream. Then the next buffer arrives. That repeated handoff is the basic shape of real-time DSP.
+The moving-block version is the same idea shown as a process:
 
-## Gain is multiplication
+1. A buffer arrives.
+2. The DSP code changes the numbers inside it.
+3. The processed buffer joins the output stream.
+4. The next buffer arrives.
+
+That repeated handoff is the basic shape of real-time DSP.
+
+## A simple effect: gain
 
 In HISE, this can look like a Gain node:
 
 ![HISE gain node](./renders/hise-gain-node.png)
 
-A gain node has controls around it, but the core DSP idea is small: multiply every sample by a gain value.
+A gain node has controls around it, but the core DSP idea is small: **multiply every sample by a gain value**.
 
 You probably already know the result by ear. Lower gain means quieter sound. On the waveform, that means the same shape becomes shorter.
 
@@ -76,7 +98,7 @@ If `gain` is `1.0`, the samples stay the same. If `gain` is `0.5`, the waveform 
 
 That is DSP coding at its simplest: change the numbers, and the sound changes.
 
-## Effects change buffers in different ways
+## The same buffer idea explains other effects
 
 Once you see a buffer as a list of numbers, audio effects become much less mysterious.
 
@@ -89,8 +111,8 @@ Here is the oscillator version of the same block-processing picture. The incomin
 
 ![Oscillator block factory writing sine samples](./renders/oscillator-block-factory.gif)
 
-That is the foundation. Audio effects are little machines that receive numbers, change numbers, and send numbers onward.
+That is the foundation for this series. Audio effects are little machines that receive numbers, change numbers, and send numbers onward.
 
-The next part is where it gets more interesting:
+In the next part, we can start asking a more interesting question:
 
 If sound is only numbers, how do those numbers create tone, frequency, and spectrum?

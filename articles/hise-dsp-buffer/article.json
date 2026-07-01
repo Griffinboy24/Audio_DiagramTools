@@ -1,7 +1,7 @@
 {
   "schema": "audio-diagram-tools.article-project.v1",
   "targetProfile": "hise-published-topic",
-  "topicTitle": "DSP for beginners, part 1: samples and buffers",
+  "topicTitle": "How DSP works in HISE, part 1: samples and buffers",
   "author": "griffinboy",
   "age": "draft",
   "category": "Blog Entries",
