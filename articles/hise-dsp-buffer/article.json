@@ -1,7 +1,7 @@
 {
   "schema": "audio-diagram-tools.article-project.v1",
   "targetProfile": "hise-published-topic",
-  "topicTitle": "How does DSP work? [Part 1: The buffer]",
+  "topicTitle": "DSP for beginners, part 1: samples and buffers",
   "author": "griffinboy",
   "age": "draft",
   "category": "Blog Entries",
