@@ -6,7 +6,22 @@ inspect them in a target page context.
 
 ## HISE Published Topic
 
-For project-backed previews, serve the repository root first:
+For normal article work, use the root dashboard:
+
+```powershell
+.\preview.ps1 -Open
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8066/preview.html
+```
+
+The dashboard reads `articles/index.json` and links to each article in reader
+mode and lab-tools mode.
+
+For direct project-backed previews, serve the repository root first:
 
 ```powershell
 python scripts/serve_preview_lab.py 8066
@@ -15,7 +30,7 @@ python scripts/serve_preview_lab.py 8066
 Then open:
 
 ```text
-http://127.0.0.1:8066/preview_lab/hise-published-topic.html?project=../articles/hise-audio-file-to-speaker-demo/article.json&tools=1
+http://127.0.0.1:8066/preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=1
 ```
 
 Opening the HTML file directly still shows a built-in fallback article, but
@@ -54,11 +69,11 @@ collapsed and the scale report is hidden. Use `tools=1` to expand the lab.
 ## Article Projects
 
 Article projects live under `articles/<article-name>/` and are intentionally
-plain, file-driven folders. The lab is pointed at a project JSON file; there is
-no project picker or GUI project manager in the workflow.
+plain, file-driven folders. The root dashboard is the project picker. The lab
+itself still loads one project JSON file at a time.
 
 ```text
-articles/hise-audio-file-to-speaker-demo/
+articles/hise-dsp-buffer/
   article.json
   article.md
   assets/
@@ -114,7 +129,7 @@ preview_lab/hise-published-topic.html?clean=1
 Useful query parameters:
 
 ```text
-project=../articles/hise-audio-file-to-speaker-demo/article.json
+project=../articles/hise-dsp-buffer/article.json
 asset=../artifacts/canonical/audio-file-to-speaker-scene.png
 chrome=member|guest
 tools=1

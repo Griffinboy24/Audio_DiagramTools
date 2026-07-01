@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audio Diagram Tools Article Preview</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #151515;
+        --panel: #1d1d1d;
+        --panel-2: #242424;
+        --line: #3a3a3a;
+        --text: #f1f1f1;
+        --muted: #b8b8b8;
+        --green: #7fe1a0;
+        --blue: #8fb8ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.5 Inter, "Segoe UI", Arial, sans-serif;
+      }
+
+      main {
+        width: min(980px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 44px 0 56px;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.15;
+        font-weight: 700;
+      }
+
+      p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      code {
+        padding: 2px 5px;
+        border-radius: 4px;
+        background: #101010;
+        color: #e8e8e8;
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 650;
+      }
+
+      .button.primary {
+        border-color: #4e8b66;
+        background: #203528;
+        color: var(--green);
+      }
+
+      .section-title {
+        margin: 30px 0 12px;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .project-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .project-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .project-card h2 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.25;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 9px;
+      }
+
+      .pill {
+        padding: 2px 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .pill.active {
+        border-color: #4e8b66;
+        color: var(--green);
+      }
+
+      .project-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .notes {
+        margin-top: 22px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #111;
+      }
+
+      .notes p {
+        margin: 7px 0;
+      }
+
+      .file-warning {
+        display: none;
+        margin-top: 18px;
+        padding: 12px 14px;
+        border: 1px solid #755a27;
+        border-radius: 8px;
+        background: #271f12;
+        color: #ffd789;
+      }
+
+      body.is-file .file-warning {
+        display: block;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          width: min(100% - 28px, 980px);
+          padding-top: 28px;
+        }
+
+        header,
+        .project-card {
+          grid-template-columns: 1fr;
+          display: grid;
+        }
+
+        .quick-actions,
+        .project-actions {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Article Preview</h1>
+          <p>One place for HISE blog drafts, rendered graphics, and preview links.</p>
+        </div>
+        <nav class="quick-actions" aria-label="Preview shortcuts">
+          <a id="defaultReaderLink" class="button primary" href="preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=0">Open current article</a>
+          <a id="defaultLabLink" class="button" href="preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=1">Open lab tools</a>
+        </nav>
+      </header>
+
+      <div class="file-warning">
+        This dashboard is meant to be served from the repo root. Run
+        <code>.\preview.ps1 -Open</code>, then use <code>http://127.0.0.1:8066/preview.html</code>.
+      </div>
+
+      <h2 class="section-title">Article Projects</h2>
+      <section id="projectList" class="project-list" aria-live="polite"></section>
+
+      <section class="notes" aria-label="Workflow notes">
+        <p><strong>Article folders:</strong> <code>articles/&lt;project-id&gt;/article.md</code>, <code>article.json</code>, <code>assets/</code>, <code>renders/</code>.</p>
+        <p><strong>New article:</strong> <code>.\scripts\NewArticleProject.ps1 -Slug hise-my-post -Title "[Blog] My Post"</code>, then add it to <code>articles/index.json</code>.</p>
+        <p><strong>Shortcut:</strong> double-click <code>OPEN_ARTICLE_PREVIEW.cmd</code> or run <code>.\preview.ps1 -Open</code> from PowerShell.</p>
+      </section>
+    </main>
+
+    <script>
+      const fallbackIndex = {
+        defaultProject: 'hise-dsp-buffer',
+        projects: [
+          {
+            id: 'hise-dsp-buffer',
+            title: '[Blog] How does DSP work? Part 1: Samples and buffers',
+            path: 'articles/hise-dsp-buffer/article.json',
+            status: 'active',
+            description: 'Current HISE DSP buffer article.'
+          },
+          {
+            id: 'hise-audio-file-to-speaker-demo',
+            title: '[Demo] Audio file to speaker preview',
+            path: 'articles/hise-audio-file-to-speaker-demo/article.json',
+            status: 'demo',
+            description: 'Original preview-lab demo article.'
+          }
+        ]
+      };
+
+      function projectParam(project) {
+        return `../${project.path.replace(/^\.\//, '')}`;
+      }
+
+      function previewUrl(project, tools) {
+        const params = new URLSearchParams({
+          project: projectParam(project),
+          tools: tools ? '1' : '0'
+        });
+        return `preview_lab/hise-published-topic.html?${params.toString()}`;
+      }
+
+      function pill(text, className) {
+        const span = document.createElement('span');
+        span.className = `pill ${className || ''}`.trim();
+        span.textContent = text;
+        return span;
+      }
+
+      function render(index) {
+        const projects = index.projects || [];
+        const defaultProject = projects.find((project) => project.id === index.defaultProject) || projects[0];
+        const list = document.getElementById('projectList');
+        list.textContent = '';
+
+        if (defaultProject) {
+          document.getElementById('defaultReaderLink').href = previewUrl(defaultProject, false);
+          document.getElementById('defaultLabLink').href = previewUrl(defaultProject, true);
+        }
+
+        for (const project of projects) {
+          const card = document.createElement('article');
+          card.className = 'project-card';
+
+          const content = document.createElement('div');
+          const title = document.createElement('h2');
+          title.textContent = project.title || project.id;
+          const description = document.createElement('p');
+          description.textContent = project.description || project.path;
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.append(
+            pill(project.status || 'draft', project.status === 'active' ? 'active' : ''),
+            pill(project.id || 'article'),
+            pill(project.path || '')
+          );
+          content.append(title, description, meta);
+
+          const actions = document.createElement('nav');
+          actions.className = 'project-actions';
+          actions.setAttribute('aria-label', `${project.title || project.id} actions`);
+
+          const reader = document.createElement('a');
+          reader.className = 'button primary';
+          reader.href = previewUrl(project, false);
+          reader.textContent = 'Reader preview';
+
+          const lab = document.createElement('a');
+          lab.className = 'button';
+          lab.href = previewUrl(project, true);
+          lab.textContent = 'Lab tools';
+
+          actions.append(reader, lab);
+          card.append(content, actions);
+          list.append(card);
+        }
+      }
+
+      if (window.location.protocol === 'file:')
+        document.body.classList.add('is-file');
+
+      fetch('articles/index.json', { cache: 'no-store' })
+        .then((response) => response.ok ? response.json() : fallbackIndex)
+        .then(render)
+        .catch(() => render(fallbackIndex));
+    </script>
+  </body>
+</html>

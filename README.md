@@ -25,6 +25,20 @@ graphics, animated diagrams, and HISE article previews.
 
 Visage is expected at `build/_vendor/visage` locally. That source is not committed because it is third-party/vendor state.
 
+For article work, start here:
+
+```powershell
+.\preview.ps1 -Open
+```
+
+or double-click `OPEN_ARTICLE_PREVIEW.cmd`.
+
+That serves the repo and opens the root dashboard:
+
+```text
+http://127.0.0.1:8066/preview.html
+```
+
 ```powershell
 .\scripts\Build.ps1
 .\scripts\RenderExample.ps1 -Out artifacts/stills/am_sine.png
@@ -59,8 +73,9 @@ examples/                  command-line render entry points
 scripts/                   local build/render/export helpers
 tests/                     smoke tests for headless rendering
 docs/                      visual and pipeline notes
-preview_lab/               HISE/forum article preview emulator
-articles/                  article-project folders
+preview.html               root article preview dashboard
+preview_lab/               underlying HISE/forum article preview emulator
+articles/                  article-project folders and article index
 ```
 
 Generated renders go under `artifacts/`, which is ignored.

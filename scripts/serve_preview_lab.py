@@ -7,11 +7,24 @@ import argparse
 import functools
 import http.server
 import pathlib
+import threading
+import webbrowser
+
+
+def article_url(port: int, project: str, tools: bool) -> str:
+    return (
+        f"http://127.0.0.1:{port}/preview_lab/"
+        "hise-published-topic.html?project=../articles/"
+        f"{project}/article.json&tools={'1' if tools else '0'}"
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("port", nargs="?", type=int, default=8066)
+    parser.add_argument("--project", default="hise-dsp-buffer")
+    parser.add_argument("--tools", action="store_true")
+    parser.add_argument("--open", action="store_true", dest="open_browser")
     args = parser.parse_args()
 
     root = pathlib.Path(__file__).resolve().parents[1]
@@ -20,13 +33,13 @@ def main() -> None:
         directory=str(root),
     )
     server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler)
-    url = (
-        f"http://127.0.0.1:{args.port}/preview_lab/"
-        "hise-published-topic.html?project=../articles/"
-        "hise-audio-file-to-speaker-demo/article.json&tools=1"
-    )
+    dashboard_url = f"http://127.0.0.1:{args.port}/preview.html"
+    url = article_url(args.port, args.project, args.tools)
     print(f"Serving {root}")
-    print(url)
+    print(f"Dashboard: {dashboard_url}")
+    print(f"Article:   {url}")
+    if args.open_browser:
+        threading.Timer(0.25, lambda: webbrowser.open(dashboard_url)).start()
     server.serve_forever()
 
 

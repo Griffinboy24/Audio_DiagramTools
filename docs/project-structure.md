@@ -66,13 +66,23 @@ promote the code path or project file that creates it.
 
 ## Preview Lab
 
-The HISE preview lab lives in `preview_lab/` and reads article projects from
-`articles/`. It should emulate the published HISE topic page closely enough to
-judge scale, wrapping, image placement, and article rhythm.
+The root `preview.html` dashboard is the normal entry point for article work.
+It reads `articles/index.json` and links to the reader preview or lab-tools view
+for each article.
 
-The lab is not a project manager. Projects are chosen by file paths and JSON,
-because the intended workflow is code-driven: create graphics, write/update
-article markdown, render/preview, iterate.
+The HISE preview lab itself lives in `preview_lab/` and reads article projects
+from `articles/`. It should emulate the published HISE topic page closely
+enough to judge scale, wrapping, image placement, and article rhythm.
+
+Projects are still plain files. The dashboard only makes the common paths easy
+to reach; article copy, metadata, source assets, and final renders stay inside
+the project folder.
+
+Start the dashboard from the repository root:
+
+```powershell
+.\preview.ps1 -Open
+```
 
 ## Composition Conventions
 

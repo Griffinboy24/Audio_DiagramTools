@@ -1,0 +1,20 @@
+{
+  "schema": "audio-diagram-tools.article-index.v1",
+  "defaultProject": "hise-dsp-buffer",
+  "projects": [
+    {
+      "id": "hise-dsp-buffer",
+      "title": "[Blog] How does DSP work? Part 1: Samples and buffers",
+      "path": "articles/hise-dsp-buffer/article.json",
+      "status": "active",
+      "description": "Current HISE DSP buffer article."
+    },
+    {
+      "id": "hise-audio-file-to-speaker-demo",
+      "title": "[Demo] Audio file to speaker preview",
+      "path": "articles/hise-audio-file-to-speaker-demo/article.json",
+      "status": "demo",
+      "description": "Original preview-lab demo article."
+    }
+  ]
+}
