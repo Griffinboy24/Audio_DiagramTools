@@ -1,8 +1,14 @@
-A speaker cone vibrates.
+Welcome to the first post in this series on DSP in HISE.
 
-It moves forward and backward, pushing and pulling the air in front of it.
+This first part covers four basics: waveforms, samples, buffers, and gain.
 
-A waveform is a drawing of that movement over time.
+Audio coding starts with understanding one simple thing:
+
+A speaker makes sound by vibrating.
+
+That vibration pushes and pulls the air in front of it.
+
+A waveform is a drawing of that vibration over time.
 
 ![Speaker cone following a waveform](./renders/speaker-waveform.gif)
 
