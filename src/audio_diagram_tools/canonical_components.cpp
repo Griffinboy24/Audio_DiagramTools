@@ -9,7 +9,7 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 10> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 15> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
@@ -19,6 +19,18 @@ const std::array<CanonicalGraphic, 10> kCanonicalGraphics = {
   CanonicalGraphic { ids::kSampleTablePlaybackScene,
                      "Canonical HISE-width animated table-to-reconstructed-waveform scene",
                      { 920, 520 } },
+  CanonicalGraphic { ids::kSampleTableWaveformGraphic,
+                     "Canonical aligned sample table and sampled waveform unit",
+                     { 820, 330 } },
+  CanonicalGraphic { ids::kDenseSampleWaveformGraphic,
+                     "Canonical dense sample table and waveform continuation graphic",
+                     { 920, 380 } },
+  CanonicalGraphic { ids::kWaveformBufferSplitGraphic,
+                     "Canonical HISE-width waveform split into host audio buffers",
+                     { 920, 340 } },
+  CanonicalGraphic { ids::kWaveformVolumeScaleGraphic,
+                     "Canonical HISE-width animated waveform volume scaling graphic",
+                     { 920, 340 } },
   CanonicalGraphic { ids::kDoubleArrowGraphic,
                      "Canonical compact double-down transition arrow",
                      { 346, 270 } },
@@ -40,6 +52,9 @@ const std::array<CanonicalGraphic, 10> kCanonicalGraphics = {
   CanonicalGraphic { ids::kBlockProcessingGraphic,
                      "Canonical block-processing DSP animation graphic",
                      { 920, 330 } },
+  CanonicalGraphic { ids::kOscillatorBlockFactoryGraphic,
+                     "Canonical oscillator block factory animation graphic",
+                     { 920, 380 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -55,7 +70,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 10>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 15>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -90,6 +105,25 @@ Component sampleValuesPlot(Dimensions dimensions) {
 
 Component sampleTablePlaybackScene(Dimensions dimensions) {
   return makeComponent(ids::kSampleTablePlaybackScene, dimensions, {});
+}
+
+Component sampleTableWaveformGraphic(const SampleTableWaveformOptions& options,
+                                     Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.sample_table_waveform = options;
+  return makeComponent(ids::kSampleTableWaveformGraphic, dimensions, render_options);
+}
+
+Component denseSampleWaveformGraphic(Dimensions dimensions) {
+  return makeComponent(ids::kDenseSampleWaveformGraphic, dimensions, {});
+}
+
+Component waveformBufferSplitGraphic(Dimensions dimensions) {
+  return makeComponent(ids::kWaveformBufferSplitGraphic, dimensions, {});
+}
+
+Component waveformVolumeScaleGraphic(Dimensions dimensions) {
+  return makeComponent(ids::kWaveformVolumeScaleGraphic, dimensions, {});
 }
 
 Component doubleArrowGraphic(const DoubleArrowOptions& options, Dimensions dimensions) {
@@ -134,6 +168,13 @@ Component blockProcessingGraphic(const BlockProcessingOptions& options, Dimensio
   RenderOptions render_options;
   render_options.block_processing = options;
   return makeComponent(ids::kBlockProcessingGraphic, dimensions, render_options);
+}
+
+Component oscillatorBlockFactoryGraphic(const OscillatorBlockFactoryOptions& options,
+                                        Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.oscillator_block_factory = options;
+  return makeComponent(ids::kOscillatorBlockFactoryGraphic, dimensions, render_options);
 }
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,

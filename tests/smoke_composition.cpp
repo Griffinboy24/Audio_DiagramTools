@@ -1,4 +1,5 @@
 #include "audio_diagram_tools/composition.h"
+#include "audio_diagram_tools/composite_graphics.h"
 
 #include <cstdint>
 #include <iostream>
@@ -77,6 +78,39 @@ int main() {
   if (block_screenshot.width() != 920 || block_screenshot.height() != 368 ||
       !hasVisibleVariation(block_screenshot)) {
     std::cerr << "Block processing composition render failed.\n";
+    return 1;
+  }
+
+  const adt::composition::Scene gain_scene =
+      adt::composites::sampleGainComparisonScene();
+  const visage::Screenshot gain_screenshot =
+      adt::composition::renderSceneFrame(gain_scene, timeline);
+
+  if (gain_screenshot.width() != 920 || gain_screenshot.height() != 700 ||
+      !hasVisibleVariation(gain_screenshot)) {
+    std::cerr << "Sample gain comparison composition render failed.\n";
+    return 1;
+  }
+
+  const adt::composition::Scene playback_scene =
+      adt::composites::sampleTablePlaybackArticleScene();
+  const visage::Screenshot playback_screenshot =
+      adt::composition::renderSceneFrame(playback_scene, timeline);
+
+  if (playback_screenshot.width() != 920 || playback_screenshot.height() != 430 ||
+      !hasVisibleVariation(playback_screenshot)) {
+    std::cerr << "Sample table playback article composition render failed.\n";
+      return 1;
+  }
+
+  const adt::composition::Scene array_to_plot_scene =
+      adt::composites::sampleArrayToPlotArticleScene();
+  const visage::Screenshot array_to_plot_screenshot =
+      adt::composition::renderSceneFrame(array_to_plot_scene, timeline);
+
+  if (array_to_plot_screenshot.width() != 920 || array_to_plot_screenshot.height() != 520 ||
+      !hasVisibleVariation(array_to_plot_screenshot)) {
+    std::cerr << "Sample array-to-plot article composition render failed.\n";
     return 1;
   }
 

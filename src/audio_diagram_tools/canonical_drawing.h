@@ -48,6 +48,14 @@ struct DiagramFrameLayout {
   float radius = 10.0f;
 };
 
+struct DiagramLabelStyle {
+  float size = 29.0f;
+  float height = 42.0f;
+  float gap = 20.0f;
+  uint32_t color = 0xff171b24;
+  bool faux_bold = true;
+};
+
 float clamp01(float value);
 float smoothstep(float edge0, float edge1, float value);
 float insetToward(float value, float target, float amount);
@@ -72,6 +80,11 @@ void fauxBoldText(visage::Canvas& canvas,
                   float y,
                   float width,
                   float height);
+void drawDiagramPanelLabel(visage::Canvas& canvas,
+                           const std::string& label,
+                           const Rect& panel,
+                           float scale,
+                           const DiagramLabelStyle& style = {});
 void fillStroke(visage::Canvas& canvas,
                 const visage::Path& path,
                 float width,

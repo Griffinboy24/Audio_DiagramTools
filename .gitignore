@@ -14,6 +14,7 @@ docs/style-reference/**/*.png
 *.gif
 *.mp4
 *.webm
+!articles/**/renders/*.gif
 
 # Local-only references and assets
 /REFERENCES/

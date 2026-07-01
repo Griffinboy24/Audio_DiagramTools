@@ -17,6 +17,16 @@ void drawSampleValuesPlot(drawing::DrawContext& context, const Dimensions& dimen
 void drawSampleTablePlaybackScene(drawing::DrawContext& context,
                                   const Dimensions& dimensions,
                                   const Timeline& timeline);
+void drawSampleTableWaveformGraphic(drawing::DrawContext& context,
+                                    const Dimensions& dimensions,
+                                    const SampleTableWaveformOptions& options);
+void drawDenseSampleWaveformGraphic(drawing::DrawContext& context,
+                                    const Dimensions& dimensions);
+void drawWaveformBufferSplitGraphic(drawing::DrawContext& context,
+                                    const Dimensions& dimensions);
+void drawWaveformVolumeScaleGraphic(drawing::DrawContext& context,
+                                    const Dimensions& dimensions,
+                                    const Timeline& timeline);
 void drawDoubleArrowGraphic(visage::Canvas& canvas, const Dimensions& dimensions);
 void drawDoubleArrowGraphicWithColor(visage::Canvas& canvas,
                                      const Dimensions& dimensions,
@@ -64,6 +74,10 @@ void drawBlockProcessingGraphic(drawing::DrawContext& context,
                                 const Dimensions& dimensions,
                                 const Timeline& timeline,
                                 const BlockProcessingOptions& options);
+void drawOscillatorBlockFactoryGraphic(drawing::DrawContext& context,
+                                       const Dimensions& dimensions,
+                                       const Timeline& timeline,
+                                       const OscillatorBlockFactoryOptions& options);
 
 visage::Screenshot renderFrame(std::string_view graphic_id,
                                const Dimensions& dimensions,

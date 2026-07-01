@@ -53,7 +53,7 @@ int main() {
   }
 
   const adt::AudioFileSweep voice_playing =
-      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(25, 100, 20.0));
+      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(12, 100, 20.0));
   if (!voice_playing.show_playhead || voice_playing.playhead_progress <= 0.0f ||
       voice_playing.playhead_progress >= 1.0f || voice_playing.erase_pass ||
       !voice_playing.show_waveform) {
@@ -62,7 +62,7 @@ int main() {
   }
 
   const adt::AudioFileSweep voice_midpoint_pause =
-      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(45, 100, 20.0));
+      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(34, 100, 20.0));
   if (voice_midpoint_pause.show_playhead || !voice_midpoint_pause.show_waveform ||
       voice_midpoint_pause.erase_pass ||
       voice_midpoint_pause.playhead_progress < 0.99f ||
@@ -72,7 +72,7 @@ int main() {
   }
 
   const adt::AudioFileSweep voice_second_pass =
-      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(70, 100, 20.0));
+      adt::voiceSampleOneShotSweep(adt::Timeline::forFrame(62, 100, 20.0));
   if (!voice_second_pass.show_playhead || !voice_second_pass.show_waveform ||
       !voice_second_pass.erase_pass || voice_second_pass.playhead_progress <= 0.0f ||
       voice_second_pass.playhead_progress >= 1.0f) {

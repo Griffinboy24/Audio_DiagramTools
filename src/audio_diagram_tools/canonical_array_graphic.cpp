@@ -13,7 +13,7 @@ using namespace drawing;
 
 void drawArrayGraphic(DrawContext& context, const Dimensions& dimensions) {
   constexpr std::array<std::string_view, 8> kValues {
-    "0.00", "0.42", "0.88", "0.56", "0.12", "0.76", "0.48", "0.22"
+    "0.00", "0.70", "0.82", "0.27", "-0.51", "-0.86", "-0.51", "0.27"
   };
   constexpr float kReferenceWidth = 1668.0f;
   constexpr float kReferenceHeight = 388.0f;

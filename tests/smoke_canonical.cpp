@@ -90,6 +90,90 @@ int main() {
     return 1;
   }
 
+  const auto table_waveform_component = adt::canonical::sampleTableWaveformGraphic();
+  const auto table_waveform_metadata =
+      adt::canonical::canonicalGraphicById(table_waveform_component.canonical_id);
+  if (!table_waveform_metadata) {
+    std::cerr << "Canonical sample table waveform graphic lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot table_waveform = adt::canonical::renderCanonicalGraphicFrame(
+      table_waveform_component.canonical_id,
+      table_waveform_component.dimensions,
+      timeline,
+      table_waveform_component.options);
+
+  if (table_waveform.width() != table_waveform_component.dimensions.width ||
+      table_waveform.height() != table_waveform_component.dimensions.height ||
+      !hasVisibleVariation(table_waveform)) {
+    std::cerr << "Canonical sample table waveform graphic render failed.\n";
+    return 1;
+  }
+
+  const auto dense_component = adt::canonical::denseSampleWaveformGraphic();
+  const auto dense_metadata =
+      adt::canonical::canonicalGraphicById(dense_component.canonical_id);
+  if (!dense_metadata) {
+    std::cerr << "Canonical dense sample waveform graphic lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot dense_waveform = adt::canonical::renderCanonicalGraphicFrame(
+      dense_component.canonical_id,
+      dense_component.dimensions,
+      timeline,
+      dense_component.options);
+
+  if (dense_waveform.width() != dense_component.dimensions.width ||
+      dense_waveform.height() != dense_component.dimensions.height ||
+      !hasVisibleVariation(dense_waveform)) {
+    std::cerr << "Canonical dense sample waveform graphic render failed.\n";
+    return 1;
+  }
+
+  const auto buffer_split_component = adt::canonical::waveformBufferSplitGraphic();
+  const auto buffer_split_metadata =
+      adt::canonical::canonicalGraphicById(buffer_split_component.canonical_id);
+  if (!buffer_split_metadata) {
+    std::cerr << "Canonical waveform buffer split graphic lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot buffer_split = adt::canonical::renderCanonicalGraphicFrame(
+      buffer_split_component.canonical_id,
+      buffer_split_component.dimensions,
+      timeline,
+      buffer_split_component.options);
+
+  if (buffer_split.width() != buffer_split_component.dimensions.width ||
+      buffer_split.height() != buffer_split_component.dimensions.height ||
+      !hasVisibleVariation(buffer_split)) {
+    std::cerr << "Canonical waveform buffer split graphic render failed.\n";
+    return 1;
+  }
+
+  const auto volume_component = adt::canonical::waveformVolumeScaleGraphic();
+  const auto volume_metadata =
+      adt::canonical::canonicalGraphicById(volume_component.canonical_id);
+  if (!volume_metadata) {
+    std::cerr << "Canonical waveform volume scale graphic lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot volume_scene = adt::canonical::renderCanonicalGraphicFrame(
+      volume_component.canonical_id,
+      volume_component.dimensions,
+      timeline,
+      volume_component.options);
+
+  if (volume_scene.width() != volume_component.dimensions.width ||
+      volume_scene.height() != volume_component.dimensions.height ||
+      !hasVisibleVariation(volume_scene)) {
+    std::cerr << "Canonical waveform volume scale graphic render failed.\n";
+    return 1;
+  }
+
   const auto voice_scene_component = adt::canonical::voiceSampleToSpeakerScene();
   const auto voice_scene_metadata =
       adt::canonical::canonicalGraphicById(voice_scene_component.canonical_id);
@@ -164,6 +248,43 @@ int main() {
 
   if (!screenshotsNearlyMatch(block_loop_0, block_loop_1)) {
     std::cerr << "Canonical block processing loop endpoint does not wrap cleanly.\n";
+    return 1;
+  }
+
+  const auto oscillator_component =
+      adt::canonical::oscillatorBlockFactoryGraphic({}, { 920, 330 });
+  const auto oscillator_metadata =
+      adt::canonical::canonicalGraphicById(oscillator_component.canonical_id);
+  if (!oscillator_metadata) {
+    std::cerr << "Canonical oscillator block factory lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot oscillator = adt::canonical::renderCanonicalGraphicFrame(
+      oscillator_component.canonical_id,
+      oscillator_component.dimensions,
+      timeline,
+      oscillator_component.options);
+
+  if (oscillator.width() != 920 || oscillator.height() != 330 ||
+      !hasVisibleVariation(oscillator)) {
+    std::cerr << "Canonical oscillator block factory render failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot oscillator_loop_0 = adt::canonical::renderCanonicalGraphicFrame(
+      oscillator_component.canonical_id,
+      oscillator_component.dimensions,
+      block_loop_start,
+      oscillator_component.options);
+  const visage::Screenshot oscillator_loop_1 = adt::canonical::renderCanonicalGraphicFrame(
+      oscillator_component.canonical_id,
+      oscillator_component.dimensions,
+      block_loop_end,
+      oscillator_component.options);
+
+  if (!screenshotsNearlyMatch(oscillator_loop_0, oscillator_loop_1)) {
+    std::cerr << "Canonical oscillator block factory loop endpoint does not wrap cleanly.\n";
     return 1;
   }
 

@@ -40,15 +40,14 @@ void drawSampleValuesPlot(DrawContext& context, const Dimensions& dimensions) {
   };
   constexpr std::array<SampleLabel, 8> kSamples {
     SampleLabel { "0.00", 305.2f, 271.0f, -53.0f },
-    SampleLabel { "0.42", 456.8f, 226.0f, -53.0f },
-    SampleLabel { "0.88", 605.4f, 173.0f, -56.0f },
-    SampleLabel { "0.56", 757.0f, 209.0f, -54.0f },
-    SampleLabel { "-0.12", 906.6f, 287.0f, 25.0f },
-    SampleLabel { "-0.76", 1056.2f, 357.0f, 26.0f },
-    SampleLabel { "-0.48", 1203.9f, 325.0f, 25.0f },
-    SampleLabel { "0.22", 1355.4f, 249.0f, -54.0f },
+    SampleLabel { "0.70", 456.8f, 181.0f, -53.0f },
+    SampleLabel { "0.82", 605.4f, 166.0f, -56.0f },
+    SampleLabel { "0.27", 757.0f, 236.0f, -54.0f },
+    SampleLabel { "-0.51", 906.6f, 335.0f, 25.0f },
+    SampleLabel { "-0.86", 1056.2f, 379.0f, 26.0f },
+    SampleLabel { "-0.51", 1203.9f, 335.0f, 25.0f },
+    SampleLabel { "0.27", 1355.4f, 236.0f, -54.0f },
   };
-
   const float scale = std::min(static_cast<float>(dimensions.width) / kReferenceWidth,
                                static_cast<float>(dimensions.height) / kReferenceHeight);
   const float origin_x = (static_cast<float>(dimensions.width) - kReferenceWidth * scale) * 0.5f;

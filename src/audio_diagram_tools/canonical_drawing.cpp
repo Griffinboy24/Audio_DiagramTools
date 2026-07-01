@@ -66,6 +66,37 @@ void fauxBoldText(visage::Canvas& canvas,
   text(canvas, label, size, color, justification, x + 0.45f, y, width, height);
 }
 
+void drawDiagramPanelLabel(visage::Canvas& canvas,
+                           const std::string& label,
+                           const Rect& panel,
+                           float scale,
+                           const DiagramLabelStyle& style) {
+  const float height = style.height * scale;
+  const float y = panel.y - style.gap * scale - height;
+  if (style.faux_bold) {
+    fauxBoldText(canvas,
+                 label,
+                 style.size * scale,
+                 style.color,
+                 visage::Font::kCenter,
+                 panel.x,
+                 y,
+                 panel.width,
+                 height);
+    return;
+  }
+
+  text(canvas,
+       label,
+       style.size * scale,
+       style.color,
+       visage::Font::kCenter,
+       panel.x,
+       y,
+       panel.width,
+       height);
+}
+
 void fillStroke(visage::Canvas& canvas,
                 const visage::Path& path,
                 float width,

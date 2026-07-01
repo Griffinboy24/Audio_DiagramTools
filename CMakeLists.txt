@@ -79,8 +79,10 @@ add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/canonical_components.cpp
   src/audio_diagram_tools/canonical_double_arrow_graphic.cpp
   src/audio_diagram_tools/canonical_drawing.cpp
+  src/audio_diagram_tools/canonical_dense_sample_waveform_graphic.cpp
   src/audio_diagram_tools/composition.cpp
   src/audio_diagram_tools/canonical_hise_node_container.cpp
+  src/audio_diagram_tools/canonical_oscillator_block_factory_graphic.cpp
   src/audio_diagram_tools/gif_exporter.cpp
   src/audio_diagram_tools/png_export.cpp
   src/audio_diagram_tools/render_types.cpp
@@ -88,7 +90,11 @@ add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/canonical_graphics.cpp
   src/audio_diagram_tools/canonical_sample_values_plot.cpp
   src/audio_diagram_tools/canonical_sample_table_playback_scene.cpp
+  src/audio_diagram_tools/canonical_sample_table_waveform_graphic.cpp
   src/audio_diagram_tools/canonical_speaker_animation_graphic.cpp
+  src/audio_diagram_tools/canonical_waveform_buffer_split_graphic.cpp
+  src/audio_diagram_tools/canonical_waveform_volume_scale_graphic.cpp
+  src/audio_diagram_tools/composite_graphics.cpp
   src/audio_diagram_tools/waveform_scene.cpp
 )
 
@@ -140,6 +146,15 @@ add_executable(adt_render_graphic
 )
 
 target_link_libraries(adt_render_graphic
+  PRIVATE
+    adt::audio_diagram_tools
+)
+
+add_executable(adt_render_composite_graphic
+  examples/adt_render_composite_graphic.cpp
+)
+
+target_link_libraries(adt_render_composite_graphic
   PRIVATE
     adt::audio_diagram_tools
 )

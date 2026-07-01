@@ -25,6 +25,18 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
   else if (graphic_id == "sample-table-playback-scene") {
     drawSampleTablePlaybackScene(context, dimensions, timeline);
   }
+  else if (graphic_id == "sample-table-waveform-graphic") {
+    drawSampleTableWaveformGraphic(context, dimensions, options.sample_table_waveform);
+  }
+  else if (graphic_id == "dense-sample-waveform-graphic") {
+    drawDenseSampleWaveformGraphic(context, dimensions);
+  }
+  else if (graphic_id == "waveform-buffer-split-graphic") {
+    drawWaveformBufferSplitGraphic(context, dimensions);
+  }
+  else if (graphic_id == "waveform-volume-scale-graphic") {
+    drawWaveformVolumeScaleGraphic(context, dimensions, timeline);
+  }
   else if (graphic_id == "double-arrow-graphic") {
     if (options.double_arrow.single_color)
       drawDoubleArrowGraphicWithColor(canvas, dimensions, *options.double_arrow.single_color);
@@ -95,6 +107,10 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
   }
   else if (graphic_id == "block-processing-graphic") {
     drawBlockProcessingGraphic(context, dimensions, timeline, options.block_processing);
+  }
+  else if (graphic_id == "oscillator-block-factory-graphic") {
+    drawOscillatorBlockFactoryGraphic(
+        context, dimensions, timeline, options.oscillator_block_factory);
   }
   else {
     throw std::runtime_error("Unknown canonical graphic: " + std::string(graphic_id));

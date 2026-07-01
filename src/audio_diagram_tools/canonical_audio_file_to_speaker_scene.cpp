@@ -114,18 +114,17 @@ void drawAudioFileToSpeakerSceneImpl(DrawContext& context,
     constexpr float kCaptionLabelSize = 23.0f;
     constexpr float kCaptionBodySize = 21.6f;
     constexpr float kCaptionHeight = 32.0f;
-    const float caption_center_x = voice_sample ? kContentWidth * 0.5f :
-                                                  kContentWidth * 0.5f + 22.0f;
-    const float label_body_gap = voice_sample ? 14.0f : 0.0f;
-    const float top_label_width = voice_sample ? 60.0f : 56.0f;
+    constexpr float kLabelBodyGap = 14.0f;
+    const float caption_center_x = kContentWidth * 0.5f;
+    const float label_body_gap = kLabelBodyGap;
+    const float top_label_width = voice_sample ? 60.0f : 62.0f;
     const float top_body_width = voice_sample ? 244.0f : 316.0f;
-    const float bottom_label_width = voice_sample ? 106.0f : 100.0f;
+    const float bottom_label_width = voice_sample ? 106.0f : 108.0f;
     const float bottom_body_width = voice_sample ? 92.0f : 372.0f;
     const float top_row_width = top_label_width + label_body_gap + top_body_width;
     const float bottom_row_width = bottom_label_width + label_body_gap + bottom_body_width;
     const float top_row_x = caption_center_x - top_row_width * 0.5f;
-    const float bottom_row_x =
-        caption_center_x - bottom_row_width * 0.5f - (voice_sample ? 28.0f : 0.0f);
+    const float bottom_row_x = caption_center_x - bottom_row_width * 0.5f;
     const std::string_view top_body =
         voice_sample ? "Vocal sample audio" : "Sound over time (waveform).";
     const std::string_view bottom_body =

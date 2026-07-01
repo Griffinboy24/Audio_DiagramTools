@@ -129,7 +129,7 @@ AudioFileSweep audioFileTwoStageSweep(const Timeline& timeline) {
 AudioFileSweep voiceSampleOneShotSweep(const Timeline& timeline) {
   const float phase = audioFilePlayheadProgress(timeline) -
                       std::floor(audioFilePlayheadProgress(timeline));
-  constexpr float kHoldDuration = 0.165f;
+  constexpr float kHoldDuration = 0.275f;
   constexpr float kPassDuration = (1.0f - 2.0f * kHoldDuration) * 0.5f;
   constexpr float kFirstHoldStart = kPassDuration;
   constexpr float kFirstHoldEnd = kFirstHoldStart + kHoldDuration;

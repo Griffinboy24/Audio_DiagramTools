@@ -1,0 +1,14 @@
+{
+  "schema": "audio-diagram-tools.article-project.v1",
+  "targetProfile": "hise-published-topic",
+  "topicTitle": "How does DSP work? [Part 1: The buffer]",
+  "author": "griffinboy",
+  "age": "draft",
+  "category": "Blog Entries",
+  "posts": "1 post",
+  "posters": "1 poster",
+  "views": "draft",
+  "chrome": "member",
+  "assetRoot": "./renders",
+  "markdown": "./article.md"
+}
