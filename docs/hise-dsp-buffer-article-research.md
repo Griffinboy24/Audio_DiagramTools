@@ -27,6 +27,28 @@ The article should behave like a visual math/science explainer:
 
 ## Patterns From Research
 
+### Audio-science app note style: context, mechanism, visualization, consequence
+
+The Conformal BBD LFO note is the clearest style reference for this article. It
+does not open with a generic tutorial voice. It starts from a real audio context,
+names the specific mechanism under discussion, explains the mechanism in plain
+technical prose, then places visualization at the exact point where the reader
+needs to inspect a relationship.
+
+Applied here:
+
+- Open with the practical reason this matters: DSP code changes sample values,
+  which eventually become speaker motion.
+- Scope the note cleanly: Part 1 covers waveform, samples, buffers, and gain.
+- Use real paragraphs, not a stack of isolated one-line claims.
+- Use a graphic when the reader needs to see a relationship over time or between
+  representations.
+- After each graphic, state the consequence the reader should carry forward.
+- Let equations/code arrive only after the visual model exists.
+
+Source: Russell McClellan, "App Note 2: Modeling LFOs for BBD Chorus."
+https://www.russellmcc.com/conformal/app_notes/2-bbd-lfo/
+
 ### Cold traffic needs an immediate promise, not a preamble
 
 The reader arrives from the title. They are not asking for a definition of DSP,
@@ -294,6 +316,11 @@ https://www.izotope.com/community/blog/digital-audio-basics-sample-rate-and-bit-
   later mental model.
 - Do not imply that the speaker literally receives the simplified drawn blocks;
   the blocks are an engine representation that later becomes continuous output.
+- Do not make the article read like a slide deck. Short paragraphs are useful,
+  but an article needs connective tissue and reasons for moving from one idea to
+  the next.
+- Do not reduce every post-figure sentence to "this is still the same idea";
+  say the specific consequence.
 
 ## Article Pacing Contract
 
