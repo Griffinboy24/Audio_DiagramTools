@@ -25,6 +25,11 @@ The article should behave like a visual math/science explainer:
 - Use short text to aim attention, not long text to brute-force comprehension.
 - End each section with the reader feeling they noticed something themselves.
 
+The article should also use a controlled reveal. Early sections are allowed to
+be useful simplifications, as long as later sections add the missing truth in
+the right order. The reader does not need a complete DSP model after every
+sentence; they need a coherent model by the end of the article.
+
 ## Patterns From Research
 
 ### Audio-science app note style: context, mechanism, visualization, consequence
@@ -48,6 +53,19 @@ Applied here:
 
 Source: Russell McClellan, "App Note 2: Modeling LFOs for BBD Chorus."
 https://www.russellmcc.com/conformal/app_notes/2-bbd-lfo/
+
+### Do not open with the destination
+
+The BBD note does not start by dumping the final implementation model. It starts
+with the musical object and lets the bucket-brigade mechanism arrive when the
+reader needs it. The same approach matters even more for DSP 101.
+
+Applied here: do not open with gain, distortion, delay, buffers, or "most audio
+effects." Start with the speaker, then the waveform, then sample values, then
+chunks, then buffers, then effects.
+
+The full DSP sentence should appear near the end, after the reader has already
+seen all the pieces it refers to.
 
 ### Cold traffic needs an immediate promise, not a preamble
 
@@ -296,6 +314,7 @@ https://www.izotope.com/community/blog/digital-audio-basics-sample-rate-and-bit-
 
 - Do not open with "What does DSP code receive?"
 - Do not open with a fake reader question.
+- Do not open with a summary of effects, buffers, or implementation patterns.
 - Do not explain a whole concept in text and then show the same thing again.
 - Do not use diagrams as decoration after the explanation.
 - Do not introduce buffers before the reader understands sample values.
@@ -321,6 +340,8 @@ https://www.izotope.com/community/blog/digital-audio-basics-sample-rate-and-bit-
   the next.
 - Do not reduce every post-figure sentence to "this is still the same idea";
   say the specific consequence.
+- Do not force every section to be fully true in isolation. The reader is
+  expected to read in order; use that.
 
 ## Article Pacing Contract
 

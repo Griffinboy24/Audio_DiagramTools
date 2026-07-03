@@ -65,61 +65,88 @@
         <section class="post-content" aria-label="Post content">
           <div class="post-time"><i class="fa fa-fw fa-pencil-square"></i> draft</div>
           <div class="markdown-body">
-<p>Most audio effects can be understood first as changes to a waveform over time.</p>
-<p>A gain effect makes the waveform smaller or larger. A distortion effect bends it. A delay effect stores part of it and plays it back later. In HISE, those changes happen to sample values, usually in short chunks called buffers.</p>
-<p>This first part builds that picture from the outside in: speaker motion, waveform shape, sample values, buffers, and one simple gain operation.</p>
+<p>This first part starts before code.</p>
+<p>We will begin at the end of the chain: the speaker.</p>
 <p>Audio coding starts with understanding one simple thing:</p>
 <p>A speaker makes sound by vibrating.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/speaker-waveform.gif" alt="Speaker cone following a waveform"></figure>
-<p>The waveform at the top is a drawing of motion over time. When the line moves up, the speaker cone moves one way; when the line moves down, the cone moves the other way. That movement pushes and pulls air, and we hear it as sound.</p>
-<p>Real audio is usually not a neat slow wave, so here is the same idea with a more detailed sample:</p>
+<p>The line at the top is a waveform.</p>
+<p>For now, think of it as the shape the speaker is following. When the line moves up, the speaker moves one way. When the line moves down, it moves the other way.</p>
+<p>That movement pushes air, and we hear it as sound.</p>
+<p>The first graphic is simplified so the motion is easy to see. Real audio is faster and messier:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/voice-sample-speaker.gif" alt="Voice sample driving a speaker"></figure>
-<p>The speaker is still following a changing shape. The animation is slowed down so the motion is visible, but the relationship is the important part: change the waveform shape, and you change what the speaker does.</p>
-<h2>Samples</h2>
-<p>Once the waveform is a shape over time, the digital version is easier to picture. A small piece of that shape can be represented as a row of values:</p>
+<p>The shape is more detailed now, but the idea is the same.</p>
+<p>The speaker is still following a waveform.</p>
+<p>So if we want to create or change a sound, we need some way to create or change that shape.</p>
+<h2>The shape as numbers</h2>
+<p>In digital audio, the shape is stored as numbers.</p>
+<p>A tiny piece of a waveform might look like this:</p>
 <pre><code class="language-text">[0.00,  0.70,  0.82,  0.27,  -0.51,  -0.86,  -0.51,  0.27]
 </code></pre>
-<p>If those values are plotted from left to right, the waveform appears:</p>
+<p>Plot those numbers from left to right and the waveform appears:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-array-to-plot.png" alt="Sample numbers plotted as points"></figure>
-<p>Each value is one <strong>sample</strong>: one height at one moment in time. Positive values sit above the centre line, negative values sit below it, and zero is the centre.</p>
-<p>The next graphic shows the same data in two forms at once. The highlighted table cell and the highlighted point are the same moment in the sound.</p>
+<p>Each number is one <strong>sample</strong>.</p>
+<p>A sample is just one height at one moment in time.</p>
+<p>The order matters because the order is time:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-table-playback.gif" alt="Sample table and waveform playback"></figure>
-<p>The table is not a separate concept from the waveform. It is the same information in a form the computer can process. The curve is the same information in a form we can see quickly.</p>
-<h2>Real audio is dense</h2>
-<p>The row above is deliberately tiny. It is useful because every value can be read.</p>
-<p>Real audio is much denser. At 48 kHz, one second of mono audio contains 48,000 samples:</p>
+<p>The highlighted table cell and the highlighted point are the same moment.</p>
+<p>The table is the data. The drawing is the same data made easier to see.</p>
+<p>That is the first important idea:</p>
+<p>the waveform is an array of sample values.</p>
+<h2>Lots of samples</h2>
+<p>The example above is tiny on purpose.</p>
+<p>Real audio has far more samples than this. At 48 kHz, one second of mono audio contains 48,000 sample values.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/dense-sample-waveform.png" alt="Dense samples continue beyond the page"></figure>
-<p>This does not change the idea. It only changes the scale. The waveform is still represented by values over time, but real audio contains far more of those values than a teaching diagram can show comfortably.</p>
-<h2>Buffers</h2>
-<p>HISE does not process a whole song, note, or sample file in one enormous piece. It works through the stream in short chunks.</p>
+<p>The simple drawing was not a different kind of thing. It was just a readable version of the same idea.</p>
+<p>Real audio is the same thing, packed much more tightly in time.</p>
+<h2>Chunks</h2>
+<p>HISE does not work through the entire sound in one go.</p>
+<p>It takes a short chunk of the waveform, processes it, then moves on to the next chunk.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/waveform-buffer-split.png" alt="Waveform split into chunks"></figure>
-<p>Those chunks are called <strong>buffers</strong>. The cut lines are not part of the sound, and they do not need to line up with peaks, zero crossings, notes, or waveform cycles. They are just processing boundaries.</p>
-<p>An effect processes one buffer, then the next buffer, then the next one. Later, those chunks join back into the continuous output stream.</p>
+<p>Those chunks are called <strong>buffers</strong>.</p>
+<p>The chunk edges are not part of the sound. They do not need to line up with peaks, zero crossings, notes, or waveform cycles.</p>
+<p>They are just the places where the engine cuts the stream into pieces it can process.</p>
+<p>Now we can draw the basic movement through an effect:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/buffer-through-dsp.gif" alt="Buffers moving through DSP code into the output stream"></figure>
-<p>That gives us the basic shape of a normal audio effect: take the current buffer, change the sample values, and pass the buffer onward.</p>
-<h2>Gain</h2>
-<p>A gain node is the simplest useful example because the operation is easy to see in the waveform.</p>
+<p>A chunk comes in.</p>
+<p>The effect changes the numbers inside it.</p>
+<p>The chunk goes out.</p>
+<p>Then the next chunk comes in.</p>
+<p>This is the basic shape of a normal audio effect.</p>
+<h2>A simple example: volume</h2>
+<p>Volume is a good first example because it is easy to see.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node.png" alt="HISE gain node"></figure>
-<p>Volume is the height of the waveform. To make a sound quieter, make the values smaller.</p>
+<p>Volume is the height of the waveform.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/waveform-volume-scale.gif" alt="Waveform being scaled taller and smaller"></figure>
-<p>For example, multiplying every sample by <code>0.5</code> keeps the same shape but makes every height half as large:</p>
+<p>To make the sound quieter, make the sample values smaller.</p>
+<p>For example, multiply every sample by <code>0.5</code>:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-gain-comparison.png" alt="Before and after multiplying samples by 0.5"></figure>
-<p>Inside the buffer, that operation is just repeated across the samples.</p>
+<p>The shape is the same.</p>
+<p>The height is half as large.</p>
+<p>Inside the chunk, the operation is repeated for each sample:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node-code.png" alt="HISE gain node pseudocode"></figure>
-<p>In code shape, the core idea is:</p>
+<p>In code form, the idea is:</p>
 <pre><code class="language-cpp">for each sample in the buffer
 {
     sample = sample * gain;
 }
 </code></pre>
-<p>If <code>gain</code> is <code>1.0</code>, the values stay the same. If <code>gain</code> is <code>0.5</code>, the waveform is half as tall. If <code>gain</code> is <code>0.0</code>, every value becomes zero, which is silence.</p>
-<p>A real HISE gain node has controls, smoothing, and parameter handling around it, but the audio operation at the centre is still multiplication.</p>
-<h2>Effects and generators</h2>
-<p>At this level, many audio effects are variations on the same pattern.</p>
-<p>Gain multiplies sample values. Distortion bends or clips them. Delay stores values and writes them back later. The details get much more interesting, but the starting point is still a buffer of samples being changed over time.</p>
-<p>Generators are slightly different. An oscillator does not need to reshape an incoming waveform; it can write new sample values into an output buffer.</p>
+<p>If <code>gain</code> is <code>1.0</code>, the sample values stay the same.</p>
+<p>If <code>gain</code> is <code>0.5</code>, the waveform is half as tall.</p>
+<p>If <code>gain</code> is <code>0.0</code>, every sample becomes zero, which is silence.</p>
+<p>A real HISE gain node has controls and smoothing around it, but the core audio operation is still this simple multiplication.</p>
+<h2>The basic shape of DSP</h2>
+<p>Now we can say the fuller version.</p>
+<p>For a normal audio effect, DSP usually looks like this:</p>
+<p>take a buffer of sample values, change those values, and pass the buffer onward.</p>
+<p>Gain multiplies the samples.</p>
+<p>Distortion bends or clips the samples.</p>
+<p>Delay stores samples and plays them back later.</p>
+<p>An oscillator is a slightly different case. It can create new sample values instead of changing incoming ones:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/oscillator-block-factory.gif" alt="Oscillator block factory writing sine samples"></figure>
-<p>That is why the table, the waveform, the buffer, and the code are useful views of the same thing: sample values changing over time.</p>
+<p>So the table, the waveform, the buffer, and the code are not separate ideas.</p>
+<p>They are different views of the same thing:</p>
+<p>sample values changing over time.</p>
 <p>Next: how repeated values become pitch, tone, and spectrum.</p>
           </div>
         </section>
