@@ -32,6 +32,80 @@ a {
   text-decoration: none;
 }
 
+.fa {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  min-width: 1em;
+  font-style: normal;
+  line-height: 1;
+  position: relative;
+  vertical-align: -0.08em;
+}
+
+.fa-fw {
+  width: 1.28571429em;
+}
+
+.fa-lg {
+  font-size: 1.33333333em;
+  line-height: 0.75em;
+  vertical-align: -15%;
+}
+
+.fa::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.72em;
+  height: 0.72em;
+  border: 1.4px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.78;
+  transform: translate(-50%, -50%);
+}
+
+.fa-list::before {
+  width: 0.82em;
+  height: 0.54em;
+  border: 0;
+  border-top: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  border-radius: 0;
+  box-shadow: 0 0.2em 0 currentColor;
+  opacity: 0.82;
+}
+
+.fa-search::before {
+  left: 42%;
+  top: 42%;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+}
+
+.fa-search::after {
+  content: "";
+  position: absolute;
+  left: 58%;
+  top: 63%;
+  width: 0.36em;
+  height: 1.5px;
+  background: currentColor;
+  opacity: 0.82;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.fa-clock-o::before,
+.fa-user::before,
+.fa-bell-o::before,
+.fa-comment-o::before,
+.fa-lightbulb-o::before {
+  border-radius: 50%;
+}
+
 .hise-topbar {
   height: 71.375px;
   background: var(--hise-topbar);
