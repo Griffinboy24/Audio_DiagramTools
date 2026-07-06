@@ -23,8 +23,7 @@ void drawSpeakerConeMotionExperimentAt(DrawContext& context,
                                        std::optional<float> drive_override,
                                        std::optional<float> sound_drive_override,
                                        std::optional<uint32_t> sound_wave_color_override,
-                                       float sound_wave_alpha_scale,
-                                       float sound_wave_follow_scale) {
+                                       float sound_wave_alpha_scale) {
   auto sx = [&](float x) { return origin_x + x * scale; };
   auto sy = [&](float y) { return origin_y + y * scale; };
   auto ss = [&](float value) { return value * scale; };
@@ -354,7 +353,6 @@ void drawSpeakerConeMotionExperimentAt(DrawContext& context,
     auto byteAlpha = [](float value) {
       return static_cast<uint8_t>(std::clamp(value, 0.0f, 255.0f));
     };
-    const float sound_wave_x_offset = 13.2f * drive * sound_wave_follow_scale;
 
     auto drawSoundArc = [&](float x,
                             float top_y,
@@ -369,10 +367,10 @@ void drawSpeakerConeMotionExperimentAt(DrawContext& context,
           alphaColor(byteAlpha((alpha_base + 72.0f * local) * sound_wave_alpha_scale),
                      sound_wave_color);
       visage::Path arc;
-      arc.moveTo(sx(x + sound_wave_x_offset) + expand * 0.25f, sy(top_y));
-      arc.bezierTo(sx(control_x + sound_wave_x_offset) + expand, sy(194.0f),
-                   sx(control_x + sound_wave_x_offset) + expand, sy(296.0f),
-                   sx(x + sound_wave_x_offset) + expand * 0.25f, sy(bottom_y));
+      arc.moveTo(sx(x) + expand * 0.25f, sy(top_y));
+      arc.bezierTo(sx(control_x) + expand, sy(194.0f),
+                   sx(control_x) + expand, sy(296.0f),
+                   sx(x) + expand * 0.25f, sy(bottom_y));
       fillStroke(c, arc, ss(width_base + 0.45f * local), color, { ss(6.0f), ss(9.0f) });
     };
 

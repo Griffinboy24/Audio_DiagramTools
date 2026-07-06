@@ -284,8 +284,7 @@ void drawOutputStreamToSpeaker(DrawContext& context,
                                     drive,
                                     drive,
                                     0xfff7f7ef,
-                                    1.45f,
-                                    1.0f);
+                                    1.45f);
 
   visage::Region& read_head_region = drawing::addRegion(context, true);
   drawing::drawInRegion(context, read_head_region, [&](visage::Canvas& read_head_canvas) {
