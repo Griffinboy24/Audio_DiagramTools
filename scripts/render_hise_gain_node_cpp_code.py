@@ -13,21 +13,28 @@ OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp
 
 CODE = """void setGain(float newGain)
 {
-    gain = newGain; // knob
+    // Gain knob updates this value
+    gain = newGain;
 }
 
 void process(chunk)
 {
+    // Number of samples in this chunk
     const int numSamples = chunk.getNumSamples();
 
-    for (int channel = 0; channel < 2; ++channel) // L/R
+    // Left channel, then right channel
+    for (int channel = 0; channel < 2; ++channel)
     {
+        // Samples for this channel
         auto* samples = chunk.getChannel(channel);
 
+        // Visit every sample in this channel
         for (int s = 0; s < numSamples; ++s)
         {
             const float input = samples[s];
-            samples[s] = input * gain; // scaled
+
+            // Same shape, scaled height
+            samples[s] = input * gain;
         }
     }
 }"""
@@ -68,7 +75,13 @@ def token_color(token: Token) -> tuple[int, int, int]:
     return (220, 220, 220)
 
 
-def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
+def draw_code(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    code: str,
+    canvas_height: int,
+) -> None:
     code_font = font(12)
     line_font = font(12)
     line_height = 18
@@ -80,7 +93,7 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
     lines = code.splitlines()
     for line_number in range(start_line - 4, start_line + len(lines) + 5):
         baseline_y = y + (line_number - start_line) * line_height
-        if -line_height < baseline_y < 420:
+        if -line_height < baseline_y < canvas_height:
             draw.text(
                 (x, baseline_y),
                 f"{line_number:>3}",
@@ -125,7 +138,7 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
 
 def main() -> None:
     width = 920
-    height = 420
+    height = 500
     divider_x = 460
     side_padding = 55
 
@@ -144,7 +157,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 17, 39, CODE)
+    draw_code(draw, divider_x + 18, 16, CODE, height)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
