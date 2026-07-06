@@ -11,7 +11,12 @@ SOURCE = ROOT / "articles" / "hise-dsp-buffer" / "assets" / "hise-gain-node-sour
 OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp-code.png"
 
 
-CODE = """void process(chunk)
+CODE = """void setGain(float newGain)
+{
+    gain = newGain;
+}
+
+void process(chunk)
 {
     const int numSamples = chunk.getNumSamples();
 
@@ -64,13 +69,13 @@ def token_color(token: Token) -> tuple[int, int, int]:
 
 
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
-    code_font = font(12)
-    line_font = font(12)
-    line_height = 20
+    code_font = font(11)
+    line_font = font(11)
+    line_height = 18
     gutter_width = 38
-    text_x = x + gutter_width + 10
+    text_x = x + gutter_width + 8
     char_width = draw.textlength(" ", font=code_font)
-    start_line = 863
+    start_line = 858
 
     lines = code.splitlines()
     for line_number in range(start_line - 4, start_line + len(lines) + 5):
@@ -80,7 +85,7 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
                 (x, baseline_y),
                 f"{line_number:>3}",
                 font=line_font,
-                fill=(72, 86, 98),
+                fill=(104, 119, 132),
             )
 
     indent_guides: list[tuple[int, int, int]] = []
@@ -97,9 +102,9 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
         draw.line(
             (
                 guide_x,
-                y + start_index * line_height + line_height - 2,
+                y + (start_index + 1) * line_height - 2,
                 guide_x,
-                y + end_index * line_height + line_height - 2,
+                y + end_index * line_height - 2,
             ),
             fill=(42, 52, 60),
             width=1,
@@ -107,13 +112,6 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
 
     for index, line in enumerate(lines, start=1):
         baseline_y = y + (index - 1) * line_height
-        draw.text(
-            (x, baseline_y),
-            f"{start_line + index - 1:>3}",
-            font=line_font,
-            fill=(104, 119, 132),
-        )
-
         cursor_x = text_x
         for token, text in lex(line, CppLexer()):
             if "\n" in text:
@@ -144,7 +142,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 6, 48, CODE)
+    draw_code(draw, divider_x + 15, 39, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
