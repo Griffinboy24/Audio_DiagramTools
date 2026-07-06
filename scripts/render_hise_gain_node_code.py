@@ -26,11 +26,11 @@ def main() -> None:
     divider_x = 460
     side_padding = 55
 
-    image = Image.new("RGB", (width, height), (29, 29, 29))
+    image = Image.new("RGB", (width, height), (124, 128, 130))
     draw = ImageDraw.Draw(image)
 
     draw.rectangle((divider_x, 0, width, height), fill=(18, 24, 30))
-    draw.rectangle((divider_x - 3, 0, divider_x + 1, height), fill=(43, 54, 62))
+    draw.rectangle((divider_x - 3, 0, divider_x + 1, height), fill=(84, 92, 98))
 
     node = Image.open(SOURCE).convert("RGB")
     node = node.crop((0, 0, node.width, node.height - 1))
