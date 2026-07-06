@@ -325,5 +325,42 @@ int main() {
     return 1;
   }
 
+  const auto output_speaker_component =
+      adt::canonical::outputStreamToSpeakerGraphic({}, { 920, 300 });
+  const auto output_speaker_metadata =
+      adt::canonical::canonicalGraphicById(output_speaker_component.canonical_id);
+  if (!output_speaker_metadata) {
+    std::cerr << "Canonical output stream to speaker lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot output_speaker = adt::canonical::renderCanonicalGraphicFrame(
+      output_speaker_component.canonical_id,
+      output_speaker_component.dimensions,
+      timeline,
+      output_speaker_component.options);
+
+  if (output_speaker.width() != 920 || output_speaker.height() != 300 ||
+      !hasVisibleVariation(output_speaker)) {
+    std::cerr << "Canonical output stream to speaker render failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot output_speaker_loop_0 = adt::canonical::renderCanonicalGraphicFrame(
+      output_speaker_component.canonical_id,
+      output_speaker_component.dimensions,
+      block_loop_start,
+      output_speaker_component.options);
+  const visage::Screenshot output_speaker_loop_1 = adt::canonical::renderCanonicalGraphicFrame(
+      output_speaker_component.canonical_id,
+      output_speaker_component.dimensions,
+      block_loop_end,
+      output_speaker_component.options);
+
+  if (!screenshotsNearlyMatch(output_speaker_loop_0, output_speaker_loop_1)) {
+    std::cerr << "Canonical output stream to speaker loop endpoint does not wrap cleanly.\n";
+    return 1;
+  }
+
   return 0;
 }

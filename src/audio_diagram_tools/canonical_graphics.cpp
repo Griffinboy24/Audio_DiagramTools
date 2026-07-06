@@ -118,6 +118,12 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
                                   timeline,
                                   options.plugin_chain_routing);
   }
+  else if (graphic_id == "output-stream-to-speaker-graphic") {
+    drawOutputStreamToSpeakerGraphic(context,
+                                     dimensions,
+                                     timeline,
+                                     options.output_stream_to_speaker);
+  }
   else {
     throw std::runtime_error("Unknown canonical graphic: " + std::string(graphic_id));
   }

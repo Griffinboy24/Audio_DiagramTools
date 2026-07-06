@@ -29,10 +29,12 @@ inline constexpr std::string_view kWaveformVolumeScaleArticleScene =
     "waveform-volume-scale-article-scene";
 inline constexpr std::string_view kPluginChainRoutingArticleScene =
     "plugin-chain-routing-article-scene";
+inline constexpr std::string_view kOutputStreamToSpeakerArticleScene =
+    "output-stream-to-speaker-article-scene";
 
 } // namespace ids
 
-const std::array<CompositeGraphic, 6>& compositeGraphics();
+const std::array<CompositeGraphic, 7>& compositeGraphics();
 std::optional<CompositeGraphic> compositeGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -42,6 +44,7 @@ composition::Scene sampleTablePlaybackArticleScene(Dimensions dimensions = { 0, 
 composition::Scene waveformBufferSplitArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene waveformVolumeScaleArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene pluginChainRoutingArticleScene(Dimensions dimensions = { 0, 0 });
+composition::Scene outputStreamToSpeakerArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions = { 0, 0 });
 
 } // namespace adt::composites

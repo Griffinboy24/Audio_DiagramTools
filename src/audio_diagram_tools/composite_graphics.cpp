@@ -8,7 +8,7 @@
 namespace adt::composites {
 namespace {
 
-const std::array<CompositeGraphic, 6> kCompositeGraphics = {
+const std::array<CompositeGraphic, 7> kCompositeGraphics = {
   CompositeGraphic { ids::kSampleGainComparisonScene,
                      "HISE-width before/after sample gain comparison scene",
                      { 920, 700 } },
@@ -27,6 +27,9 @@ const std::array<CompositeGraphic, 6> kCompositeGraphics = {
   CompositeGraphic { ids::kPluginChainRoutingArticleScene,
                      "HISE-width article composite for buffer routing through plugins",
                      { 920, 560 } },
+  CompositeGraphic { ids::kOutputStreamToSpeakerArticleScene,
+                     "HISE-width article composite for processed output reaching speaker",
+                     { 920, 340 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -55,7 +58,7 @@ composition::TextRun centeredHeading(std::string label,
 
 } // namespace
 
-const std::array<CompositeGraphic, 6>& compositeGraphics() {
+const std::array<CompositeGraphic, 7>& compositeGraphics() {
   return kCompositeGraphics;
 }
 
@@ -203,6 +206,21 @@ composition::Scene pluginChainRoutingArticleScene(Dimensions dimensions) {
   return scene;
 }
 
+composition::Scene outputStreamToSpeakerArticleScene(Dimensions dimensions) {
+  dimensions = dimensionsOrPreferred(ids::kOutputStreamToSpeakerArticleScene, dimensions);
+
+  composition::Scene scene;
+  scene.profile = composition::hiseDarkArticleImageProfile(dimensions.height);
+  scene.profile.dimensions = dimensions;
+
+  composition::PlacedGraphic graphic =
+      composition::place(canonical::outputStreamToSpeakerGraphic({}, { 920, 300 }),
+                         (static_cast<float>(dimensions.height) - 300.0f) * 0.5f);
+  graphic.x = 0.0f;
+  scene.graphics.push_back(graphic);
+  return scene;
+}
+
 composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions) {
   if (id == ids::kSampleGainComparisonScene)
     return sampleGainComparisonScene(dimensions);
@@ -216,6 +234,8 @@ composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions
     return waveformVolumeScaleArticleScene(dimensions);
   if (id == ids::kPluginChainRoutingArticleScene)
     return pluginChainRoutingArticleScene(dimensions);
+  if (id == ids::kOutputStreamToSpeakerArticleScene)
+    return outputStreamToSpeakerArticleScene(dimensions);
 
   throw std::runtime_error("Unknown composite graphic: " + std::string(id));
 }

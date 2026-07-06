@@ -9,7 +9,7 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 16> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 17> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
@@ -58,6 +58,9 @@ const std::array<CanonicalGraphic, 16> kCanonicalGraphics = {
   CanonicalGraphic { ids::kPluginChainRoutingGraphic,
                      "Canonical buffer routing through oscillator and effects animation graphic",
                      { 920, 520 } },
+  CanonicalGraphic { ids::kOutputStreamToSpeakerGraphic,
+                     "Canonical processed output stream feeding a speaker animation graphic",
+                     { 920, 300 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -73,7 +76,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 16>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 17>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -185,6 +188,13 @@ Component pluginChainRoutingGraphic(const PluginChainRoutingOptions& options,
   RenderOptions render_options;
   render_options.plugin_chain_routing = options;
   return makeComponent(ids::kPluginChainRoutingGraphic, dimensions, render_options);
+}
+
+Component outputStreamToSpeakerGraphic(const OutputStreamToSpeakerOptions& options,
+                                       Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.output_stream_to_speaker = options;
+  return makeComponent(ids::kOutputStreamToSpeakerGraphic, dimensions, render_options);
 }
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,

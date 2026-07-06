@@ -82,6 +82,10 @@ void drawPluginChainRoutingGraphic(drawing::DrawContext& context,
                                    const Dimensions& dimensions,
                                    const Timeline& timeline,
                                    const PluginChainRoutingOptions& options);
+void drawOutputStreamToSpeakerGraphic(drawing::DrawContext& context,
+                                      const Dimensions& dimensions,
+                                      const Timeline& timeline,
+                                      const OutputStreamToSpeakerOptions& options);
 
 visage::Screenshot renderFrame(std::string_view graphic_id,
                                const Dimensions& dimensions,

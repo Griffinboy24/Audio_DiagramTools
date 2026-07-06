@@ -39,6 +39,8 @@ inline constexpr std::string_view kOscillatorBlockFactoryGraphic =
     "oscillator-block-factory-graphic";
 inline constexpr std::string_view kPluginChainRoutingGraphic =
     "plugin-chain-routing-graphic";
+inline constexpr std::string_view kOutputStreamToSpeakerGraphic =
+    "output-stream-to-speaker-graphic";
 
 } // namespace ids
 
@@ -102,6 +104,10 @@ struct PluginChainRoutingOptions {
   bool clear_background = true;
 };
 
+struct OutputStreamToSpeakerOptions {
+  bool clear_background = true;
+};
+
 struct RenderOptions {
   SampleTableWaveformOptions sample_table_waveform;
   AudioFilePlayerOptions audio_file_player;
@@ -112,6 +118,7 @@ struct RenderOptions {
   BlockProcessingOptions block_processing;
   OscillatorBlockFactoryOptions oscillator_block_factory;
   PluginChainRoutingOptions plugin_chain_routing;
+  OutputStreamToSpeakerOptions output_stream_to_speaker;
 };
 
 struct Component {
@@ -120,7 +127,7 @@ struct Component {
   RenderOptions options;
 };
 
-const std::array<CanonicalGraphic, 16>& canonicalGraphics();
+const std::array<CanonicalGraphic, 17>& canonicalGraphics();
 std::optional<CanonicalGraphic> canonicalGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -150,6 +157,8 @@ Component oscillatorBlockFactoryGraphic(const OscillatorBlockFactoryOptions& opt
                                         Dimensions dimensions = {});
 Component pluginChainRoutingGraphic(const PluginChainRoutingOptions& options = {},
                                     Dimensions dimensions = {});
+Component outputStreamToSpeakerGraphic(const OutputStreamToSpeakerOptions& options = {},
+                                       Dimensions dimensions = {});
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,
                                                const Dimensions& dimensions,

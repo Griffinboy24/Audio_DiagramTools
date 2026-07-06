@@ -125,5 +125,17 @@ int main() {
     return 1;
   }
 
+  const adt::composition::Scene output_speaker_scene =
+      adt::composites::outputStreamToSpeakerArticleScene();
+  const visage::Screenshot output_speaker_screenshot =
+      adt::composition::renderSceneFrame(output_speaker_scene, timeline);
+
+  if (output_speaker_screenshot.width() != 920 ||
+      output_speaker_screenshot.height() != 340 ||
+      !hasVisibleVariation(output_speaker_screenshot)) {
+    std::cerr << "Output stream to speaker article composition render failed.\n";
+    return 1;
+  }
+
   return 0;
 }
