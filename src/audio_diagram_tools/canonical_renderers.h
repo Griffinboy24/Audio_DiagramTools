@@ -54,7 +54,8 @@ void drawSpeakerConeMotionExperimentAt(drawing::DrawContext& context,
                                        bool draw_caption,
                                        std::optional<float> cone_drive,
                                        std::optional<float> sound_drive,
-                                       std::optional<uint32_t> sound_wave_color = std::nullopt);
+                                       std::optional<uint32_t> sound_wave_color = std::nullopt,
+                                       float sound_wave_alpha_scale = 1.0f);
 void drawAudioFileToSpeakerScene(drawing::DrawContext& context,
                                  const Dimensions& dimensions,
                                  const Timeline& timeline,

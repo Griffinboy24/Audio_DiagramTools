@@ -22,7 +22,8 @@ void drawSpeakerConeMotionExperimentAt(DrawContext& context,
                                        bool draw_caption,
                                        std::optional<float> drive_override,
                                        std::optional<float> sound_drive_override,
-                                       std::optional<uint32_t> sound_wave_color_override) {
+                                       std::optional<uint32_t> sound_wave_color_override,
+                                       float sound_wave_alpha_scale) {
   auto sx = [&](float x) { return origin_x + x * scale; };
   auto sy = [&](float y) { return origin_y + y * scale; };
   auto ss = [&](float value) { return value * scale; };
@@ -362,7 +363,9 @@ void drawSpeakerConeMotionExperimentAt(DrawContext& context,
                             float delay) {
       const float local = clamp01(pulse + delay * (push - 0.5f));
       const float expand = ss(6.0f * local);
-      const uint32_t color = alphaColor(byteAlpha(alpha_base + 72.0f * local), sound_wave_color);
+      const uint32_t color =
+          alphaColor(byteAlpha((alpha_base + 72.0f * local) * sound_wave_alpha_scale),
+                     sound_wave_color);
       visage::Path arc;
       arc.moveTo(sx(x) + expand * 0.25f, sy(top_y));
       arc.bezierTo(sx(control_x) + expand, sy(194.0f),
