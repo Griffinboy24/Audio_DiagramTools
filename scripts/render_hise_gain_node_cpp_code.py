@@ -16,7 +16,7 @@ CODE = """void setGain(float newGain)
     gain = newGain;
 }
 
-void process(chunk)
+void process(Buffer& chunk)
 {
     // Count how many samples are in this chunk
     const int numSamples = chunk.getNumSamples();
@@ -30,11 +30,9 @@ void process(chunk)
         // Step through each sample in order
         for (int s = 0; s < numSamples; ++s)
         {
-            // Store the current sample value
-            const float input = samples[s];
-
-            // Replace it with the quieter version
-            samples[s] = input * gain;
+            // This is the gain effect:
+            // scale the current sample by gain
+            samples[s] *= gain;
         }
     }
 }"""
