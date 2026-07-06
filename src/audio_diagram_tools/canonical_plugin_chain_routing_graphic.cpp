@@ -468,25 +468,24 @@ void drawPluginChain(DrawContext& context,
                      const PluginChainRoutingOptions& options) {
   visage::Canvas& canvas = context.canvas;
   const float w = static_cast<float>(dimensions.width);
-  const float center_x = w * 0.5f;
 
   if (options.clear_background)
     drawBackground(canvas, dimensions);
 
   constexpr float block_width = 76.0f;
   constexpr float block_height = 40.0f;
-  const Rect engine { 84.0f, 58.0f, 610.0f, 96.0f };
+  const Rect engine { 72.0f, 58.0f, 660.0f, 96.0f };
   const float engine_y = engine.y + 70.0f;
   const float node_y = 302.0f;
   const float node_scale = 0.28f;
   const float node_w = 500.0f * node_scale;
-  const float osc_x = center_x - 350.0f;
-  const float sat_x = center_x - node_w * 0.5f;
-  const float vol_x = center_x + 350.0f - node_w;
+  const float osc_cx = engine.x + 108.0f;
+  const float sat_cx = engine.x + engine.width * 0.5f;
+  const float vol_cx = engine.x + engine.width - 102.0f;
+  const float osc_x = osc_cx - node_w * 0.5f;
+  const float sat_x = sat_cx - node_w * 0.5f;
+  const float vol_x = vol_cx - node_w * 0.5f;
 
-  const float osc_cx = osc_x + node_w * 0.5f;
-  const float sat_cx = sat_x + node_w * 0.5f;
-  const float vol_cx = vol_x + node_w * 0.5f;
   const float process_y = node_y + 50.0f;
 
   const std::vector<std::pair<float, float>> route_points {
@@ -515,10 +514,10 @@ void drawPluginChain(DrawContext& context,
                         19.0f,
                         kLabel,
                         visage::Font::kCenter,
-                        w - 202.0f,
-                        engine.y + 35.0f,
-                        164.0f,
-                        28.0f);
+                        engine.x + engine.width + 18.0f,
+                        engine.y + 16.0f,
+                        w - engine.x - engine.width - 28.0f,
+                        26.0f);
 
   drawMiniNode(context, "OSC", "Oscillator", osc_x, node_y, node_scale, motion.osc_active);
   drawMiniNode(context, "SAT", "Saturator", sat_x, node_y, node_scale, motion.sat_active);
