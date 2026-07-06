@@ -38,9 +38,10 @@ float clamp01(float value) {
   return drawing::clamp01(value);
 }
 
-float smoothStep(float value) {
+float easeOutCubic(float value) {
   value = clamp01(value);
-  return value * value * (3.0f - 2.0f * value);
+  const float inverse = 1.0f - value;
+  return 1.0f - inverse * inverse * inverse;
 }
 
 float outputValue(float local_cycles) {
@@ -172,7 +173,7 @@ void drawOutputBlock(visage::Canvas& canvas,
                                 kRadius - 1.2f,
                                 0.75f);
 
-  const Rect plot { block.x + 8.0f, block.y + 8.0f, block.width - 16.0f, block.height - 16.0f };
+  const Rect plot { block.x + 2.0f, block.y + 7.0f, block.width - 4.0f, block.height - 14.0f };
   const float center_y = block.y + block.height * 0.5f;
   canvas.setColor(scaleAlpha(0xff161616, opacity * 0.38f));
   canvas.roundedRectangle(plot.x, plot.y, plot.width, plot.height, 1.4f);
@@ -233,16 +234,16 @@ void drawOutputStreamToSpeaker(DrawContext& context,
   constexpr float block_height = 40.0f;
   const float read_head_x = 592.0f;
   const float chain_start_x = block_width * 3.0f;
-  const float stream_center_y = h * 0.52f;
+  const float stream_center_y = h * 0.50f;
   const float stream_top = stream_center_y - block_height * 0.5f;
   const float phase_blocks =
       static_cast<float>(timeline.normalized_time - std::floor(timeline.normalized_time));
 
-  constexpr float kFlyStart = 0.04f;
-  constexpr float kFlyEnd = 0.28f;
+  constexpr float kFlyStart = 0.035f;
+  constexpr float kFlyEnd = 0.22f;
   const float attached_incoming_x = chain_start_x + (phase_blocks - 1.0f) * block_width;
   if (phase_blocks >= kFlyStart) {
-    const float fly_t = smoothStep((phase_blocks - kFlyStart) / (kFlyEnd - kFlyStart));
+    const float fly_t = easeOutCubic((phase_blocks - kFlyStart) / (kFlyEnd - kFlyStart));
     const float incoming_start_x = -block_width * 1.12f;
     const float incoming_x = phase_blocks < kFlyEnd
                                  ? incoming_start_x +
@@ -277,7 +278,7 @@ void drawOutputStreamToSpeaker(DrawContext& context,
   drawSpeakerConeMotionExperimentAt(context,
                                     dimensions,
                                     timeline,
-                                    w - 328.0f,
+                                    w - 376.0f,
                                     66.0f,
                                     0.37f,
                                     false,
