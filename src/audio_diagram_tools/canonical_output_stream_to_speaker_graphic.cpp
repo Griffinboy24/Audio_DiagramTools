@@ -38,6 +38,11 @@ float clamp01(float value) {
   return drawing::clamp01(value);
 }
 
+float smoothStep(float value) {
+  value = clamp01(value);
+  return value * value * (3.0f - 2.0f * value);
+}
+
 float outputValue(float local_cycles) {
   const float sine = std::sin(2.0f * kPi * local_cycles);
   const float saturated = std::tanh(sine * 2.35f) / std::tanh(2.35f);
@@ -227,14 +232,32 @@ void drawOutputStreamToSpeaker(DrawContext& context,
   constexpr float block_width = 76.0f;
   constexpr float block_height = 40.0f;
   const float read_head_x = 592.0f;
+  const float chain_start_x = block_width * 3.0f;
   const float stream_center_y = h * 0.52f;
   const float stream_top = stream_center_y - block_height * 0.5f;
-  const float stream_left_x = -block_width * 3.0f;
   const float phase_blocks =
       static_cast<float>(timeline.normalized_time - std::floor(timeline.normalized_time));
 
-  for (int slot = -2; slot <= 12; ++slot) {
-    const float x = stream_left_x + (static_cast<float>(slot) + phase_blocks) * block_width;
+  constexpr float kFlyStart = 0.04f;
+  constexpr float kFlyEnd = 0.28f;
+  const float attached_incoming_x = chain_start_x + (phase_blocks - 1.0f) * block_width;
+  if (phase_blocks >= kFlyStart) {
+    const float fly_t = smoothStep((phase_blocks - kFlyStart) / (kFlyEnd - kFlyStart));
+    const float incoming_start_x = -block_width * 1.12f;
+    const float incoming_x = phase_blocks < kFlyEnd
+                                 ? incoming_start_x +
+                                       (attached_incoming_x - incoming_start_x) * fly_t
+                                 : attached_incoming_x;
+    if (incoming_x + block_width > -6.0f && incoming_x < read_head_x + block_width) {
+      drawOutputBlock(canvas,
+                      { incoming_x, stream_top, block_width, block_height },
+                      -1.0f,
+                      0.94f);
+    }
+  }
+
+  for (int slot = 0; slot <= 7; ++slot) {
+    const float x = chain_start_x + (static_cast<float>(slot) + phase_blocks) * block_width;
     if (x + block_width < -6.0f || x > read_head_x + block_width)
       continue;
 
@@ -250,12 +273,12 @@ void drawOutputStreamToSpeaker(DrawContext& context,
                    w - read_head_x - 1.0f,
                    block_height + 36.0f);
 
-  const float drive = sampleAtReadHead(read_head_x, stream_left_x, block_width, phase_blocks);
+  const float drive = sampleAtReadHead(read_head_x, chain_start_x, block_width, phase_blocks);
   drawSpeakerConeMotionExperimentAt(context,
                                     dimensions,
                                     timeline,
                                     w - 328.0f,
-                                    38.0f,
+                                    66.0f,
                                     0.37f,
                                     false,
                                     false,
