@@ -32,9 +32,11 @@ out\build\adt_render_composite_graphic.exe --graphic output-stream-to-speaker-ar
 
 - `hise-gain-node.png`
 - `hise-gain-node-code.png`
+- `hise-gain-node-cpp-code.png`
 
 ```powershell
 python scripts\render_hise_gain_node_code.py
+python scripts\render_hise_gain_node_cpp_code.py
 ```
 
 These two images use the source screenshot in `../assets/` and should stay with
