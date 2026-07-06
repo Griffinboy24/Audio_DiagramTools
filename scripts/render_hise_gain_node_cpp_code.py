@@ -22,6 +22,7 @@ void process(Buffer& chunk)
     const int numSamples = chunk.getNumSamples();
 
     // Loop over the two audio channels
+    // (this example is stereo)
     for (int channel = 0; channel < 2; ++channel)
     {
         // Get the samples from this channel
