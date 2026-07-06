@@ -11,22 +11,17 @@ SOURCE = ROOT / "articles" / "hise-dsp-buffer" / "assets" / "hise-gain-node-sour
 OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp-code.png"
 
 
-CODE = """float gain = 0.5f;
-
-template <typename T>
-void process(T& data)
+CODE = """void process(data)
 {
-    static constexpr int NumChannels = getFixChannelAmount();
-    auto& fixData = data.template as<ProcessData<NumChannels>>();
-    auto block = fixData.toAudioBlock();
-    const auto numSamples = data.getNumSamples();
+    auto block = data.toAudioBlock();
+    auto* left = block.getChannel(0);
+    auto* right = block.getChannel(1);
+    int numSamples = data.getNumSamples();
 
-    for (int c = 0; c < NumChannels; ++c)
+    for (int i = 0; i < numSamples; ++i)
     {
-        auto* samples = block.getChannelPointer(c);
-
-        for (int i = 0; i < numSamples; ++i)
-            samples[i] *= gain;
+        left[i] *= gain;
+        right[i] *= gain;
     }
 }"""
 
@@ -67,14 +62,36 @@ def token_color(token: Token) -> tuple[int, int, int]:
 
 
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
-    code_font = font(13)
-    line_font = font(13)
-    line_height = 21
-    gutter_width = 37
-    guide_x = x + gutter_width + 10
-    text_x = guide_x + 18
+    code_font = font(16)
+    line_font = font(16)
+    line_height = 25
+    gutter_width = 33
+    text_x = x + gutter_width + 19
+    char_width = draw.textlength(" ", font=code_font)
 
     lines = code.splitlines()
+    indent_guides: list[tuple[int, int, int]] = []
+    stack: list[tuple[int, int]] = []
+    for index, line in enumerate(lines):
+        leading_spaces = len(line) - len(line.lstrip(" "))
+        if "}" in line and stack:
+            guide_x, start_index = stack.pop()
+            indent_guides.append((guide_x, start_index, index))
+        if "{" in line:
+            stack.append((round(text_x + leading_spaces * char_width), index))
+
+    for guide_x, start_index, end_index in indent_guides:
+        draw.line(
+            (
+                guide_x,
+                y + start_index * line_height + line_height - 2,
+                guide_x,
+                y + end_index * line_height + line_height - 2,
+            ),
+            fill=(42, 52, 60),
+            width=1,
+        )
+
     for index, line in enumerate(lines, start=1):
         baseline_y = y + (index - 1) * line_height
         draw.text(
@@ -83,11 +100,6 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
             font=line_font,
             fill=(104, 119, 132),
             anchor=None,
-        )
-        draw.line(
-            (guide_x, baseline_y - 3, guide_x, baseline_y + line_height - 3),
-            fill=(34, 44, 52),
-            width=1,
         )
 
         cursor_x = text_x
@@ -101,9 +113,9 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
 
 def main() -> None:
     width = 920
-    height = 500
-    divider_x = 320
-    side_padding = 30
+    height = 420
+    divider_x = 460
+    side_padding = 55
 
     image = Image.new("RGB", (width, height), (124, 128, 130))
     draw = ImageDraw.Draw(image)
@@ -120,7 +132,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 12, 58, CODE)
+    draw_code(draw, divider_x + 21, 63, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
