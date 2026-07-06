@@ -65,8 +65,8 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
     code_font = font(16)
     line_font = font(16)
     line_height = 25
-    gutter_width = 33
-    text_x = x + gutter_width + 19
+    gutter_width = 31
+    text_x = x + gutter_width + 13
     char_width = draw.textlength(" ", font=code_font)
 
     lines = code.splitlines()
@@ -132,7 +132,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 21, 63, CODE)
+    draw_code(draw, divider_x + 12, 63, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
