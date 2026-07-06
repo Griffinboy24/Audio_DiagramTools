@@ -18,22 +18,22 @@ CODE = """void setGain(float newGain)
 
 void process(chunk)
 {
-    // Ask the chunk how many sample values it contains
+    // Count how many samples are in this chunk
     const int numSamples = chunk.getNumSamples();
 
-    // Run the same process for each audio channel
+    // Run this loop for each audio channel
     for (int channel = 0; channel < 2; ++channel)
     {
-        // Get the row of samples for this channel
+        // Use the samples for this channel
         auto* samples = chunk.getChannel(channel);
 
-        // Move through that row one sample at a time
+        // Step through each sample in order
         for (int s = 0; s < numSamples; ++s)
         {
-            // Read the current sample value
+            // Store the current sample value
             const float input = samples[s];
 
-            // Write it back, scaled by the gain amount
+            // Replace it with the quieter version
             samples[s] = input * gain;
         }
     }
