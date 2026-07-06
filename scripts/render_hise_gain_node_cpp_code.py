@@ -11,20 +11,19 @@ SOURCE = ROOT / "articles" / "hise-dsp-buffer" / "assets" / "hise-gain-node-sour
 OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp-code.png"
 
 
-CODE = """void process(data)
+CODE = """void process(chunk)
 {
-    auto* leftChannel = data.getChannel(0);
-    auto* rightChannel = data.getChannel(1);
-    int numSamples = data.getNumSamples();
+    const int numSamples = chunk.getNumSamples();
 
-    for (int i = 0; i < numSamples; ++i)
+    for (int channel = 0; channel < 2; ++channel)
     {
-        leftChannel[i] = leftChannel[i] * gain;
-    }
+        auto* samples = chunk.getChannel(channel);
 
-    for (int i = 0; i < numSamples; ++i)
-    {
-        rightChannel[i] = rightChannel[i] * gain;
+        for (int s = 0; s < numSamples; ++s)
+        {
+            const float input = samples[s];
+            samples[s] = input * gain;
+        }
     }
 }"""
 
@@ -65,15 +64,25 @@ def token_color(token: Token) -> tuple[int, int, int]:
 
 
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
-    code_font = font(14)
-    line_font = font(14)
-    line_height = 22
+    code_font = font(12)
+    line_font = font(12)
+    line_height = 20
     gutter_width = 38
     text_x = x + gutter_width + 10
     char_width = draw.textlength(" ", font=code_font)
     start_line = 863
 
     lines = code.splitlines()
+    for line_number in range(start_line - 4, start_line + len(lines) + 5):
+        baseline_y = y + (line_number - start_line) * line_height
+        if -line_height < baseline_y < 420:
+            draw.text(
+                (x, baseline_y),
+                f"{line_number:>3}",
+                font=line_font,
+                fill=(72, 86, 98),
+            )
+
     indent_guides: list[tuple[int, int, int]] = []
     stack: list[tuple[int, int]] = []
     for index, line in enumerate(lines):
@@ -103,7 +112,6 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
             f"{start_line + index - 1:>3}",
             font=line_font,
             fill=(104, 119, 132),
-            anchor=None,
         )
 
         cursor_x = text_x
@@ -136,7 +144,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 12, 48, CODE)
+    draw_code(draw, divider_x + 6, 48, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
