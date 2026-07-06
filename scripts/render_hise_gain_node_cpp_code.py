@@ -13,20 +13,21 @@ OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp
 
 CODE = """void setGain(float newGain)
 {
-    gain = newGain;
+    gain = newGain; // knob
 }
 
 void process(chunk)
 {
-    int sampleCount = chunk.getNumSamples();
+    const int numSamples = chunk.getNumSamples();
 
-    for (int channel = 0; channel < 2; ++channel)
+    for (int channel = 0; channel < 2; ++channel) // L/R
     {
-        float* samples = chunk.getChannel(channel);
+        auto* samples = chunk.getChannel(channel);
 
-        for (int i = 0; i < sampleCount; ++i)
+        for (int s = 0; s < numSamples; ++s)
         {
-            samples[i] = samples[i] * gain;
+            const float input = samples[s];
+            samples[s] = input * gain; // scaled
         }
     }
 }"""
@@ -70,7 +71,7 @@ def token_color(token: Token) -> tuple[int, int, int]:
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
     code_font = font(12)
     line_font = font(12)
-    line_height = 19
+    line_height = 18
     gutter_width = 38
     text_x = x + gutter_width + 8
     char_width = draw.textlength(" ", font=code_font)
@@ -114,7 +115,9 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
         cursor_x = text_x
         for token, text in lex(line, CppLexer()):
             if "\n" in text:
-                continue
+                text = text.replace("\n", "")
+                if not text:
+                    continue
             fill = token_color(token)
             draw.text((cursor_x, baseline_y), text, font=code_font, fill=fill)
             cursor_x += round(draw.textlength(text, font=code_font))
@@ -141,7 +144,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 24, 34, CODE)
+    draw_code(draw, divider_x + 17, 39, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
