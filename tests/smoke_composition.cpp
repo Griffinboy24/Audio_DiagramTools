@@ -108,7 +108,7 @@ int main() {
   const visage::Screenshot array_to_plot_screenshot =
       adt::composition::renderSceneFrame(array_to_plot_scene, timeline);
 
-  if (array_to_plot_screenshot.width() != 920 || array_to_plot_screenshot.height() != 520 ||
+  if (array_to_plot_screenshot.width() != 920 || array_to_plot_screenshot.height() != 470 ||
       !hasVisibleVariation(array_to_plot_screenshot)) {
     std::cerr << "Sample array-to-plot article composition render failed.\n";
     return 1;

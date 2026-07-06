@@ -14,7 +14,7 @@ const std::array<CompositeGraphic, 7> kCompositeGraphics = {
                      { 920, 700 } },
   CompositeGraphic { ids::kSampleArrayToPlotArticleScene,
                      "HISE-width article composite showing sample values becoming a plot",
-                     { 920, 520 } },
+                     { 920, 470 } },
   CompositeGraphic { ids::kSampleTablePlaybackArticleScene,
                      "HISE-width article composite for table/waveform playback",
                      { 920, 430 } },
@@ -168,8 +168,8 @@ composition::Scene sampleArrayToPlotArticleScene(Dimensions dimensions) {
   arrow_options.single_color = 0xff4e4e4e;
 
   addCentered(canonical::arrayGraphic({ 600, 140 }), 34.0f);
-  addCentered(canonical::doubleArrowGraphic(arrow_options, { 46, 36 }), 192.0f);
-  addCentered(canonical::sampleValuesPlot({ 600, 223 }), 248.0f);
+  addCentered(canonical::doubleArrowGraphic(arrow_options, { 46, 36 }), 159.0f);
+  addCentered(canonical::sampleValuesPlot({ 600, 223 }), 198.0f);
 
   return scene;
 }
