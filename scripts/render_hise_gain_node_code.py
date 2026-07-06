@@ -1,0 +1,84 @@
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFont
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "articles" / "hise-dsp-buffer" / "assets" / "hise-gain-node-source.png"
+OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-code.png"
+
+
+def font(size: int) -> ImageFont.FreeTypeFont:
+    for path in (
+        Path("C:/Windows/Fonts/consola.ttf"),
+        Path("C:/Windows/Fonts/CascadiaMono.ttf"),
+        Path("C:/Windows/Fonts/lucon.ttf"),
+    ):
+        if path.exists():
+            return ImageFont.truetype(str(path), size)
+
+    return ImageFont.load_default()
+
+
+def draw_right_arrow(
+    draw: ImageDraw.ImageDraw,
+    x: float,
+    y: float,
+    color: tuple[int, int, int],
+) -> None:
+    draw.line((x - 18.0, y, x + 5.0, y), fill=color, width=3)
+    draw.polygon(
+        (
+            (x + 5.0, y - 7.0),
+            (x + 5.0, y + 7.0),
+            (x + 18.0, y),
+        ),
+        fill=color,
+    )
+
+
+def main() -> None:
+    width = 920
+    height = 360
+    divider_x = 460
+    side_padding = 43
+
+    image = Image.new("RGB", (width, height), (29, 29, 29))
+    draw = ImageDraw.Draw(image)
+
+    draw.rectangle((divider_x, 0, width, height), fill=(18, 24, 30))
+    draw.rectangle((divider_x - 3, 0, divider_x + 1, height), fill=(43, 54, 62))
+
+    node = Image.open(SOURCE).convert("RGB")
+    node_width = divider_x - side_padding * 2
+    node_height = round(node.height * node_width / node.width)
+    node = node.resize((node_width, node_height), Image.Resampling.LANCZOS)
+    node_x = side_padding
+    node_y = (height - node_height) // 2
+    image.paste(node, (node_x, node_y))
+
+    draw_right_arrow(draw, divider_x + 30, height * 0.5, (132, 220, 161))
+
+    code_font = font(23)
+    code_x = divider_x + 60
+    code_y = 131
+    line_gap = 46
+    draw.text(
+        (code_x, code_y),
+        "for each sample in the buffer:",
+        font=code_font,
+        fill=(227, 234, 239),
+    )
+    draw.text(
+        (code_x, code_y + line_gap),
+        "sample = sample * gain",
+        font=code_font,
+        fill=(154, 188, 255),
+    )
+
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    image.save(OUTPUT)
+
+
+if __name__ == "__main__":
+    main()

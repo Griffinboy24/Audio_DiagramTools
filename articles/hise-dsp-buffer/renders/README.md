@@ -33,6 +33,10 @@ out\build\adt_render_composite_graphic.exe --graphic output-stream-to-speaker-ar
 - `hise-gain-node.png`
 - `hise-gain-node-code.png`
 
+```powershell
+python scripts\render_hise_gain_node_code.py
+```
+
 These two images use the source screenshot in `../assets/` and should stay with
 this article unless we promote the gain-node renderer into a reusable canonical
 asset.
