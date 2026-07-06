@@ -13,15 +13,18 @@ OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp
 
 CODE = """void process(data)
 {
-    auto block = data.toAudioBlock();
-    auto* left = block.getChannel(0);
-    auto* right = block.getChannel(1);
+    auto* leftChannel = data.getChannel(0);
+    auto* rightChannel = data.getChannel(1);
     int numSamples = data.getNumSamples();
 
     for (int i = 0; i < numSamples; ++i)
     {
-        left[i] *= gain;
-        right[i] *= gain;
+        leftChannel[i] = leftChannel[i] * gain;
+    }
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        rightChannel[i] = rightChannel[i] * gain;
     }
 }"""
 
@@ -62,12 +65,13 @@ def token_color(token: Token) -> tuple[int, int, int]:
 
 
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
-    code_font = font(16)
-    line_font = font(16)
-    line_height = 25
-    gutter_width = 31
-    text_x = x + gutter_width + 13
+    code_font = font(14)
+    line_font = font(14)
+    line_height = 22
+    gutter_width = 38
+    text_x = x + gutter_width + 10
     char_width = draw.textlength(" ", font=code_font)
+    start_line = 863
 
     lines = code.splitlines()
     indent_guides: list[tuple[int, int, int]] = []
@@ -96,7 +100,7 @@ def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
         baseline_y = y + (index - 1) * line_height
         draw.text(
             (x, baseline_y),
-            f"{index:>2}",
+            f"{start_line + index - 1:>3}",
             font=line_font,
             fill=(104, 119, 132),
             anchor=None,
@@ -132,7 +136,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 12, 63, CODE)
+    draw_code(draw, divider_x + 12, 48, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
