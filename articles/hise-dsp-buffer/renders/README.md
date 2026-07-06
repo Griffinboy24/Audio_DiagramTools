@@ -24,7 +24,7 @@ out\build\adt_render_composite_graphic.exe --graphic sample-table-playback-artic
 out\build\adt_render_composite_graphic.exe --graphic waveform-buffer-split-article-scene --out articles\hise-dsp-buffer\renders\waveform-buffer-split.png
 out\build\adt_render_composite_graphic.exe --graphic waveform-volume-scale-article-scene --gif --frames 120 --fps 25 --out articles\hise-dsp-buffer\renders\waveform-volume-scale.gif
 out\build\adt_render_composite_graphic.exe --graphic sample-gain-comparison-scene --out articles\hise-dsp-buffer\renders\sample-gain-comparison.png
-out\build\adt_render_composite_graphic.exe --graphic plugin-chain-routing-article-scene --gif --frames 150 --fps 15 --out articles\hise-dsp-buffer\renders\plugin-chain-routing.gif
+out\build\adt_render_composite_graphic.exe --graphic plugin-chain-routing-article-scene --gif --frames 150 --fps 18 --out articles\hise-dsp-buffer\renders\plugin-chain-routing.gif
 ```
 
 ## Article-specific exports

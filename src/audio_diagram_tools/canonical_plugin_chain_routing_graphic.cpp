@@ -476,8 +476,8 @@ void drawPluginChain(DrawContext& context,
   constexpr float block_height = 40.0f;
   const Rect engine { 72.0f, 58.0f, 660.0f, 96.0f };
   const float engine_y = engine.y + 70.0f;
-  const float node_y = 302.0f;
-  const float node_scale = 0.28f;
+  const float node_y = 288.0f;
+  const float node_scale = 0.295f;
   const float node_w = 500.0f * node_scale;
   const float osc_cx = engine.x + 108.0f;
   const float sat_cx = engine.x + engine.width * 0.5f;
@@ -486,7 +486,7 @@ void drawPluginChain(DrawContext& context,
   const float sat_x = sat_cx - node_w * 0.5f;
   const float vol_x = vol_cx - node_w * 0.5f;
 
-  const float process_y = node_y + 50.0f;
+  const float process_y = node_y + 53.0f;
 
   const std::vector<std::pair<float, float>> route_points {
     { -block_width - 28.0f, engine_y },
