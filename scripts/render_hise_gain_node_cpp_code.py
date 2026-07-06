@@ -21,16 +21,16 @@ void process(Buffer& chunk)
     // Count how many samples are in this chunk
     const int numSamples = chunk.getNumSamples();
 
-    // Run this loop for each audio channel
+    // Loop over the audio channels
     for (int channel = 0; channel < 2; ++channel)
     {
         // Get this channel's samples
         auto* samples = chunk.getChannel(channel);
 
-        // Visit every sample in this channel
+        // Loop over the samples in this channel
         for (int s = 0; s < numSamples; ++s)
         {
-            // Scale this sample by the gain amount
+            // Scale the current sample by gain
             samples[s] *= gain;
         }
     }
