@@ -28,7 +28,7 @@ void process(Buffer& chunk)
         // Get the samples from this channel
         auto* samples = chunk.getChannel(channel);
 
-        // Loop over the samples in this channel
+        // Loop over all the samples in this channel
         for (int s = 0; s < numSamples; ++s)
         {
             // Scale the current sample by gain
