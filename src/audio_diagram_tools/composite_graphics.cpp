@@ -29,7 +29,7 @@ const std::array<CompositeGraphic, 7> kCompositeGraphics = {
                      { 920, 560 } },
   CompositeGraphic { ids::kOutputStreamToSpeakerArticleScene,
                      "HISE-width article composite for processed output reaching speaker",
-                     { 920, 320 } },
+                     { 920, 300 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {

@@ -131,7 +131,7 @@ int main() {
       adt::composition::renderSceneFrame(output_speaker_scene, timeline);
 
   if (output_speaker_screenshot.width() != 920 ||
-      output_speaker_screenshot.height() != 320 ||
+      output_speaker_screenshot.height() != 300 ||
       !hasVisibleVariation(output_speaker_screenshot)) {
     std::cerr << "Output stream to speaker article composition render failed.\n";
     return 1;
