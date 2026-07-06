@@ -24,7 +24,7 @@ void process(chunk)
     // Run this loop for each audio channel
     for (int channel = 0; channel < 2; ++channel)
     {
-        // Use the samples for this channel
+        // Get this channel's samples
         auto* samples = chunk.getChannel(channel);
 
         // Step through each sample in order
