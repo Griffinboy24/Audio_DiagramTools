@@ -38,12 +38,6 @@ float clamp01(float value) {
   return drawing::clamp01(value);
 }
 
-float easeOutCubic(float value) {
-  value = clamp01(value);
-  const float inverse = 1.0f - value;
-  return 1.0f - inverse * inverse * inverse;
-}
-
 float outputValue(float local_cycles) {
   const float sine = std::sin(2.0f * kPi * local_cycles);
   const float saturated = std::tanh(sine * 2.35f) / std::tanh(2.35f);
@@ -240,10 +234,10 @@ void drawOutputStreamToSpeaker(DrawContext& context,
       static_cast<float>(timeline.normalized_time - std::floor(timeline.normalized_time));
 
   constexpr float kFlyStart = 0.035f;
-  constexpr float kFlyEnd = 0.22f;
+  constexpr float kFlyEnd = 0.125f;
   const float attached_incoming_x = chain_start_x + (phase_blocks - 1.0f) * block_width;
   if (phase_blocks >= kFlyStart) {
-    const float fly_t = easeOutCubic((phase_blocks - kFlyStart) / (kFlyEnd - kFlyStart));
+    const float fly_t = clamp01((phase_blocks - kFlyStart) / (kFlyEnd - kFlyStart));
     const float incoming_start_x = -block_width * 1.12f;
     const float incoming_x = phase_blocks < kFlyEnd
                                  ? incoming_start_x +
@@ -284,7 +278,8 @@ void drawOutputStreamToSpeaker(DrawContext& context,
                                     false,
                                     false,
                                     drive,
-                                    drive);
+                                    drive,
+                                    0xffdce2df);
 
   visage::Region& read_head_region = drawing::addRegion(context, true);
   drawing::drawInRegion(context, read_head_region, [&](visage::Canvas& read_head_canvas) {
