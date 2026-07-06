@@ -18,16 +18,15 @@ CODE = """void setGain(float newGain)
 
 void process(chunk)
 {
-    const int numSamples = chunk.getNumSamples();
+    int sampleCount = chunk.getNumSamples();
 
     for (int channel = 0; channel < 2; ++channel)
     {
-        auto* samples = chunk.getChannel(channel);
+        float* samples = chunk.getChannel(channel);
 
-        for (int s = 0; s < numSamples; ++s)
+        for (int i = 0; i < sampleCount; ++i)
         {
-            const float input = samples[s];
-            samples[s] = input * gain;
+            samples[i] = samples[i] * gain;
         }
     }
 }"""
@@ -69,9 +68,9 @@ def token_color(token: Token) -> tuple[int, int, int]:
 
 
 def draw_code(draw: ImageDraw.ImageDraw, x: int, y: int, code: str) -> None:
-    code_font = font(11)
-    line_font = font(11)
-    line_height = 18
+    code_font = font(12)
+    line_font = font(12)
+    line_height = 19
     gutter_width = 38
     text_x = x + gutter_width + 8
     char_width = draw.textlength(" ", font=code_font)
@@ -142,7 +141,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 15, 39, CODE)
+    draw_code(draw, divider_x + 24, 34, CODE)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
