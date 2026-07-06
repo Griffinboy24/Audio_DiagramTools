@@ -358,7 +358,7 @@ BlockMotion blockMotion(float phase,
   };
 
   BlockMotion motion;
-  motion.opacity = phase > 0.025f && phase < 0.975f ? 1.0f : 0.0f;
+  motion.opacity = phase > 0.025f && phase < 0.960f ? 1.0f : 0.0f;
 
   float x = point(0).first;
   float y = point(0).second;
@@ -372,80 +372,80 @@ BlockMotion blockMotion(float phase,
     y = point(at).second;
   };
 
-  if (phase < 0.035f) {
+  if (phase < 0.030f) {
     motion.opacity = 0.0f;
     hold(0);
   }
-  else if (phase < 0.090f) {
-    set_between(0.035f, 0.090f, 0, 1);
+  else if (phase < 0.085f) {
+    set_between(0.030f, 0.085f, 0, 1);
   }
-  else if (phase < 0.150f) {
-    set_between(0.090f, 0.150f, 1, 2);
+  else if (phase < 0.145f) {
+    set_between(0.085f, 0.145f, 1, 2);
   }
-  else if (phase < 0.305f) {
+  else if (phase < 0.255f) {
     hold(2);
-    const float t = ease(interval(phase, 0.150f, 0.305f));
+    const float t = ease(interval(phase, 0.145f, 0.255f));
     motion.draw_progress = t;
     motion.active_amount = 1.0f;
     motion.osc_active = 1.0f;
   }
-  else if (phase < 0.360f) {
-    set_between(0.305f, 0.360f, 2, 3);
+  else if (phase < 0.310f) {
+    set_between(0.255f, 0.310f, 2, 3);
     motion.draw_progress = 1.0f;
-    motion.osc_active = 1.0f - interval(phase, 0.305f, 0.360f);
+    motion.osc_active = 1.0f - interval(phase, 0.255f, 0.310f);
   }
-  else if (phase < 0.430f) {
-    set_between(0.360f, 0.430f, 3, 4);
+  else if (phase < 0.385f) {
+    set_between(0.310f, 0.385f, 3, 4);
     motion.draw_progress = 1.0f;
   }
-  else if (phase < 0.490f) {
-    set_between(0.430f, 0.490f, 4, 5);
+  else if (phase < 0.445f) {
+    set_between(0.385f, 0.445f, 4, 5);
     motion.draw_progress = 1.0f;
-    motion.sat_active = interval(phase, 0.430f, 0.490f);
+    motion.sat_active = interval(phase, 0.385f, 0.445f);
   }
-  else if (phase < 0.610f) {
+  else if (phase < 0.535f) {
     hold(5);
-    const float t = ease(interval(phase, 0.490f, 0.610f));
+    const float t = ease(interval(phase, 0.445f, 0.535f));
     motion.draw_progress = 1.0f;
     motion.saturation = t;
     motion.active_amount = 1.0f;
     motion.sat_active = 1.0f;
   }
+  else if (phase < 0.590f) {
+    set_between(0.535f, 0.590f, 5, 6);
+    motion.draw_progress = 1.0f;
+    motion.saturation = 1.0f;
+    motion.sat_active = 1.0f - interval(phase, 0.535f, 0.590f);
+  }
   else if (phase < 0.665f) {
-    set_between(0.610f, 0.665f, 5, 6);
-    motion.draw_progress = 1.0f;
-    motion.saturation = 1.0f;
-    motion.sat_active = 1.0f - interval(phase, 0.610f, 0.665f);
-  }
-  else if (phase < 0.735f) {
-    set_between(0.665f, 0.735f, 6, 7);
+    set_between(0.590f, 0.665f, 6, 7);
     motion.draw_progress = 1.0f;
     motion.saturation = 1.0f;
   }
-  else if (phase < 0.795f) {
-    set_between(0.735f, 0.795f, 7, 8);
+  else if (phase < 0.725f) {
+    set_between(0.665f, 0.725f, 7, 8);
     motion.draw_progress = 1.0f;
     motion.saturation = 1.0f;
-    motion.vol_active = interval(phase, 0.735f, 0.795f);
+    motion.vol_active = interval(phase, 0.665f, 0.725f);
   }
-  else if (phase < 0.905f) {
+  else if (phase < 0.815f) {
     hold(8);
-    const float t = ease(interval(phase, 0.795f, 0.905f));
+    const float t = ease(interval(phase, 0.725f, 0.815f));
     motion.draw_progress = 1.0f;
     motion.saturation = 1.0f;
     motion.gain = lerp(1.0f, 0.58f, t);
     motion.active_amount = 1.0f;
     motion.vol_active = 1.0f;
   }
-  else if (phase < 0.950f) {
-    set_between(0.905f, 0.950f, 8, 9);
+  else if (phase < 0.870f) {
+    set_between(0.815f, 0.870f, 8, 9);
     motion.draw_progress = 1.0f;
     motion.saturation = 1.0f;
     motion.gain = 0.58f;
-    motion.vol_active = 1.0f - interval(phase, 0.905f, 0.950f);
+    motion.vol_active = 1.0f - interval(phase, 0.815f, 0.870f);
   }
-  else if (phase < 0.975f) {
-    set_between(0.950f, 0.975f, 9, 10);
+  else if (phase < 0.960f) {
+    set_between(0.870f, 0.960f, 9, 10);
     motion.draw_progress = 1.0f;
     motion.saturation = 1.0f;
     motion.gain = 0.58f;
