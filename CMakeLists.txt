@@ -83,6 +83,7 @@ add_library(audio_diagram_tools STATIC
   src/audio_diagram_tools/composition.cpp
   src/audio_diagram_tools/canonical_hise_node_container.cpp
   src/audio_diagram_tools/canonical_oscillator_block_factory_graphic.cpp
+  src/audio_diagram_tools/canonical_plugin_chain_routing_graphic.cpp
   src/audio_diagram_tools/gif_exporter.cpp
   src/audio_diagram_tools/png_export.cpp
   src/audio_diagram_tools/render_types.cpp

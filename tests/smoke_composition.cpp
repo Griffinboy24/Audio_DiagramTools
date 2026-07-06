@@ -114,5 +114,16 @@ int main() {
     return 1;
   }
 
+  const adt::composition::Scene plugin_chain_scene =
+      adt::composites::pluginChainRoutingArticleScene();
+  const visage::Screenshot plugin_chain_screenshot =
+      adt::composition::renderSceneFrame(plugin_chain_scene, timeline);
+
+  if (plugin_chain_screenshot.width() != 920 || plugin_chain_screenshot.height() != 560 ||
+      !hasVisibleVariation(plugin_chain_screenshot)) {
+    std::cerr << "Plugin chain routing article composition render failed.\n";
+    return 1;
+  }
+
   return 0;
 }

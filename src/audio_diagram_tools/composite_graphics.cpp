@@ -8,7 +8,7 @@
 namespace adt::composites {
 namespace {
 
-const std::array<CompositeGraphic, 5> kCompositeGraphics = {
+const std::array<CompositeGraphic, 6> kCompositeGraphics = {
   CompositeGraphic { ids::kSampleGainComparisonScene,
                      "HISE-width before/after sample gain comparison scene",
                      { 920, 700 } },
@@ -24,6 +24,9 @@ const std::array<CompositeGraphic, 5> kCompositeGraphics = {
   CompositeGraphic { ids::kWaveformVolumeScaleArticleScene,
                      "HISE-width article composite for waveform volume scaling",
                      { 920, 340 } },
+  CompositeGraphic { ids::kPluginChainRoutingArticleScene,
+                     "HISE-width article composite for buffer routing through plugins",
+                     { 920, 560 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -52,7 +55,7 @@ composition::TextRun centeredHeading(std::string label,
 
 } // namespace
 
-const std::array<CompositeGraphic, 5>& compositeGraphics() {
+const std::array<CompositeGraphic, 6>& compositeGraphics() {
   return kCompositeGraphics;
 }
 
@@ -186,6 +189,20 @@ composition::Scene waveformVolumeScaleArticleScene(Dimensions dimensions) {
                                     canonical::waveformVolumeScaleGraphic({ 600, 222 }));
 }
 
+composition::Scene pluginChainRoutingArticleScene(Dimensions dimensions) {
+  dimensions = dimensionsOrPreferred(ids::kPluginChainRoutingArticleScene, dimensions);
+  composition::Scene scene;
+  scene.profile = composition::hiseDarkArticleImageProfile(dimensions.height);
+  scene.profile.dimensions = dimensions;
+
+  composition::PlacedGraphic graphic =
+      composition::place(canonical::pluginChainRoutingGraphic({}, { 920, 520 }),
+                         (static_cast<float>(dimensions.height) - 520.0f) * 0.5f);
+  graphic.x = 0.0f;
+  scene.graphics.push_back(graphic);
+  return scene;
+}
+
 composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions) {
   if (id == ids::kSampleGainComparisonScene)
     return sampleGainComparisonScene(dimensions);
@@ -197,6 +214,8 @@ composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions
     return waveformBufferSplitArticleScene(dimensions);
   if (id == ids::kWaveformVolumeScaleArticleScene)
     return waveformVolumeScaleArticleScene(dimensions);
+  if (id == ids::kPluginChainRoutingArticleScene)
+    return pluginChainRoutingArticleScene(dimensions);
 
   throw std::runtime_error("Unknown composite graphic: " + std::string(id));
 }

@@ -27,10 +27,12 @@ inline constexpr std::string_view kWaveformBufferSplitArticleScene =
     "waveform-buffer-split-article-scene";
 inline constexpr std::string_view kWaveformVolumeScaleArticleScene =
     "waveform-volume-scale-article-scene";
+inline constexpr std::string_view kPluginChainRoutingArticleScene =
+    "plugin-chain-routing-article-scene";
 
 } // namespace ids
 
-const std::array<CompositeGraphic, 5>& compositeGraphics();
+const std::array<CompositeGraphic, 6>& compositeGraphics();
 std::optional<CompositeGraphic> compositeGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -39,6 +41,7 @@ composition::Scene sampleArrayToPlotArticleScene(Dimensions dimensions = { 0, 0 
 composition::Scene sampleTablePlaybackArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene waveformBufferSplitArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene waveformVolumeScaleArticleScene(Dimensions dimensions = { 0, 0 });
+composition::Scene pluginChainRoutingArticleScene(Dimensions dimensions = { 0, 0 });
 composition::Scene compositeSceneById(std::string_view id, Dimensions dimensions = { 0, 0 });
 
 } // namespace adt::composites

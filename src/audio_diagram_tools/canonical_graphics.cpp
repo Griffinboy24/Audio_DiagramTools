@@ -112,6 +112,12 @@ void drawCanonicalGraphic(drawing::DrawContext& context,
     drawOscillatorBlockFactoryGraphic(
         context, dimensions, timeline, options.oscillator_block_factory);
   }
+  else if (graphic_id == "plugin-chain-routing-graphic") {
+    drawPluginChainRoutingGraphic(context,
+                                  dimensions,
+                                  timeline,
+                                  options.plugin_chain_routing);
+  }
   else {
     throw std::runtime_error("Unknown canonical graphic: " + std::string(graphic_id));
   }

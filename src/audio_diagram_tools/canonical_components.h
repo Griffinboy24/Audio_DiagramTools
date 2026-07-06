@@ -37,6 +37,8 @@ inline constexpr std::string_view kHiseNodeContainer = "hise-node-container";
 inline constexpr std::string_view kBlockProcessingGraphic = "block-processing-graphic";
 inline constexpr std::string_view kOscillatorBlockFactoryGraphic =
     "oscillator-block-factory-graphic";
+inline constexpr std::string_view kPluginChainRoutingGraphic =
+    "plugin-chain-routing-graphic";
 
 } // namespace ids
 
@@ -96,6 +98,10 @@ struct OscillatorBlockFactoryOptions {
   bool clear_background = true;
 };
 
+struct PluginChainRoutingOptions {
+  bool clear_background = true;
+};
+
 struct RenderOptions {
   SampleTableWaveformOptions sample_table_waveform;
   AudioFilePlayerOptions audio_file_player;
@@ -105,6 +111,7 @@ struct RenderOptions {
   HiseNodeContainerOptions hise_node_container;
   BlockProcessingOptions block_processing;
   OscillatorBlockFactoryOptions oscillator_block_factory;
+  PluginChainRoutingOptions plugin_chain_routing;
 };
 
 struct Component {
@@ -113,7 +120,7 @@ struct Component {
   RenderOptions options;
 };
 
-const std::array<CanonicalGraphic, 15>& canonicalGraphics();
+const std::array<CanonicalGraphic, 16>& canonicalGraphics();
 std::optional<CanonicalGraphic> canonicalGraphicById(std::string_view id);
 Dimensions preferredDimensions(std::string_view id);
 
@@ -141,6 +148,8 @@ Component blockProcessingGraphic(const BlockProcessingOptions& options = {},
                                  Dimensions dimensions = {});
 Component oscillatorBlockFactoryGraphic(const OscillatorBlockFactoryOptions& options = {},
                                         Dimensions dimensions = {});
+Component pluginChainRoutingGraphic(const PluginChainRoutingOptions& options = {},
+                                    Dimensions dimensions = {});
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,
                                                const Dimensions& dimensions,

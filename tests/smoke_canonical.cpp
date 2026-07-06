@@ -288,5 +288,42 @@ int main() {
     return 1;
   }
 
+  const auto plugin_chain_component =
+      adt::canonical::pluginChainRoutingGraphic({}, { 920, 520 });
+  const auto plugin_chain_metadata =
+      adt::canonical::canonicalGraphicById(plugin_chain_component.canonical_id);
+  if (!plugin_chain_metadata) {
+    std::cerr << "Canonical plugin chain routing lookup failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot plugin_chain = adt::canonical::renderCanonicalGraphicFrame(
+      plugin_chain_component.canonical_id,
+      plugin_chain_component.dimensions,
+      timeline,
+      plugin_chain_component.options);
+
+  if (plugin_chain.width() != 920 || plugin_chain.height() != 520 ||
+      !hasVisibleVariation(plugin_chain)) {
+    std::cerr << "Canonical plugin chain routing render failed.\n";
+    return 1;
+  }
+
+  const visage::Screenshot plugin_chain_loop_0 = adt::canonical::renderCanonicalGraphicFrame(
+      plugin_chain_component.canonical_id,
+      plugin_chain_component.dimensions,
+      block_loop_start,
+      plugin_chain_component.options);
+  const visage::Screenshot plugin_chain_loop_1 = adt::canonical::renderCanonicalGraphicFrame(
+      plugin_chain_component.canonical_id,
+      plugin_chain_component.dimensions,
+      block_loop_end,
+      plugin_chain_component.options);
+
+  if (!screenshotsNearlyMatch(plugin_chain_loop_0, plugin_chain_loop_1)) {
+    std::cerr << "Canonical plugin chain routing loop endpoint does not wrap cleanly.\n";
+    return 1;
+  }
+
   return 0;
 }

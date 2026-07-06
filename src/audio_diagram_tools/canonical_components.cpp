@@ -9,7 +9,7 @@
 namespace adt::canonical {
 namespace {
 
-const std::array<CanonicalGraphic, 15> kCanonicalGraphics = {
+const std::array<CanonicalGraphic, 16> kCanonicalGraphics = {
   CanonicalGraphic { ids::kArrayGraphic,
                      "Canonical simple unlabelled Griffinboy array/table graphic",
                      { 1668, 388 } },
@@ -55,6 +55,9 @@ const std::array<CanonicalGraphic, 15> kCanonicalGraphics = {
   CanonicalGraphic { ids::kOscillatorBlockFactoryGraphic,
                      "Canonical oscillator block factory animation graphic",
                      { 920, 380 } },
+  CanonicalGraphic { ids::kPluginChainRoutingGraphic,
+                     "Canonical buffer routing through oscillator and effects animation graphic",
+                     { 920, 520 } },
 };
 
 Dimensions dimensionsOrPreferred(std::string_view id, Dimensions dimensions) {
@@ -70,7 +73,7 @@ Component makeComponent(std::string_view id, Dimensions dimensions, RenderOption
 
 } // namespace
 
-const std::array<CanonicalGraphic, 15>& canonicalGraphics() {
+const std::array<CanonicalGraphic, 16>& canonicalGraphics() {
   return kCanonicalGraphics;
 }
 
@@ -175,6 +178,13 @@ Component oscillatorBlockFactoryGraphic(const OscillatorBlockFactoryOptions& opt
   RenderOptions render_options;
   render_options.oscillator_block_factory = options;
   return makeComponent(ids::kOscillatorBlockFactoryGraphic, dimensions, render_options);
+}
+
+Component pluginChainRoutingGraphic(const PluginChainRoutingOptions& options,
+                                    Dimensions dimensions) {
+  RenderOptions render_options;
+  render_options.plugin_chain_routing = options;
+  return makeComponent(ids::kPluginChainRoutingGraphic, dimensions, render_options);
 }
 
 visage::Screenshot renderCanonicalGraphicFrame(std::string_view graphic_id,

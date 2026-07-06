@@ -78,6 +78,10 @@ void drawOscillatorBlockFactoryGraphic(drawing::DrawContext& context,
                                        const Dimensions& dimensions,
                                        const Timeline& timeline,
                                        const OscillatorBlockFactoryOptions& options);
+void drawPluginChainRoutingGraphic(drawing::DrawContext& context,
+                                   const Dimensions& dimensions,
+                                   const Timeline& timeline,
+                                   const PluginChainRoutingOptions& options);
 
 visage::Screenshot renderFrame(std::string_view graphic_id,
                                const Dimensions& dimensions,
