@@ -27,11 +27,10 @@ void process(Buffer& chunk)
         // Get this channel's samples
         auto* samples = chunk.getChannel(channel);
 
-        // Step through each sample in order
+        // Visit every sample in this channel
         for (int s = 0; s < numSamples; ++s)
         {
-            // This is the gain effect:
-            // scale the current sample by gain
+            // Scale this sample by the gain amount
             samples[s] *= gain;
         }
     }
