@@ -20,28 +20,11 @@ def font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
-def draw_right_arrow(
-    draw: ImageDraw.ImageDraw,
-    x: float,
-    y: float,
-    color: tuple[int, int, int],
-) -> None:
-    draw.line((x - 18.0, y, x + 5.0, y), fill=color, width=3)
-    draw.polygon(
-        (
-            (x + 5.0, y - 7.0),
-            (x + 5.0, y + 7.0),
-            (x + 18.0, y),
-        ),
-        fill=color,
-    )
-
-
 def main() -> None:
     width = 920
     height = 360
     divider_x = 460
-    side_padding = 43
+    side_padding = 55
 
     image = Image.new("RGB", (width, height), (29, 29, 29))
     draw = ImageDraw.Draw(image)
@@ -57,12 +40,10 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_right_arrow(draw, divider_x + 30, height * 0.5, (132, 220, 161))
-
-    code_font = font(23)
+    code_font = font(21)
     code_x = divider_x + 60
-    code_y = 131
-    line_gap = 46
+    code_y = 136
+    line_gap = 42
     draw.text(
         (code_x, code_y),
         "for each sample in the buffer:",
