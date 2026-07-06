@@ -41,10 +41,10 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    code_font = font(21)
-    code_x = divider_x + 60
-    code_y = 136
-    line_gap = 42
+    code_font = font(23)
+    code_x = divider_x + 45
+    code_y = 132
+    line_gap = 46
     draw.text(
         (code_x, code_y),
         "for each sample in the buffer:",
