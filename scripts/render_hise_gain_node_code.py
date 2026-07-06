@@ -33,6 +33,7 @@ def main() -> None:
     draw.rectangle((divider_x - 3, 0, divider_x + 1, height), fill=(43, 54, 62))
 
     node = Image.open(SOURCE).convert("RGB")
+    node = node.crop((0, 0, node.width, node.height - 1))
     node_width = divider_x - side_padding * 2
     node_height = round(node.height * node_width / node.width)
     node = node.resize((node_width, node_height), Image.Resampling.LANCZOS)
