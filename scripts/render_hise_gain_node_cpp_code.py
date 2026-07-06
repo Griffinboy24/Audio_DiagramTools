@@ -21,13 +21,10 @@ void process(Buffer& chunk)
     // Count how many samples are in this chunk
     const int numSamples = chunk.getNumSamples();
 
-    // This example is stereo: left and right
-    const int channels = 2;
-
-    // Loop over the audio channels
-    for (int channel = 0; channel < channels; ++channel)
+    // Loop over the two audio channels
+    for (int channel = 0; channel < 2; ++channel)
     {
-        // Get this channel's samples
+        // Get the samples from this channel
         auto* samples = chunk.getChannel(channel);
 
         // Loop over the samples in this channel
