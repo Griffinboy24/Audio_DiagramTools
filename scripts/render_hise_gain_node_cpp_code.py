@@ -84,7 +84,7 @@ def draw_code(
 ) -> None:
     code_font = font(12)
     line_font = font(12)
-    line_height = 18
+    line_height = 17
     gutter_width = 38
     text_x = x + gutter_width + 8
     char_width = draw.textlength(" ", font=code_font)
@@ -157,7 +157,7 @@ def main() -> None:
     node_y = (height - node_height) // 2
     image.paste(node, (node_x, node_y))
 
-    draw_code(draw, divider_x + 18, 16, CODE, height)
+    draw_code(draw, divider_x + 18, 20, CODE, height)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUTPUT)
