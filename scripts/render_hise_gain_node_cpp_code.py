@@ -13,27 +13,27 @@ OUTPUT = ROOT / "articles" / "hise-dsp-buffer" / "renders" / "hise-gain-node-cpp
 
 CODE = """void setGain(float newGain)
 {
-    // Gain knob updates this value
     gain = newGain;
 }
 
 void process(chunk)
 {
-    // Number of samples in this chunk
+    // Ask the chunk how many sample values it contains
     const int numSamples = chunk.getNumSamples();
 
-    // Left channel, then right channel
+    // Run the same process for each audio channel
     for (int channel = 0; channel < 2; ++channel)
     {
-        // Samples for this channel
+        // Get the row of samples for this channel
         auto* samples = chunk.getChannel(channel);
 
-        // Visit every sample in this channel
+        // Move through that row one sample at a time
         for (int s = 0; s < numSamples; ++s)
         {
+            // Read the current sample value
             const float input = samples[s];
 
-            // Same shape, scaled height
+            // Write it back, scaled by the gain amount
             samples[s] = input * gain;
         }
     }
