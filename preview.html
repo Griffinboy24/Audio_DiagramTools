@@ -2,17 +2,205 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url=preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=0&v=20260707-live">
-    <title>Current blog preview</title>
-    <script>
-      window.location.replace('preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=0&v=20260707-live');
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How does DSP work? [Part 1]</title>
+    <link rel="stylesheet" href="preview_lab/hise-published-topic.css?v=20260707-static-preview">
   </head>
-  <body>
-    <p>
-      <a href="preview_lab/hise-published-topic.html?project=../articles/hise-dsp-buffer/article.json&tools=0&v=20260707-live">
-        Open the current blog preview
-      </a>
-    </p>
+  <body class="session-member">
+    <header class="hise-topbar">
+      <div class="hise-topbar-inner">
+        <span class="hise-brand" aria-label="HISE forum">
+          <img class="hise-logo-img" src="preview_lab/assets/hise-site-logo.png" alt="">
+          <span class="hise-forum">Forum</span>
+        </span>
+        <span class="hise-menu" aria-label="Categories"><i class="fa fa-fw fa-list"></i></span>
+        <nav class="hise-member-left" aria-label="Member shortcuts">
+          <span class="hise-icon-small"><i class="fa fa-clock-o"></i></span>
+          <span class="hise-badge-icon"><i class="fa fa-fw fa-book"></i><b>6</b></span>
+          <span class="hise-icon-small"><i class="fa fa-user"></i></span>
+        </nav>
+        <nav class="hise-actions" aria-label="Forum actions">
+          <span class="hise-icon"><i class="fa fa-lg fa-fw fa-search"></i></span>
+          <span class="hise-icon"><i class="fa fa-fw fa-lightbulb-o"></i></span>
+          <span class="hise-member-action"><i class="fa fa-bell-o"></i></span>
+          <span class="hise-member-action"><i class="fa fa-comment-o"></i></span>
+          <span class="hise-mini-avatar" aria-hidden="true"></span>
+          <span class="hise-guest-action">Register</span>
+          <span class="hise-guest-action">Login</span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="hise-page">
+      <section class="topic-header">
+        <h1 class="topic-title-heading">
+          <div class="topic-title">
+            <span class="fs-3" component="topic/title">How does DSP work? [Part 1]</span>
+          </div>
+        </h1>
+        <div class="topic-meta">
+          <span><i class="fa fa-fw fa-pencil"></i> Blog Entries</span>
+          <span>1 post</span>
+          <span>1 poster</span>
+          <span>draft</span>
+          <span><i class="fa fa-rss-square"></i></span>
+          <div class="topic-member-tools" aria-label="Topic tools">
+            <span><i class="fa fa-fw fa-print"></i></span>
+            <span><i class="fa fa-fw fa-bell-slash-o"></i></span>
+            <span><i class="fa fa-fw fa-sort"></i></span>
+            <span><i class="fa fa-fw fa-gear"></i></span>
+          </div>
+          <button class="reply-button"><span class="guest-label">Log in to reply</span><span class="member-label">Reply</span></button>
+          <button class="reply-menu" aria-label="Reply menu"><i class="fa fa-caret-down"></i></button>
+        </div>
+      </section>
+
+      <article class="post-card">
+        <aside class="post-author" aria-label="Post author">
+          <div class="avatar" aria-hidden="true"></div>
+          <span class="post-author-name">griffinboy</span>
+        </aside>
+
+        <section class="post-content" aria-label="Post content">
+          <div class="post-time"><i class="fa fa-fw fa-pencil-square"></i> draft</div>
+          <div class="markdown-body">
+<p>DSP can seem like a black box to a beginner.</p>
+<p>Sound goes in.<br>
+Code happens.<br>
+Different sound comes out.</p>
+<p>But it will all make sense if you understand one simple thing:<br>
+a speaker makes sound by moving.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/speaker-waveform.gif" alt="Speaker cone following a waveform"></figure>
+<p>A speaker makes sound by moving.<br>
+The line at the top is a waveform.<br>
+For now, think of it as the shape the speaker is following.<br>
+When the waveform moves up, the cone moves one way.<br>
+When the waveform moves down, the cone moves the other way.</p>
+<p>That movement pushes air, and we hear it as sound.</p>
+<p>The first graphic is simplified so the motion is easy to see.</p>
+<p>Real audio is faster and messier,<br>
+but the rule does not change:</p>
+<p>the speaker is following a changing value over time.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/voice-sample-speaker.gif" alt="Voice sample driving a speaker"></figure>
+<h2>The waveform as numbers</h2>
+<p>If we want to create a sound, we need to create a waveform.</p>
+<p>In digital audio, the shape is stored as numbers.<br>
+A tiny piece of a waveform might look like this:</p>
+<pre><code class="language-text">[0.00,  0.70,  0.82,  0.27,  -0.51,  -0.86,  -0.51,  0.27]
+</code></pre>
+<p>Digital audio does not store the picture.<br>
+It stores the heights.<br>
+Plot those heights from left to right, and the waveform appears.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-array-to-plot.png" alt="Sample numbers plotted as points"></figure>
+<p>These height numbers are called samples.<br>
+Because each number is one tiny “sample” of the waveform height at one moment in time.</p>
+<p>The order matters because the order is time:<br>
+The array is the waveform data. The drawing is the same data made easier to see.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-table-playback.gif" alt="Sample table and waveform playback"></figure>
+<h2>Lots of samples</h2>
+<p>The example above is tiny on purpose.<br>
+Real audio has far more samples than this.</p>
+<p>I’m sure you’ve heard of “Sample rate”.<br>
+Well, running a program at 48 kHz means that one second of mono audio contains 48,000 sample values.<br>
+That’s the kind of high resolution that produces smooth waves.<br>
+The simple drawings in this article are just a readable version.<br>
+But real audio is the same thing packed more tightly in time.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/dense-sample-waveform.png" alt="Dense samples continue beyond the page"></figure>
+<p>So far, we have looked at audio as one long strip of sample values.</p>
+<p>But we have not talked about how a plugin generates this big long stream of audio.</p>
+<h2>Chunks (Buffers)</h2>
+<p>Real time DSP does not work a big, long, sound in one go.</p>
+<ul>
+<li>It processes chunks of audio.</li>
+</ul>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/waveform-buffer-split.png" alt="Waveform split into chunks"></figure>
+<p>A DSP effect takes a short chunk of audio, processes it, then moves on to the next chunk.</p>
+<p>An effect is like this:<br>
+A chunk comes in.<br>
+The effect changes the numbers inside it.<br>
+The chunk goes out.<br>
+Then the next chunk comes in.<br>
+This is the basic shape of a normal audio effect.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/buffer-through-dsp.gif" alt="Buffers moving through DSP code into the output stream"></figure>
+<p>The reason we process in small chunks of sound is efficiency related.<br>
+But it’s also practical.<br>
+It’s useful to have access to a portion of audio at a time. (for particular audio effects).</p>
+<h2>A simple example: volume</h2>
+<p>Let’s look at a real-life example.<br>
+Volume is a good example because it’s easy to see.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node.png" alt="HISE gain node"></figure>
+<p>You probably already know:<br>
+Volume is the height of the waveform.<br>
+Making a waveform less tall means the speaker isn’t moving as much.<br>
+Height affects volume.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/waveform-volume-scale.gif" alt="Waveform being scaled taller and smaller"></figure>
+<p>…And earlier we saw that we store waveforms as height values.</p>
+<p>(you can see where I’m going with this).</p>
+<p>All we need to do is make the sample values smaller.<br>
+For example if we multiply every sample by 0.5 (half):<br>
+The shape is the same.<br>
+The height is half as large.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-gain-comparison.png" alt="Before and after multiplying samples by 0.5"></figure>
+<p>The algorithm for a volume effect boils down to:</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node-code.png" alt="HISE gain node pseudocode"></figure>
+<p>In pseudocode form:</p>
+<pre><code class="language-cpp">- receive buffer
+for each sample in the buffer
+{
+    sample = sample * gain;
+}
+
+- do the above for every buffer we receive
+</code></pre>
+<p>If gain is 1.0, the sample values stay the same.<br>
+If gain is 0.5, the waveform is half as tall.<br>
+If gain is 0.0, every sample becomes zero, which is silence.</p>
+<p>In actual C++ DSP:</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node-cpp-code.png" alt="HISE gain node C++ process function"></figure>
+<p>(^ I bet you understand this now!)</p>
+<p>The main part of the effect is a function that receives a buffer of samples (a chunk) and processes them using math.<br>
+This is what actual DSP code looks like!<br>
+The real HISE gain node has some extra controls and parameter smoothing, but the core audio operation is still this simple multiplication.</p>
+<h2>The Lesson</h2>
+<p>Honestly that’s pretty much it.<br>
+DSP is not very complicated.<br>
+Most Audio effects work by:<br>
+Take a buffer of sample values,<br>
+change those values,<br>
+and pass the buffer onward</p>
+<pre><code class="language-text">A Gain effect multiplies the samples.
+</code></pre>
+<pre><code class="language-text">A Distortion bends the waveform shape by changing the samples.
+</code></pre>
+<pre><code class="language-text">A Delay stores samples and plays them back later.
+</code></pre>
+<p>Oscillators are slightly different. They create new sample values rather than affecting incoming ones.</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/oscillator-block-factory.gif" alt="Oscillator block factory writing sine samples"></figure>
+<p>^ Well, I’m if being 100% honest, this isn’t quite the whole picture.</p>
+<p>If we zoom out a little, you’ll see that it’s actually a loop, where something is asking our DSP for samples. And we can give it whatever we want.</p>
+<p>For an effect, something is going to send us a chunk and say “please process this” and we do that, then it takes it back.</p>
+<p>For an oscillator, we might we given an empty chunk and we just need to write a waveform into the chunk and send that back.</p>
+<p>But it’s also possible we will be given a chunk that already has some existing audio data in it (for example it might contain other synth voices that have already been added from an oscillator somewhere else). In which case we just need to add our oscillator waveform ontop of that without erasing the existing data.</p>
+<p>Anyway, that’s getting ahead of myself! You’ll see how that works soon enough when we get into some real dsp coding in the next article.</p>
+<p>Some of these things are best learnt by just doing it.</p>
+<h2>Recap</h2>
+<ol>
+<li>
+<p>the table, the waveform, the buffer.<br>
+These are not separate ideas.<br>
+They are different views of the same thing:<br>
+sample values over time.</p>
+</li>
+<li>
+<p>Audio plugins work by processing chunks of samples that are passed around between different oscillators and effects.</p>
+</li>
+</ol>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/plugin-chain-routing.gif" alt="Chunks moving through oscillators and effects"></figure>
+<p>Down the line, part of the program will mix the chunks and send them to the speaker and we will hear the waveform (we don’t usually have to worry about that part, Hise or Juce will take care of those parts for us)</p>
+<figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/output-stream-to-speaker.gif" alt="Output stream moving to a speaker"></figure>
+          </div>
+        </section>
+      </article>
+    </main>
   </body>
 </html>
