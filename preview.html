@@ -64,14 +64,14 @@
         <section class="post-content" aria-label="Post content">
           <div class="post-time"><i class="fa fa-fw fa-pencil-square"></i> draft</div>
           <div class="markdown-body">
-<p>DSP can seem like a black box to a beginner.</p>
+<p>DSP can seem mysterious to a beginner.</p>
 <p>Sound goes in.<br>
 Code happens.<br>
 Different sound comes out.</p>
-<p>But it will all make sense if you understand one simple thing:<br>
-a speaker makes sound by moving.</p>
+<p>But it will all make sense if we picture what DSP is actually trying to do:<br>
+make a speaker move.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/speaker-waveform.gif" alt="Speaker cone following a waveform"></figure>
-<p>A speaker makes sound by moving.<br>
+<p>a speaker makes sound by moving.<br>
 The line at the top is a waveform.<br>
 For now, think of it as the shape the speaker is following.<br>
 When the waveform moves up, the cone moves one way.<br>
@@ -79,18 +79,19 @@ When the waveform moves down, the cone moves the other way.</p>
 <p>That movement pushes air, and we hear it as sound.</p>
 <p>The first graphic is simplified so the motion is easy to see.</p>
 <p>Real audio is faster and messier,<br>
-but the rule does not change:</p>
+but the idea does not change:</p>
 <p>the speaker is following a changing value over time.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/voice-sample-speaker.gif" alt="Voice sample driving a speaker"></figure>
 <h2>The waveform as numbers</h2>
-<p>If we want to create a sound, we need to create a waveform.</p>
-<p>In digital audio, the shape is stored as numbers.<br>
-A tiny piece of a waveform might look like this:</p>
+<p>So if we want to create a sound,<br>
+we need to create a waveform.</p>
+<p>In digital audio, a waveform is stored as numbers.</p>
+<p>A tiny piece of a waveform might look like this:</p>
 <pre><code class="language-text">[0.00,  0.70,  0.82,  0.27,  -0.51,  -0.86,  -0.51,  0.27]
 </code></pre>
-<p>Digital audio does not store the picture.<br>
-It stores the heights.<br>
-Plot those heights from left to right, and the waveform appears.</p>
+<p>Because Digital Audio does not store the picture.<br>
+It stores the heights.</p>
+<p>Plot those heights from left to right, and the waveform appears.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-array-to-plot.png" alt="Sample numbers plotted as points"></figure>
 <p>These height numbers are called samples.<br>
 Because each number is one tiny “sample” of the waveform height at one moment in time.</p>
@@ -98,16 +99,18 @@ Because each number is one tiny “sample” of the waveform height at one momen
 The array is the waveform data. The drawing is the same data made easier to see.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-table-playback.gif" alt="Sample table and waveform playback"></figure>
 <h2>Lots of samples</h2>
-<p>The example above is tiny on purpose.<br>
+<p>The example I showed you above, is tiny on purpose.<br>
 Real audio has far more samples than this.</p>
-<p>I’m sure you’ve heard of “Sample rate”.<br>
-Well, running a program at 48 kHz means that one second of mono audio contains 48,000 sample values.<br>
-That’s the kind of high resolution that produces smooth waves.<br>
+<p>I’m sure you’ve heard of “Sample rate”.</p>
+<p>44.1k, 48k. 96k, etc.  With 48k being a common DAW sample rate.</p>
+<p>Well, running a program at 48 kHz means that one second of mono audio contains 48,000 sample values.</p>
+<p>That’s the kind of high resolution that produces smooth waves.<br>
 The simple drawings in this article are just a readable version.<br>
 But real audio is the same thing packed more tightly in time.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/dense-sample-waveform.png" alt="Dense samples continue beyond the page"></figure>
 <p>So far, we have looked at audio as one long strip of sample values.</p>
-<p>But we have not talked about how a plugin generates this big long stream of audio.</p>
+<p>But we have not talked about how a plugin generates this big stream of audio.</p>
+<p>So let’s talk about chunks / buffers.</p>
 <h2>Chunks (Buffers)</h2>
 <p>Real time DSP does not work a big, long, sound in one go.</p>
 <ul>
@@ -130,27 +133,28 @@ It’s useful to have access to a portion of audio at a time. (for particular au
 Volume is a good example because it’s easy to see.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node.png" alt="HISE gain node"></figure>
 <p>You probably already know:<br>
-Volume is the height of the waveform.<br>
-Making a waveform less tall means the speaker isn’t moving as much.<br>
+Volume is the height of the waveform.</p>
+<p>Making a waveform less tall means the speaker isn’t moving as much.<br>
 Height affects volume.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/waveform-volume-scale.gif" alt="Waveform being scaled taller and smaller"></figure>
 <p>…And earlier we saw that we store waveforms as height values.</p>
 <p>(you can see where I’m going with this).</p>
-<p>All we need to do is make the sample values smaller.<br>
-For example if we multiply every sample by 0.5 (half):<br>
+<p>All we need to do is make the sample values smaller.</p>
+<p>For example if we multiply every sample by 0.5 (half):<br>
 The shape is the same.<br>
 The height is half as large.</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/sample-gain-comparison.png" alt="Before and after multiplying samples by 0.5"></figure>
 <p>The algorithm for a volume effect boils down to:</p>
 <figure class="hise-upload"><img class="preview-asset" src="articles/hise-dsp-buffer/renders/hise-gain-node-code.png" alt="HISE gain node pseudocode"></figure>
 <p>In pseudocode form:</p>
-<pre><code class="language-cpp">- receive buffer
+<pre><code class="language-cpp">receive buffer
+
 for each sample in the buffer
 {
     sample = sample * gain;
 }
 
-- do the above for every buffer we receive
+do the above for every buffer we receive
 </code></pre>
 <p>If gain is 1.0, the sample values stay the same.<br>
 If gain is 0.5, the waveform is half as tall.<br>

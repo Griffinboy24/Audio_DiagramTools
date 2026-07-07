@@ -1,15 +1,15 @@
-DSP can seem like a black box to a beginner.
+DSP can seem mysterious to a beginner.
 
 Sound goes in.
 Code happens.
 Different sound comes out.
 
-But it will all make sense if you understand one simple thing:
-a speaker makes sound by moving.
+But it will all make sense if we picture what DSP is actually trying to do:
+make a speaker move.
 
 ![Speaker cone following a waveform](./renders/speaker-waveform.gif)
 
-A speaker makes sound by moving.
+a speaker makes sound by moving.
 The line at the top is a waveform.
 For now, think of it as the shape the speaker is following.
 When the waveform moves up, the cone moves one way.
@@ -20,7 +20,7 @@ That movement pushes air, and we hear it as sound.
 The first graphic is simplified so the motion is easy to see.
 
 Real audio is faster and messier,
-but the rule does not change:
+but the idea does not change:
 
 the speaker is following a changing value over time.
 
@@ -28,17 +28,20 @@ the speaker is following a changing value over time.
 
 ## The waveform as numbers
 
-If we want to create a sound, we need to create a waveform.
+So if we want to create a sound,
+we need to create a waveform.
 
-In digital audio, the shape is stored as numbers.
+In digital audio, a waveform is stored as numbers.
+
 A tiny piece of a waveform might look like this:
 
 ```text
 [0.00,  0.70,  0.82,  0.27,  -0.51,  -0.86,  -0.51,  0.27]
 ```
 
-Digital audio does not store the picture.
+Because Digital Audio does not store the picture.
 It stores the heights.
+
 Plot those heights from left to right, and the waveform appears.
 
 ![Sample numbers plotted as points](./renders/sample-array-to-plot.png)
@@ -53,11 +56,15 @@ The array is the waveform data. The drawing is the same data made easier to see.
 
 ## Lots of samples
 
-The example above is tiny on purpose.
+The example I showed you above, is tiny on purpose.
 Real audio has far more samples than this.
 
 I’m sure you’ve heard of “Sample rate”.
+
+44.1k, 48k. 96k, etc.  With 48k being a common DAW sample rate.
+
 Well, running a program at 48 kHz means that one second of mono audio contains 48,000 sample values.
+
 That’s the kind of high resolution that produces smooth waves.
 The simple drawings in this article are just a readable version.
 But real audio is the same thing packed more tightly in time.
@@ -66,7 +73,9 @@ But real audio is the same thing packed more tightly in time.
 
 So far, we have looked at audio as one long strip of sample values.
 
-But we have not talked about how a plugin generates this big long stream of audio.
+But we have not talked about how a plugin generates this big stream of audio.
+
+So let’s talk about chunks / buffers.
 
 ## Chunks (Buffers)
 
@@ -100,6 +109,7 @@ Volume is a good example because it’s easy to see.
 
 You probably already know:
 Volume is the height of the waveform.
+
 Making a waveform less tall means the speaker isn’t moving as much.
 Height affects volume.
 
@@ -110,6 +120,7 @@ Height affects volume.
 (you can see where I’m going with this).
 
 All we need to do is make the sample values smaller.
+
 For example if we multiply every sample by 0.5 (half):
 The shape is the same.
 The height is half as large.
@@ -123,13 +134,14 @@ The algorithm for a volume effect boils down to:
 In pseudocode form:
 
 ```cpp
-- receive buffer
+receive buffer
+
 for each sample in the buffer
 {
     sample = sample * gain;
 }
 
-- do the above for every buffer we receive
+do the above for every buffer we receive
 ```
 
 If gain is 1.0, the sample values stay the same.
